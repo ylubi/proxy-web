@@ -2,3 +2,4 @@ proxy
 *.exe
 *.exe~
 /db/sqlite/
+/static/upload/
