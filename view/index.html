@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>proxy</title>
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+		<style>
+			.upImgBtn{
+				opacity:0;
+			}
+		</style>
+    </head>
+    <body>
+        <div class="ng-scope" style="margin:5px 0 10px 2px;">
+            <div class="profile-actions">
+                <button onclick="addItem()" class="btn btn-default ng-binding">
+                    <span class="glyphicon glyphicon-plus"></span> 添加代理
+                </button> 
+            </div>
+        </div>
+        
+    </body>
+    <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript" src="/static/webupload/webuploader.js"></script>
+    <script type="text/javascript">
+        
+		var html = '<form>\
+						<table class="fixed-servers table table-bordered table-striped width-limit-lg">\
+	                        <thead>\
+	                            <tr>\
+	                                <th class="ng-binding">代理协议</th>\
+									<th class="ng-binding local">本次连接类型</th>\
+	                                <th class="ng-binding chain">链式代理</th>\
+	                                <th class="ng-binding proxy">代理服务器+端口</th>\
+	                                <th class="ng-binding agent">上级服务器+端口</th>\
+	                                <th class="ng-binding superior">父级连接类型</th>\
+	                                <th class="ng-binding">操作</th>\
+	                            </tr>\
+	                        </thead>\
+                            <tbody>\
+                                <tr class="ng-scope">\
+                                    <td>\
+                                        <select onchange="judgeEncrypt(this)" class="form-control ng-pristine ng-valid ng-not-empty ng-touched" name="protocol">\
+                                            <option label="http" value="http" selected="selected">http</option>\
+			                              	<option label="tcp" value="tcp">tcp</option>\
+											<option label="udp" value="udp">udp</option>\
+			                              	<option label="socks" value="socks">socks</option>\
+			                              	<option label="tserver" value="tserver">tserver</option>\
+			                              	<option label="tclient" value="tclient">tclient</option>\
+			                              	<option label="tbridge" value="tbridge">tbridge</option>\
+                                        </select>\
+                                    </td>\
+									<td class="local">\
+                                        <select name="local" class="form-control ng-pristine ng-valid ng-not-empty ng-touched">\
+                                            <option label="tcp" value="1" selected="selected">tcp</option>\
+                                            <option label="tls" value="3">tls</option>\
+                                            <option label="kcp" value="4">kcp</option>\
+                                        </select>\
+                                    </td>\
+                                    <td class="chain">\
+                                        <select name="proxy" class="form-control ng-pristine ng-valid ng-not-empty ng-touched">\
+                                            <option label="顶级代理" value="1" selected="selected">顶级代理</option>\
+                                            <option label="次级代理" value="2">次级代理</option>\
+                                        </select>\
+                                    </td>\
+                                    <td  class="ng-scope ip">\
+                                        <input type="text" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="0.0.0.0:80"  name="proxyIp">\
+                                    </td>\
+                                    <td  class="ng-scope agent">\
+                                        <input type="text" name="superiorProxy" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="0.0.0.0:80">(一级代理不用填写)\
+                                    </td>\
+                                    <td class="superior">\
+                                       <select class="form-control ng-pristine ng-valid ng-not-empty ng-touched" name="encrypt" onchange="encryptItem(this)">\
+                                            <option label="tcp" value="1" selected="selected">tcp</option>\
+                                            <option label="tls" value="3">tls</option>\
+                                            <option label="kcp" value="4">kcp</option>\
+                                            <option label="ssh(密码)" value="5">ssh(密码)</option>\
+                                            <option label="ssh(密钥)" value="6">ssh(密钥)</option>\
+                                        </select>\
+                                    </td>\
+                                    <td>\
+                                        <a class="btn btn-primary ng-binding link" onclick="link(this)">连接</a>\
+										<a class="btn btn-primary ng-binding closed" onclick="closed(this)" style="display:none;">关闭</a>\
+										<a class="btn btn-primary ng-binding log" onclick="showLog(this)">显示日志</a>\
+										<a class="btn btn-primary ng-binding nolog" onclick="stopLog(this)" style="display:none;">隐藏日志</a>\
+                                    </td>\
+                                </tr>\
+                            </tbody>\
+                        </table>\
+                    </form>';
+
+        function addItem() {
+           $('body').append(html)
+        }
+		
+		function initData(){
+			$.ajax({
+                type: "POST",
+                cache: false,
+                url: "/getData",
+                data: "",
+				dataType:"json",
+                success: function (res) {
+					if (res == "" || $.isEmptyObject(res)) {
+						$('body').append(html)
+					} else {
+						for (var i in res) {
+							$('body').append(html)
+							$('select[name=protocol]').eq(-1).val(res[i].Protocol)
+							$('select[name=proxy]').eq(-1).val(res[i].ProxyLevel)
+							$('input[name=proxyIp]').eq(-1).val(res[i].ProxyIp)
+							$('input[name=superiorProxy]').eq(-1).val(res[i].SuperiorProxyIp)
+							$('select[name=encrypt]').eq(-1).val(res[i].Superior)
+							$('select[name=local]').eq(-1).val(res[i].Local)
+							switch(res[i].Superior){
+								case 3:
+									var td = '<td  class="encryptTerm">\
+				                            <input type="hidden" name="crt">\
+				                            <input type="hidden" name="key">\
+				                            <a class="btn btn-primary ng-binding file_upload">上传.crt文件</a>\
+				                            <a class="btn btn-primary ng-binding file_upload">上传.key文件</a>\
+				                        </td>'
+										$('select[name=encrypt]').eq(-1).parents('td').after(td)
+										$('.superior').eq(-1).after('<th class="ng-binding encryptTerm">加密条件(默认为自带文件)</th>');
+									break;
+								case 4:
+									var td = '<td class="encryptTerm">\
+				                            <input type="password" name="password" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写密码">\
+				                        </td>'
+										$('select[name=encrypt]').eq(-1).parents('td').after(td)
+										$('.superior').eq(-1).after('<th class="ng-binding encryptTerm">加密条件</th>');
+									break;
+								case 5:
+									var td = '<td class="encryptTerm">\
+				                            <input type="text" name="username" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="用户名" style="display:inline-block; width:40%;">\
+				                            <input type="password" name="password" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写密码" style="display:inline-block; width:40%;">\
+				                        </td>'
+										$('select[name=encrypt]').eq(-1).parents('td').after(td)
+										$('.superior').eq(-1).after('<th class="ng-binding encryptTerm">加密条件</th>');
+									break;
+								case 6:
+									  var td = '<td class="encryptTerm">\
+				                            <input type="text" name="username" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写用户名" style="display:inline-block; width:50%;">\
+				                            <input type="hidden" value="key">\
+				                            <a class="btn btn-primary ng-binding file_upload">上传.key文件</a>\
+				                        </td>'
+										$('select[name=encrypt]').eq(-1).parents('td').after(td)
+										$('.superior').eq(-1).after('<th class="ng-binding encryptTerm">加密条件(默认为自带文件)</th>');
+									break;
+							}
+							$('.log').eq(-1).attr('pid', res[i].ProcessId)
+							if (res[i].EncryptionCondition != ""){
+								var encryptionCondition = eval("("+res[i].EncryptionCondition+")");
+								for (var j in encryptionCondition) {
+									console.log(encryptionCondition[j])
+									$('input[name='+j+']').eq(-1).val(encryptionCondition[j])
+								}
+							}
+						}
+						$('.closed').show();
+						$('.link').hide();
+						$("select").attr('disabled', true)
+						$("input").attr('disabled', true)
+					}
+                }
+            });
+		}
+		initData()
+
+        function encryptItem(obj){
+            var val = $(obj).val()
+            $(obj).parents('tr').children('.encryptTerm').remove();
+            $(obj).parents('.fixed-servers').children('thead').children('tr').children('.encryptTerm').remove()
+            if (val == 3) {
+                html = '<td  class="encryptTerm">\
+                            <input type="hidden" name="crt">\
+                            <input type="hidden" name="key">\
+                            <a class="btn btn-primary ng-binding file_upload">上传.crt文件</a>\
+                            <a class="btn btn-primary ng-binding file_upload">上传.key文件</a>\
+                        </td>'
+                $(obj).parents('td').after(html)
+                $(obj).parents('.fixed-servers').children('thead').children('tr').children('.superior').after('<th class="ng-binding encryptTerm">加密条件(默认为自带文件)</th>');
+            	upload()
+			} else if (val == 4)  {
+                html = '<td class="encryptTerm">\
+                            <input type="password" name="password" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写密码">\
+                        </td>'
+                $(obj).parents('td').after(html)
+                $(obj).parents('.fixed-servers').children('thead').children('tr').children('.superior').after('<th class="ng-binding encryptTerm">加密条件</th>');
+            } else if (val == 5)  {
+                html = '<td class="encryptTerm">\
+							<div>\
+                            <input type="text" name="username" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="用户名" style="display:inline-block; width:48%;">\
+                            <input type="password" name="password" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写密码" style="display:inline-block; width:48%;">\
+                        	</div>\
+						</td>'
+                $(obj).parents('td').after(html)
+                $(obj).parents('.fixed-servers').children('thead').children('tr').children('.superior').after('<th class="ng-binding encryptTerm">加密条件</th>');
+            } else if (val == 6)  {
+                html = '<td class="encryptTerm">\
+                            <input type="text" name="username" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写用户名" style="display:inline-block; width:50%;">\
+                            <input type="hidden" name="key">\
+                            <a class="btn btn-primary ng-binding file_upload">上传.key文件</a>\
+                        </td>'
+                $(obj).parents('td').after(html)
+                $(obj).parents('.fixed-servers').children('thead').children('tr').children('.superior').after('<th class="ng-binding encryptTerm">加密条件</th>');
+            	upload(obj)
+			}
+        }
+		
+		function link(ob){
+			$(ob).prop('disabled', true)
+			$.ajax({
+                type: "POST",
+                cache: false,
+                url: "/link",
+                data: $(ob).parents('form').serialize(),
+				dataType:"json",
+                success: function (res) {
+					console.log(res)
+					if (res.Code == 200) {
+						$(ob).siblings(".log").attr('pid', res.Pid)
+						$(ob).hide()
+						$(ob).siblings('.closed').show()
+						$(ob).parents('form').find("select").attr('disabled', true)
+						$(ob).parents('form').find("input").attr('disabled', true)
+					} else {
+						$('ob').prop('disabled', false)
+					}
+					alert(res.Output)
+					
+                }
+            });
+		}
+		
+		function closed(ob){
+			$('ob').prop('disabled', false)
+			var pid = $(ob).siblings('.log').attr('pid')
+			$.ajax({
+                type: "POST",
+                cache: false,
+                url: "/close",
+                data: "pid="+pid,
+				dataType:"json",
+                success: function (res) {
+					if (res.Code == 200) {
+						$(ob).siblings(".log").attr('pid', "")
+						$(ob).hide()
+						$(ob).siblings('.link').show()
+						$(ob).parents('form').find("select").attr('disabled', false)
+						$(ob).parents('form').find("input").attr('disabled', false)
+					} else {
+						$('ob').prop('disabled', false)
+					}
+					alert(res.Output)
+                }
+            });
+		}
+		
+		
+		var lock = new Array()
+		
+		function showLog(ob){
+			var pid = $(ob).attr('pid')
+			if (pid == undefined) {
+				alert("not found pid")
+				return 
+			}
+			$(ob).siblings(".nolog").show()
+			$(ob).hide()
+			var html = '<textarea class="form-control" rows="6"></textarea>'
+			$(ob).parents('form').after(html)
+			lock[pid] = false
+			subShowLog(ob);
+		}
+		
+		function subShowLog(ob){
+			var pid = $(ob).attr('pid')
+			$.ajax({
+               	type: "POST",
+               	cache: false,
+               	url: "/showLog",
+               	data: "pid="+pid,
+				dataType:"json",
+               	success: function (res) {
+					if(lock[pid]){
+						return ;
+					}
+					if (res.Code == 500) {
+						console.log($(ob).parents('form').next('textarea').val()+res.Output)
+						$(ob).parents('form').next('textarea').val($(ob).parents('form').next('textarea').val()+res.Output+"\r\n")
+						subShowLog(ob)
+						return 
+					}
+					if(!lock[pid] && res.Code == 200){
+						$(ob).parents('form').next('textarea').val($(ob).parents('form').next('textarea').val()+res.Output)
+						subShowLog(ob)
+					}
+               }
+           });
+		}
+		
+		function stopLog(ob){
+			$(ob).siblings(".log").show()
+			$(ob).hide()
+			$(ob).parents('form').next('textarea').remove()
+			pid = $(ob).siblings(".log").attr('pid')
+			lock[pid] = true
+		}
+		
+		function upload(){
+			 var uploader = WebUploader.create({
+	            // 选完文件后，是否自动上传。
+	            auto: true,
+	            // 限制上传数量。
+	            fileNumLimit: 8,
+	            // swf文件路径
+	            swf: '/static/webupload/Uploader.swf',
+	            // 文件接收服务端。
+	            server: '/uploade',
+	            // 选择文件的按钮。可选。
+	            // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+	            pick: '.file_upload',
+	            compress:false,
+	            // 只允许选择图片文件。
+	            accept: {
+	                title: 'Images',
+	                extensions: 'crt,key',
+	            }
+	        });
+	
+	        // 文件上传成功，给item添加成功class, 用样式标记上传成功。
+	        uploader.on( 'uploadSuccess', function( file, response ) {
+				if (response.Code == 200) {
+					if (response.Output.indexOf('key') >= 0) {
+						var id = '#rt_'+file.source.ruid
+						$(id).parents('a').siblings('input[name=key]').val(response.Output)
+					} else if (response.Output.indexOf('crt') >= 0) {
+						var id = '#rt_'+file.source.ruid
+						$(id).parents('a').siblings('input[name=crt]').val(response.Output)
+					}
+				} else {
+					alert(response.Output)
+				}
+	        });
+	
+	        uploader.on("error",function (type){
+	            if (type=="Q_TYPE_DENIED"){
+	                alert('请上传jpg，png类型的文件');
+	            }else if(type=="F_EXCEED_SIZE"){
+	                alert('文件大小不能超过8M');
+	            }
+	        });
+		}
+		
+		function judgeEncrypt(ob){
+			var protocol = $(ob).val();
+			$(ob).parents('form').find(".encryptTerm").remove();
+			$(ob).parents('form').find('.superior').hide()
+			switch (protocol) {
+				case "tclient":
+				case "tbridge":
+				case "tserver":
+					$(ob).parents("form").find('.encryptItem').hide()
+					$(ob).parents("form").find('.chain').hide()
+					$(ob).parents("form").find('.local').hide()
+					var html = '<td  class="encryptTerm">\
+		                            <input type="hidden" name="crt">\
+		                            <input type="hidden" name="key">\
+		                            <a class="btn btn-primary ng-binding file_upload">上传.crt文件</a>\
+		                            <a class="btn btn-primary ng-binding file_upload">上传.key文件</a>\
+		                        </td>'
+					$(ob).parents("form").find('.agent').eq(1).after(html)
+	                $(ob).parents("form").find('.agent').eq(0).after('<th class="ng-binding encryptTerm">加密条件(默认为自带文件)</th>');
+					upload()
+				break;
+				case "udp":
+					var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
+						   <option label="udp" value="2">udp</option>\
+						   <option label="tls" value="3">tls</option>'
+					$(ob).parents('form').find("select[name=encrypt]").html(val);
+					$(ob).parents('form').find(".encryptTerm").remove();
+					$(ob).parents('form').find('.superior').show()
+					$(ob).parents("form").find('.encryptItem').show();
+					$(ob).parents("form").find('.chain').show()
+					$(ob).parents("form").find('.local').hide()
+				break;
+				case "tcp":
+					var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
+						   <option label="udp" value="2">udp</option>\
+						   <option label="tls" value="3">tls</option>\
+							<option label="kcp" value="4">kcp</option>'
+					$(ob).parents('form').find("select[name=encrypt]").html(val);
+					$(ob).parents('form').find(".encryptTerm").remove();
+					$(ob).parents('form').find('.superior').show()
+					$(ob).parents("form").find('.encryptItem').show();
+					$(ob).parents("form").find('.chain').show()
+					$(ob).parents("form").find('.local').show()
+				break;
+				default:
+					var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
+				           <option label="tls" value="3">tls</option>\
+						   <option label="kcp" value="4">kcp</option>\
+						   <option label="ssh(密码)" value="5">ssh(密码)</option>\
+						   <option label="ssh(密钥)" value="6">ssh(密钥)</option>'
+					$(ob).parents('form').find("select[name=encrypt]").html(val);
+					$(ob).parents('form').find(".encryptTerm").remove();
+					$(ob).parents('form').find('.superior').show()
+					$(ob).parents("form").find('.encryptItem').show();
+					$(ob).parents("form").find('.chain').show()
+					$(ob).parents("form").find('.local').show()
+				break
+			}
+		}
+    </script>
+</html>
