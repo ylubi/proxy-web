@@ -2,6 +2,9 @@ package util
 
 import (
 	"encoding/json"
+	"io"
+	"log"
+	"net/http"
 )
 
 type Result struct {
@@ -10,11 +13,11 @@ type Result struct {
 	Pid    int
 }
 
-func (r *Result) ReturnJson() (string, error) {
+func ReturnJson(code, pid int, output string, v http.ResponseWriter) {
+	r := Result{Code: code, Pid: pid, Output: output}
 	res, err := json.Marshal(r)
 	if err != nil {
-		return "", err
+		log.Fatal("json error")
 	}
-	//停止服务
-	return string(res), nil
+	io.WriteString(v, string(res))
 }

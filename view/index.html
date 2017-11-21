@@ -32,7 +32,7 @@
 	                                <th class="ng-binding chain">链式代理</th>\
 	                                <th class="ng-binding proxy">代理服务器+端口</th>\
 	                                <th class="ng-binding agent">上级服务器+端口</th>\
-	                                <th class="ng-binding superior">父级连接类型</th>\
+	                                <th class="ng-binding superiorth">父级连接类型</th>\
 	                                <th class="ng-binding">操作</th>\
 	                            </tr>\
 	                        </thead>\
@@ -120,14 +120,14 @@
 				                            <a class="btn btn-primary ng-binding file_upload">上传.key文件</a>\
 				                        </td>'
 										$('select[name=encrypt]').eq(-1).parents('td').after(td)
-										$('.superior').eq(-1).after('<th class="ng-binding encryptTerm">加密条件(默认为自带文件)</th>');
+										$('.superiorth').eq(-1).after('<th class="ng-binding encryptTerm">加密条件(默认为自带文件)</th>');
 									break;
 								case 4:
 									var td = '<td class="encryptTerm">\
 				                            <input type="password" name="password" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写密码">\
 				                        </td>'
 										$('select[name=encrypt]').eq(-1).parents('td').after(td)
-										$('.superior').eq(-1).after('<th class="ng-binding encryptTerm">加密条件</th>');
+										$('.superiorth').eq(-1).after('<th class="ng-binding encryptTerm">加密条件</th>');
 									break;
 								case 5:
 									var td = '<td class="encryptTerm">\
@@ -135,7 +135,7 @@
 				                            <input type="password" name="password" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写密码" style="display:inline-block; width:40%;">\
 				                        </td>'
 										$('select[name=encrypt]').eq(-1).parents('td').after(td)
-										$('.superior').eq(-1).after('<th class="ng-binding encryptTerm">加密条件</th>');
+										$('.superiorth').eq(-1).after('<th class="ng-binding encryptTerm">加密条件</th>');
 									break;
 								case 6:
 									  var td = '<td class="encryptTerm">\
@@ -144,7 +144,7 @@
 				                            <a class="btn btn-primary ng-binding file_upload">上传.key文件</a>\
 				                        </td>'
 										$('select[name=encrypt]').eq(-1).parents('td').after(td)
-										$('.superior').eq(-1).after('<th class="ng-binding encryptTerm">加密条件(默认为自带文件)</th>');
+										$('.superiorth').eq(-1).after('<th class="ng-binding encryptTerm">加密条件(默认为自带文件)</th>');
 									break;
 							}
 							$('.log').eq(-1).attr('pid', res[i].ProcessId)
@@ -154,6 +154,35 @@
 									console.log(encryptionCondition[j])
 									$('input[name='+j+']').eq(-1).val(encryptionCondition[j])
 								}
+							}
+							
+							switch (res[i].Protocol) {
+								case "tclient":
+								case "tbridge":
+								case "tserver":
+									$('.encryptItem').eq(-1).hide()
+									$('.chain').eq(-1).hide()
+									$('.chain').eq(-2).hide()
+									$('.local').eq(-1).hide()
+									$('.local').eq(-2).hide()
+									$('.superiorth').hide()
+									$('.superior').hide()
+								break;
+								case "udp":
+									var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
+										   <option label="udp" value="2">udp</option>\
+										   <option label="tls" value="3">tls</option>'
+									$("select[name=encrypt]").eq(-1).html(val);
+									$('.local').eq(-1).hide()
+									$('.chain').eq(-2).hide()
+								break;
+								case "tcp":
+									var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
+										   <option label="udp" value="2">udp</option>\
+										   <option label="tls" value="3">tls</option>\
+											<option label="kcp" value="4">kcp</option>'
+									$("select[name=encrypt]").eq(-1).html(val);
+								break;
 							}
 						}
 						$('.closed').show();
@@ -178,14 +207,14 @@
                             <a class="btn btn-primary ng-binding file_upload">上传.key文件</a>\
                         </td>'
                 $(obj).parents('td').after(html)
-                $(obj).parents('.fixed-servers').children('thead').children('tr').children('.superior').after('<th class="ng-binding encryptTerm">加密条件(默认为自带文件)</th>');
+                $(obj).parents('.fixed-servers').children('thead').children('tr').children('.superiorth').after('<th class="ng-binding encryptTerm">加密条件(默认为自带文件)</th>');
             	upload()
 			} else if (val == 4)  {
                 html = '<td class="encryptTerm">\
                             <input type="password" name="password" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写密码">\
                         </td>'
                 $(obj).parents('td').after(html)
-                $(obj).parents('.fixed-servers').children('thead').children('tr').children('.superior').after('<th class="ng-binding encryptTerm">加密条件</th>');
+                $(obj).parents('.fixed-servers').children('thead').children('tr').children('.superiorth').after('<th class="ng-binding encryptTerm">加密条件</th>');
             } else if (val == 5)  {
                 html = '<td class="encryptTerm">\
 							<div>\
@@ -194,7 +223,7 @@
                         	</div>\
 						</td>'
                 $(obj).parents('td').after(html)
-                $(obj).parents('.fixed-servers').children('thead').children('tr').children('.superior').after('<th class="ng-binding encryptTerm">加密条件</th>');
+                $(obj).parents('.fixed-servers').children('thead').children('tr').children('.superiorth').after('<th class="ng-binding encryptTerm">加密条件</th>');
             } else if (val == 6)  {
                 html = '<td class="encryptTerm">\
                             <input type="text" name="username" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写用户名" style="display:inline-block; width:50%;">\
@@ -202,7 +231,7 @@
                             <a class="btn btn-primary ng-binding file_upload">上传.key文件</a>\
                         </td>'
                 $(obj).parents('td').after(html)
-                $(obj).parents('.fixed-servers').children('thead').children('tr').children('.superior').after('<th class="ng-binding encryptTerm">加密条件</th>');
+                $(obj).parents('.fixed-servers').children('thead').children('tr').children('.superiorth').after('<th class="ng-binding encryptTerm">加密条件</th>');
             	upload(obj)
 			}
         }
@@ -235,6 +264,7 @@
 		function closed(ob){
 			$('ob').prop('disabled', false)
 			var pid = $(ob).siblings('.log').attr('pid')
+			lock[pid] = true
 			$.ajax({
                 type: "POST",
                 cache: false,
@@ -363,6 +393,7 @@
 					$(ob).parents("form").find('.encryptItem').hide()
 					$(ob).parents("form").find('.chain').hide()
 					$(ob).parents("form").find('.local').hide()
+					$(ob).parents("form").find('.superiorth').hide()
 					var html = '<td  class="encryptTerm">\
 		                            <input type="hidden" name="crt">\
 		                            <input type="hidden" name="key">\
@@ -383,6 +414,7 @@
 					$(ob).parents("form").find('.encryptItem').show();
 					$(ob).parents("form").find('.chain').show()
 					$(ob).parents("form").find('.local').hide()
+					$(ob).parents("form").find('.superiorth').show()
 				break;
 				case "tcp":
 					var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
@@ -395,6 +427,7 @@
 					$(ob).parents("form").find('.encryptItem').show();
 					$(ob).parents("form").find('.chain').show()
 					$(ob).parents("form").find('.local').show()
+					$(ob).parents("form").find('.superiorth').show()
 				break;
 				default:
 					var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
@@ -408,6 +441,7 @@
 					$(ob).parents("form").find('.encryptItem').show();
 					$(ob).parents("form").find('.chain').show()
 					$(ob).parents("form").find('.local').show()
+					$(ob).parents("form").find('.superiorth').show()
 				break
 			}
 		}

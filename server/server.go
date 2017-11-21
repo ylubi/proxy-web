@@ -71,15 +71,11 @@ func link(v http.ResponseWriter, r *http.Request) {
 		case "tbridge":
 			command, err = procotol.GetTbridgeCommand(r.Form)
 		default:
-			res := &util.Result{Code: 500, Output: "protocol parameter error"}
-			resJson, _ := res.ReturnJson()
-			io.WriteString(v, resJson)
+			util.ReturnJson(500, 0, "protocol parameter error", v)
 			return
 		}
 		if err != nil {
-			res := &util.Result{Code: 500, Output: "protocol error"}
-			resJson, _ := res.ReturnJson()
-			io.WriteString(v, resJson)
+			util.ReturnJson(500, 0, "protocol error", v)
 			return
 		}
 		fmt.Println(command)
@@ -88,16 +84,15 @@ func link(v http.ResponseWriter, r *http.Request) {
 }
 
 func runCommand(command string, v http.ResponseWriter, data url.Values) {
+	var Pid int
+	var Code int
 	cmdChan := make(chan int)
 	commandList := strings.Split(command, " ")
 	cmd := exec.Command(commandList[0], commandList[1:]...)
-	res := &util.Result{}
 	//错误输出通道
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		res = &util.Result{Code: 500, Output: err.Error()}
-		resJson, _ := res.ReturnJson()
-		io.WriteString(v, resJson)
+		util.ReturnJson(500, 0, err.Error(), v)
 		return
 	}
 	err = cmd.Start()
@@ -111,22 +106,16 @@ func runCommand(command string, v http.ResponseWriter, data url.Values) {
 	//判断2秒内是否有channel返回，有则是失败，阻塞1秒以上则为成功
 	select {
 	case <-cmdChan:
-		res.Code = 500
+		Code = 500
+		Pid = 0
 	case <-second:
 		util.SaveParameterByPid(data, pid)
-		res.Code = 200
-		res.Pid = pid
+		Code = 200
+		Pid = pid
 	}
 	//进行输入流读取
-	res.Output = getLog(pid)
-	resJson, err := res.ReturnJson()
-	if err != nil {
-		res = &util.Result{Code: 500, Output: err.Error()}
-		resJson, _ := res.ReturnJson()
-		io.WriteString(v, resJson)
-		return
-	}
-	io.WriteString(v, string(resJson))
+	Output := getLog(pid)
+	util.ReturnJson(Code, Pid, Output, v)
 }
 
 func saveLog(reader *bufio.Reader, pid int) {
@@ -150,56 +139,44 @@ func showLog(v http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		r.ParseForm()
 		if r.Form["pid"][0] == "undefined" {
-			io.WriteString(v, "not found pid")
+			util.ReturnJson(500, 0, "not found pid", v)
 			return
 		}
 		pid, err := strconv.Atoi(r.Form["pid"][0])
 		if err != nil {
-			io.WriteString(v, err.Error())
+			util.ReturnJson(500, 0, err.Error(), v)
 			return
 		}
 		res := getLog(pid)
-		result := &util.Result{Code: 200, Output: res}
-		resJson, _ := result.ReturnJson()
-		io.WriteString(v, resJson)
+		util.ReturnJson(200, 0, res, v)
 	}
 }
 
 func close(v http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	if r.Form["pid"][0] == "undefined" {
-		res := &util.Result{Code: 500, Output: "pid not found"}
-		resJson, _ := res.ReturnJson()
-		io.WriteString(v, resJson)
+		util.ReturnJson(500, 0, "pid not found", v)
 		return
 	}
 	pid, err := strconv.Atoi(r.Form["pid"][0])
 	p, err := os.FindProcess(pid)
 	if err != nil {
-		res := &util.Result{Code: 500, Output: err.Error()}
-		resJson, _ := res.ReturnJson()
-		io.WriteString(v, resJson)
+		util.ReturnJson(500, 0, err.Error(), v)
 		return
 	}
 	util.PutParameterPidTo0(pid)
 	err = p.Kill()
 	if err != nil {
-		res := &util.Result{Code: 500, Output: err.Error()}
-		resJson, _ := res.ReturnJson()
-		io.WriteString(v, resJson)
+		util.ReturnJson(500, 0, err.Error(), v)
 		return
 	}
 	err = p.Release()
 	if err != nil {
-		res := &util.Result{Code: 500, Output: err.Error()}
-		resJson, _ := res.ReturnJson()
-		io.WriteString(v, resJson)
+		util.ReturnJson(500, 0, err.Error(), v)
 		return
 	}
 	delete(logMap, pid)
-	res := &util.Result{Code: 200, Output: "success"}
-	resJson, _ := res.ReturnJson()
-	io.WriteString(v, resJson)
+	util.ReturnJson(200, 0, "success", v)
 	return
 }
 
@@ -208,9 +185,7 @@ func uploade(v http.ResponseWriter, r *http.Request) {
 		file, head, err := r.FormFile("file")
 		fileSuffix := path.Ext(head.Filename)
 		if err != nil {
-			res := &util.Result{Code: 500, Output: err.Error()}
-			resJson, _ := res.ReturnJson()
-			io.WriteString(v, resJson)
+			util.ReturnJson(500, 0, err.Error(), v)
 			return
 		}
 		defer file.Close()
@@ -218,22 +193,16 @@ func uploade(v http.ResponseWriter, r *http.Request) {
 		fw, err := os.Create("./static/upload/" + strconv.FormatInt(t, 10) + fileSuffix)
 		defer fw.Close()
 		if err != nil {
-			res := &util.Result{Code: 500, Output: err.Error()}
-			resJson, _ := res.ReturnJson()
-			io.WriteString(v, resJson)
+			util.ReturnJson(500, 0, err.Error(), v)
 			return
 		}
 		_, err = io.Copy(fw, file)
 		if err != nil {
-			res := &util.Result{Code: 500, Output: err.Error()}
-			resJson, _ := res.ReturnJson()
-			io.WriteString(v, resJson)
+			util.ReturnJson(500, 0, err.Error(), v)
 			return
 		}
 		name := fw.Name()
-		res := &util.Result{Code: 200, Output: name}
-		resJson, _ := res.ReturnJson()
-		io.WriteString(v, resJson)
+		util.ReturnJson(200, 0, name, v)
 		return
 	}
 }
