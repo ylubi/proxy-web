@@ -10,8 +10,8 @@ proxyWebApplication是以[snail007/goproxy](https://github.com/snail007/goproxy/
  - [依赖包](#依赖包)
  
 ### 手册目录
- - [1. 运行](#1运行)
- - [2. 参数介绍](#2参数介绍)
+- [1. 运行](#1运行)
+- [2. 参数介绍](#2参数介绍)
      - [2.1 http参数](#21http参数)
      - [2.2 tcp参数](#22tcp参数)
      - [2.3 udp参数](#23udp参数)
@@ -19,8 +19,6 @@ proxyWebApplication是以[snail007/goproxy](https://github.com/snail007/goproxy/
      - [2.5 tclient参数](#25tclient参数)
      - [2.6 tserver参数](#26tserver参数)
      - [2.7 tbridge参数](#27tbridge参数)
- - [3. TODO](#3TODO)
- - [4. License](#4License)
  
 ### 下载
 cd 进入GOPATH  
@@ -43,19 +41,41 @@ cd 进入GOPATH
 ### 1.运行
 <img src="https://github.com/yincongcyincong/proxyWebApplication/raw/master/docs-images/preview.png?raw=true" width="200"/> 
 
-### 2.参数介绍  
+### 2.参数介绍  
+  代理协议：需要用到的协议 如http， tcp等协议。  
+  本次链接类型：-t参数。  
+  链式代理：区分此次链接类型，顶级代理不需要“上级服务器+端口”。  
+  代理服务器+端口：-p参数。  
+  上级服务器+端口：-P参数。  
+  父级连接类型：-T参数 选取后可能会有不同的加密方式，上传文件的加密方式会有默认文件，tcp形式默认不加密。  
 #### **2.1.http参数** 
+tls形式加密：-C .crt文件 和 -K参数 .key文件   
+ssh形式加密：有密钥和密码两种方式，-u用户名 -A密码 -S .key文件
+kcp形式加密：-B密码  
 #### **2.2.tcp参数** 
-#### **2.3.udp参数**  
-#### **2.4.socks参数**  
-#### **2.5.tclient参数**  
-#### **2.6.tserver参数**  
+tls形式加密：-C .crt文件 和 -K参数 .key文件    
+kcp形式加密：-B密码 
+#### **2.3.udp参数**  
+没有加密模式  
+本次链接类型只有udp模式  
+#### **2.4.socks参数**  
+tls形式加密：-C .crt文件 和 -K参数 .key文件   
+ssh形式加密：有密钥和密码两种方式，-u用户名 -A密码 -S .key文件
+kcp形式加密：-B密码   
+#### **2.5.tclient参数**  
+只有tls形式的机密且必须加密  
+tls形式加密：-C .crt文件 和 -K参数 .key文件   
+#### **2.6.tserver参数**  
+只有tls形式的机密且必须加密  
+tls形式加密：-C .crt文件 和 -K参数 .key文件   
 #### **2.7.tbridge参数**  
+只有tls形式的机密且必须加密  
+tls形式加密：-C .crt文件 和 -K参数 .key文件   
   
-### 3.TODO
+### TODO
 - -L参数进程池  
 - tserver -r参数分解  
 
-### 4.License
+### License
 - under GPLv3 license
    
