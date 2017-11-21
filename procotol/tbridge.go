@@ -2,7 +2,7 @@ package procotol
 
 import (
 	"net/url"
-	"proxy/util"
+	"proxyWebApplication/util"
 )
 
 func GetTbridgeCommand(data url.Values) (string, error) {

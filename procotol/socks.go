@@ -3,7 +3,7 @@ package procotol
 import (
 	"fmt"
 	"net/url"
-	"proxy/util"
+	"proxyWebApplication/util"
 )
 
 func GetSocksCommand(data url.Values) (string, error) {

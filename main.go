@@ -8,8 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"proxy/server"
-	"proxy/util"
+	"proxyWebApplication/server"
+	"proxyWebApplication/util"
 
 	_ "github.com/mattn/go-sqlite3"
 )

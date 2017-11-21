@@ -3,7 +3,7 @@ package procotol
 import (
 	"fmt"
 	"net/url"
-	"proxy/util"
+	"proxyWebApplication/util"
 )
 
 func GetHttpCommand(data url.Values) (string, error) {

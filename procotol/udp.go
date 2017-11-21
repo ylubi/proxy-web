@@ -2,7 +2,7 @@ package procotol
 
 import (
 	"net/url"
-	"proxy/util"
+	"proxyWebApplication/util"
 )
 
 func GetUdpCommand(data url.Values) (string, error) {
