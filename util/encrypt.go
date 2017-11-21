@@ -39,13 +39,17 @@ func HandleEncrypt(data url.Values) (string, string, error) {
 
 func HandelTls(crt, key string) string {
 	var command string
+	path, err := GetServerPath()
+	if err != nil {
+		return ""
+	}
 	if crt == "" {
-		command += " -C ../proxyService/.cert/proxy.crt"
+		command += " -C " + path + ".cert/proxy.crt"
 	} else {
 		command += " -C " + crt
 	}
 	if key == "" {
-		command += " -K ../proxyService/.cert/proxy.key"
+		command += " -K " + path + ".cert/proxy.key"
 	} else {
 		command += " -K " + key
 	}
@@ -64,8 +68,12 @@ func HandelSshPassword(user, password string) string {
 
 func HandelSshKey(user, key string) string {
 	command := " -u " + user
+	path, err := GetServerPath()
+	if err != nil {
+		return ""
+	}
 	if key == "" {
-		command += " -S ../proxyService/.cert/proxy.key"
+		command += " -S " + path + ".cert/proxy.key"
 	} else {
 		command += " -S " + key
 	}
