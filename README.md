@@ -10,16 +10,17 @@ proxyWebApplication是以[snail007/goproxy](https://github.com/snail007/goproxy/
  - [依赖包](#依赖包)
  
 ### 手册目录
- - [1. 运行](#运行)
- - [2. 参数介绍](#参数介绍)
-     - [2.1 http参数](#http参数)
-     - [2.2 tcp参数](#tcp参数)
-     - [2.3 udp参数](#udp参数)
-     - [2.4 socks参数](#socks参数)
-     - [2.5 tclient参数](#tclient参数)
-     - [2.6 tserver参数](#tserver参数)
-     - [2.6 tbridge参数](#tbridge参数)
- - [3. TODO](#TODO)
+ - [1. 运行](#1运行)
+ - [2. 参数介绍](#2参数介绍)
+     - [2.1 http参数](#21http参数)
+     - [2.2 tcp参数](#22tcp参数)
+     - [2.3 udp参数](#23udp参数)
+     - [2.4 socks参数](#24socks参数)
+     - [2.5 tclient参数](#25tclient参数)
+     - [2.6 tserver参数](#26tserver参数)
+     - [2.7 tbridge参数](#27tbridge参数)
+ - [3. TODO](#3TODO)
+ - [4. License](#4License)
  
 ### 下载
 cd 进入GOPATH  
@@ -39,3 +40,22 @@ cd 进入GOPATH
 [github.com/mattn/go-sqlite3](https://github.com/mattn/go-sqlite3)使用sqlite作为数据库  
 [github.com/Unknwon/goconfig](https://github.com/Unknwon/goconfig)解析配置文件  
 
+### 1.运行
+<img src="https://github.com/yincongcyincong/proxyWebApplication/raw/master/docs-images/preview.png?raw=true" width="200"/> 
+
+### 2.参数介绍  
+#### **2.1.http参数** 
+#### **2.2.tcp参数** 
+#### **2.3.udp参数**  
+#### **2.4.socks参数**  
+#### **2.5.tclient参数**  
+#### **2.6.tserver参数**  
+#### **2.7.tbridge参数**  
+  
+### 3.TODO
+- -L参数进程池  
+- tserver -r参数分解  
+
+### 4.License
+- under GPLv3 license
+   
