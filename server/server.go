@@ -101,9 +101,9 @@ func runCommand(command string, v http.ResponseWriter, data url.Values) {
 	pid := cmd.Process.Pid
 	go saveLog(reader, pid)
 	go waitProcess(cmd, cmdChan, pid)
-	second := time.After(2 * time.Second)
+	second := time.After(3 * time.Second)
 
-	//判断2秒内是否有channel返回，有则是失败，阻塞1秒以上则为成功
+	//判断2秒内是否有channel返回，有则是失败，阻塞3秒以上则为成功
 	select {
 	case <-cmdChan:
 		Code = 500
@@ -236,8 +236,12 @@ func StartServer() {
 	http.HandleFunc("/getData", getData)
 	http.HandleFunc("/showLog", showLog)
 	http.HandleFunc("/uploade", uploade)
-	err := http.ListenAndServe(":8080", nil)
+	port, err := util.GetServerPort()
 	if err != nil {
-		log.Fatal("listen port failure: ", err)
+		log.Fatal("get port failure: ", err)
+	}
+	err = http.ListenAndServe(port, nil)
+	if err != nil {
+		log.Fatal("listen port failure", err)
 	}
 }

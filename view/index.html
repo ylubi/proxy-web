@@ -28,7 +28,7 @@
 	                        <thead>\
 	                            <tr>\
 	                                <th class="ng-binding">代理协议</th>\
-									<th class="ng-binding local">本次连接类型</th>\
+									<th class="ng-binding local">本地连接类型</th>\
 	                                <th class="ng-binding chain">链式代理</th>\
 	                                <th class="ng-binding proxy">代理服务器+端口</th>\
 	                                <th class="ng-binding agent">上级服务器+端口</th>\
@@ -59,7 +59,7 @@
                                     <td class="chain">\
                                         <select name="proxy" class="form-control ng-pristine ng-valid ng-not-empty ng-touched">\
                                             <option label="顶级代理" value="1" selected="selected">顶级代理</option>\
-                                            <option label="次级代理" value="2">次级代理</option>\
+                                            <option label="非顶级代理" value="2">非顶级代理</option>\
                                         </select>\
                                     </td>\
                                     <td  class="ng-scope ip">\

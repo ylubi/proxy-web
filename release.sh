@@ -50,7 +50,7 @@ GOOS=plan9 GOARCH=arm go build && mv proxyWebApplication proxyWeb/proxyWebApplic
 #solaris
 GOOS=solaris GOARCH=amd64 go build && mv proxyWebApplication proxyWeb/proxyWebApplication && tar zcfv "zip/proxy-solaris-amd64.tar.gz" proxyWeb  
 #windows
-GOOS=windows GOARCH=386 go build && mv proxyWebApplication.exe proxyWeb/proxyWebApplication && tar zcfv "zip/proxy-windows-386.tar.gz" proxyWeb
-GOOS=windows GOARCH=amd64 go build && mv proxyWebApplication.exe proxyWeb/proxyWebApplication && tar zcfv "zip/proxy-windows-amd64.tar.gz" proxyWeb
+GOOS=windows GOARCH=386 go build && mv proxyWebApplication.exe proxyWeb/proxyWebApplication.exe && tar zcfv "zip/proxy-windows-386.tar.gz" proxyWeb
+GOOS=windows GOARCH=amd64 go build && mv proxyWebApplication.exe proxyWeb/proxyWebApplication.exe && tar zcfv "zip/proxy-windows-amd64.tar.gz" proxyWeb
 
 rm -rf proxyWebApplication proxyWebApplication.exe
