@@ -96,6 +96,10 @@ func runCommand(command string, v http.ResponseWriter, data url.Values) {
 		return
 	}
 	err = cmd.Start()
+	if err != nil {
+		util.ReturnJson(500, 0, err.Error(), v)
+		return
+	}
 	//异步等待是否返回错误
 	reader := bufio.NewReader(stderr)
 	pid := cmd.Process.Pid
