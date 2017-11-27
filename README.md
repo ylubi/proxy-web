@@ -21,7 +21,7 @@ proxyWebApplication是以[snail007/goproxy](https://github.com/snail007/goproxy/
      - [2.7 tbridge参数](#27tbridge参数)
  
 ### 下载
-暂时没有 
+[下载地址](https://github.com/yincongcyincong/proxyWebApplication/releases) 
   
 
 ### 目录位置
@@ -37,6 +37,7 @@ proxyWebApplication是以[snail007/goproxy](https://github.com/snail007/goproxy/
 
 ### 1.运行
 然后用8080端口在浏览器进入，如localhost:8080
+config里可以修改端口  
 <img src="https://github.com/yincongcyincong/proxyWebApplication/raw/master/docs-images/preview.png?raw=true" /> 
   
 ### 2.参数介绍
