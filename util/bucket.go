@@ -1,18 +1,17 @@
 package util
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
 	"strconv"
+	"time"
 
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/boltdb/bolt"
 )
 
 type Parameter struct {
-	Id                  int
 	Protocol            string
 	ProxyLevel          int
 	ProxyIp             string
@@ -23,30 +22,41 @@ type Parameter struct {
 	Local               string
 }
 
-func GetParameterExistPid() map[string]*Parameter {
+func GetParameter() map[string]*Parameter {
 	data := make(map[string]*Parameter)
-	db, err := sql.Open("sqlite3", "./db/sqlite/foo.db")
+	db, err := bolt.Open("./db/bucket/proxy.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
 	defer db.Close()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	rows, err := db.Query("SELECT * FROM parameter where process_id != 0")
+
+	err = db.Update(func(tx *bolt.Tx) error {
+		bt, err := tx.CreateBucketIfNotExists([]byte("proxy"))
+		if err != nil {
+			return err
+		}
+		c := bt.Cursor()
+
+		for k, v := c.Last(); k != nil; k, v = c.Prev() {
+			parameter := new(Parameter)
+			key := string(k[:])
+			err := json.Unmarshal(v, &parameter)
+			if err != nil {
+				return err
+			}
+			data[key] = parameter
+		}
+		return nil
+	})
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	defer rows.Close()
 
-	for rows.Next() {
-		p := new(Parameter)
-		rows.Scan(&p.Id, &p.Protocol, &p.ProxyLevel, &p.ProxyIp, &p.SuperiorProxyIp, &p.Superior, &p.EncryptionCondition, &p.ProcessId, &p.Local)
-		id := strconv.Itoa(p.Id)
-		data[id] = p
-	}
 	return data
 }
 
-func SaveParameterByPid(data url.Values, pid int) int64 {
-	db, err := sql.Open("sqlite3", "./db/sqlite/foo.db")
+func SaveParameterByPid(data url.Values, pid int) error {
+	db, err := bolt.Open("./db/bucket/proxy.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
 	defer db.Close()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -54,46 +64,54 @@ func SaveParameterByPid(data url.Values, pid int) int64 {
 	if (data["protocol"][0] == "tclient") || (data["protocol"][0] == "tserver") || (data["protocol"][0] == "tbridge") {
 		data["encrypt"][0] = "3"
 	}
-	encryption_condition, err := getEncryptionCondition(data)
+	parameter := new(Parameter)
+	parameter.EncryptionCondition, err = getEncryptionCondition(data)
 	if err != nil {
-		log.Fatal(err.Error())
+		return err
 	}
-	stmt, err := db.Prepare("INSERT INTO parameter(protocol,proxy_level,proxy_ip,superior_proxy_ip,superior,encryption_condition,process_id, local) values(?,?,?,?,?,?,?,?)")
-	defer stmt.Close()
+	parameter.Protocol = data["protocol"][0]
+	parameter.ProxyLevel, err = strconv.Atoi(data["proxy"][0])
 	if err != nil {
-		log.Fatal(err.Error())
+		return err
 	}
-	result, err := stmt.Exec(data["protocol"][0], data["proxy"][0], data["proxyIp"][0], data["superiorProxy"][0], data["encrypt"][0], encryption_condition, pid, data["local"][0])
+	parameter.ProxyIp = data["proxyIp"][0]
+	parameter.SuperiorProxyIp = data["superiorProxy"][0]
+	parameter.Superior, err = strconv.Atoi(data["encrypt"][0])
 	if err != nil {
-		log.Fatal(err.Error())
+		return err
 	}
-	lastId, err := result.LastInsertId()
+	parameter.ProcessId = pid
+	parameter.Local = data["local"][0]
+	err = db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("proxy"))
+		bytePid := strconv.Itoa(pid)
+		buf, err := json.Marshal(parameter)
+		if err != nil {
+			return err
+		}
+		b.Put([]byte(bytePid), buf)
+		return nil
+	})
 	if err != nil {
-		log.Fatal(err.Error())
+		return err
 	}
-	return lastId
+
+	return nil
 }
 
-func PutParameterPidTo0(pid int) int64 {
-	db, err := sql.Open("sqlite3", "./db/sqlite/foo.db")
+func DeleteParameterByPid(pid int) error {
+	db, err := bolt.Open("./db/bucket/proxy.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
 	defer db.Close()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	stmt, err := db.Prepare("update parameter set process_id = 0 where process_id = ?")
-	defer stmt.Close()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	result, err := stmt.Exec(pid)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	affect, err := result.RowsAffected()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	return affect
+	bytePid := strconv.Itoa(pid)
+	err = db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("proxy"))
+		err = b.Delete([]byte(bytePid))
+		return err
+	})
+	return err
 }
 
 func getEncryptionCondition(data url.Values) (string, error) {

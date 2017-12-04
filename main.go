@@ -1,43 +1,17 @@
 package main
 
 import (
-	"database/sql"
-	"io/ioutil"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"proxyWebApplication/server"
 	"proxyWebApplication/util"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
-	initSet()
 	server.StartServer()
 	clean()
-}
-
-func initSet() {
-	var n int
-	db, err := sql.Open("sqlite3", "./db/sqlite/foo.db")
-	defer db.Close()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	res := db.QueryRow("select count(*) from sqlite_master where type = 'table' and name = 'parameter'", 1)
-	res.Scan(&n)
-	if n == 0 {
-		//文件没找到表，创建
-		sqlBytes, _ := ioutil.ReadFile("./db/proxy.sql")
-		sqlString := string(sqlBytes)
-		_, err := db.Exec(sqlString)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-	}
 }
 
 func clean() {
@@ -51,12 +25,12 @@ func clean() {
 		syscall.SIGQUIT)
 	go func() {
 		for _ = range signalChan {
-			data := util.GetParameterExistPid()
+			data := util.GetParameter()
 			for _, d := range data {
 				p, _ := os.FindProcess(d.ProcessId)
 				p.Kill()
 				p.Release()
-				util.PutParameterPidTo0(d.ProcessId)
+				util.DeleteParameterByPid(d.ProcessId)
 			}
 		}
 	}()

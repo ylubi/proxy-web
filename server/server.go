@@ -33,13 +33,13 @@ func show(w http.ResponseWriter, r *http.Request) {
 }
 
 func getData(w http.ResponseWriter, r *http.Request) {
-	data := util.GetParameterExistPid()
+	data := util.GetParameter()
 	for index, d := range data {
 		//有bug进程已经终止，还是能找到该进程
 		_, err := os.FindProcess(d.ProcessId)
 		if err != nil {
 			delete(data, index)
-			util.PutParameterPidTo0(d.ProcessId)
+			util.DeleteParameterByPid(d.ProcessId)
 		}
 	}
 	dataJson, err := json.Marshal(data)
@@ -113,7 +113,11 @@ func runCommand(command string, v http.ResponseWriter, data url.Values) {
 		Code = 500
 		Pid = 0
 	case <-second:
-		util.SaveParameterByPid(data, pid)
+		err := util.SaveParameterByPid(data, pid)
+		if err != nil {
+			util.ReturnJson(500, 0, err.Error(), v)
+			return
+		}
 		Code = 200
 		Pid = pid
 	}
@@ -168,7 +172,11 @@ func close(v http.ResponseWriter, r *http.Request) {
 		util.ReturnJson(500, 0, err.Error(), v)
 		return
 	}
-	util.PutParameterPidTo0(pid)
+	err = util.DeleteParameterByPid(pid)
+	if err != nil {
+		util.ReturnJson(500, 0, err.Error(), v)
+		return
+	}
 	err = p.Kill()
 	if err != nil {
 		util.ReturnJson(500, 0, err.Error(), v)
