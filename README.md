@@ -21,7 +21,7 @@ proxyWebApplication是以[snail007/goproxy](https://github.com/snail007/goproxy/
      - [2.7 tbridge参数](#27tbridge参数)
  
 ### 下载
-[下载地址](https://github.com/yincongcyincong/proxyWebApplication/releases) 
+暂时没有
   
 
 ### 目录位置
@@ -32,7 +32,7 @@ proxyWebApplication是以[snail007/goproxy](https://github.com/snail007/goproxy/
 也可在config里修改目录路径  
 
 ### 依赖包
-[github.com/boltdb/bolt](https://github.com/boltdb/bolt)使用bolt扩展为数据库
+[github.com/boltdb/bolt](https://github.com/boltdb/bolt)使用bolt扩展为数据库		
 [github.com/Unknwon/goconfig](https://github.com/Unknwon/goconfig)解析配置文件  
 
 ### 1.运行
