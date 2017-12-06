@@ -98,8 +98,7 @@ tls形式加密：-C .crt文件 和 -K参数 .key文件
 
 ### 源码使用  
 - git下载源码  
-- 配置文件在config  
-- 端口在server/server.go  
+- 配置文件在config,可以修改路径和端口   
    
 ### TODO
 - -L参数进程池  
