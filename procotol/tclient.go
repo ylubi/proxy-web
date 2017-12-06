@@ -10,7 +10,7 @@ func GetTclientCommand(data url.Values) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	command := path + "proxy tclient -P " + data["proxyIp"][0]
+	command := path + "proxy client -P " + data["proxyIp"][0]
 	command += util.HandelTls(data["crt"][0], data["key"][0])
 	return command, nil
 }

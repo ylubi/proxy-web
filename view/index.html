@@ -44,9 +44,9 @@
 			                              	<option label="tcp" value="tcp">tcp</option>\
 											<option label="udp" value="udp">udp</option>\
 			                              	<option label="socks" value="socks">socks</option>\
-			                              	<option label="tserver" value="tserver">tserver</option>\
-			                              	<option label="tclient" value="tclient">tclient</option>\
-			                              	<option label="tbridge" value="tbridge">tbridge</option>\
+			                              	<option label="server" value="server">server</option>\
+			                              	<option label="client" value="client">client</option>\
+			                              	<option label="bridge" value="bridge">bridge</option>\
                                         </select>\
                                     </td>\
 									<td class="local">\
@@ -157,9 +157,9 @@
 							}
 							
 							switch (res[i].Protocol) {
-								case "tclient":
-								case "tbridge":
-								case "tserver":
+								case "client":
+								case "bridge":
+								case "server":
 									$('.encryptItem').eq(-1).hide()
 									$('.chain').eq(-1).hide()
 									$('.chain').eq(-2).hide()
@@ -387,9 +387,9 @@
 			$(ob).parents('form').find(".encryptTerm").remove();
 			$(ob).parents('form').find('.superior').hide()
 			switch (protocol) {
-				case "tclient":
-				case "tbridge":
-				case "tserver":
+				case "client":
+				case "bridge":
+				case "server":
 					$(ob).parents("form").find('.encryptItem').hide()
 					$(ob).parents("form").find('.chain').hide()
 					$(ob).parents("form").find('.local').hide()

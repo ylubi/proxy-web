@@ -64,11 +64,11 @@ func link(v http.ResponseWriter, r *http.Request) {
 			command, err = procotol.GetSocksCommand(r.Form)
 		case "udp":
 			command, err = procotol.GetUdpCommand(r.Form)
-		case "tserver":
+		case "server":
 			command, err = procotol.GetTserverCommand(r.Form)
-		case "tclient":
+		case "client":
 			command, err = procotol.GetTclientCommand(r.Form)
-		case "tbridge":
+		case "bridge":
 			command, err = procotol.GetTbridgeCommand(r.Form)
 		default:
 			util.ReturnJson(500, 0, "protocol parameter error", v)
