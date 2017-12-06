@@ -16,13 +16,12 @@ proxyWebApplication是以[snail007/goproxy](https://github.com/snail007/goproxy/
      - [2.2 tcp参数](#22tcp参数)
      - [2.3 udp参数](#23udp参数)
      - [2.4 socks参数](#24socks参数)
-     - [2.5 tclient参数](#25tclient参数)
-     - [2.6 tserver参数](#26tserver参数)
-     - [2.7 tbridge参数](#27tbridge参数)
+     - [2.5 tclient参数](#25client参数)
+     - [2.6 tserver参数](#26server参数)
+     - [2.7 tbridge参数](#27bridge参数)
  
 ### 下载
-暂时没有
-  
+[下载地址](https://github.com/yincongcyincong/proxyWebApplication/releases)  
 
 ### 目录位置
 下载[snail007/goproxy](https://github.com/snail007/goproxy/releases)  
@@ -76,25 +75,25 @@ kcp形式加密：-B密码
 <img src="https://github.com/yincongcyincong/proxyWebApplication/raw/master/docs-images/socks.png?raw=true" /> 
 `path to proxy/proxy socks -t tcp -p :8081 -T kcp -P 2.2.2.2:8081 -B 1234 `
 
-#### **2.5.tclient参数** 
+#### **2.5.client参数** 
 只有tls形式的机密且必须加密  
 tls形式加密：-C .crt文件 和 -K参数 .key文件 
 <img src="https://github.com/yincongcyincong/proxyWebApplication/raw/master/docs-images/tclient.png?raw=true" /> 
-`path to proxy/proxy tclient -P ":8081" -C path to file/proxy.crt -K path to file/proxy.key `  
+`path to proxy/proxy client -P ":8081" -C path to file/proxy.crt -K path to file/proxy.key `  
 “上级服务器+接口”填写的内容无效
 
-#### **2.6.tserver参数** 
+#### **2.6.server参数** 
 只有tls形式的机密且必须加密  
 tls形式加密：-C .crt文件 和 -K参数 .key文件  
 “代理服务器+端口”填写-r参数  
 <img src="https://github.com/yincongcyincong/proxyWebApplication/raw/master/docs-images/tserver.png?raw=true" /> 
-`path to proxy/proxy tserver -r "udp://:10053@:53" -P "2.2.2.2:8081" -C path to file/proxy.crt -K path to file/proxy.key`
+`path to proxy/proxy server -r "udp://:10053@:53" -P "2.2.2.2:8081" -C path to file/proxy.crt -K path to file/proxy.key`
 
-#### **2.7.tbridge参数** 
+#### **2.7.bridge参数** 
 只有tls形式的机密且必须加密  
 tls形式加密：-C .crt文件 和 -K参数 .key文件  
 <img src="https://github.com/yincongcyincong/proxyWebApplication/raw/master/docs-images/tbridge.png?raw=true" /> 
-`path to proxy/proxy tbridge -P ":8081" -C path to file/proxy.crt -K path to file/proxy.key `  
+`path to proxy/proxy bridge -P ":8081" -C path to file/proxy.crt -K path to file/proxy.key `  
 “上级服务器+接口”填写的内容无效  
 
 ### 源码使用  
