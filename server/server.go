@@ -65,11 +65,11 @@ func link(v http.ResponseWriter, r *http.Request) {
 		case "udp":
 			command, err = procotol.GetUdpCommand(r.Form)
 		case "server":
-			command, err = procotol.GetTserverCommand(r.Form)
+			command, err = procotol.GetServerCommand(r.Form)
 		case "client":
-			command, err = procotol.GetTclientCommand(r.Form)
+			command, err = procotol.GetClientCommand(r.Form)
 		case "bridge":
-			command, err = procotol.GetTbridgeCommand(r.Form)
+			command, err = procotol.GetBridgeCommand(r.Form)
 		default:
 			util.ReturnJson(500, 0, "protocol parameter error", v)
 			return

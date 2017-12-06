@@ -5,7 +5,7 @@ import (
 	"proxyWebApplication/util"
 )
 
-func GetTbridgeCommand(data url.Values) (string, error) {
+func GetBridgeCommand(data url.Values) (string, error) {
 	path, err := util.GetServerPath()
 	if err != nil {
 		return "", err

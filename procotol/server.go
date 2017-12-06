@@ -5,7 +5,7 @@ import (
 	"proxyWebApplication/util"
 )
 
-func GetTserverCommand(data url.Values) (string, error) {
+func GetServerCommand(data url.Values) (string, error) {
 	path, err := util.GetServerPath()
 	if err != nil {
 		return "", err
