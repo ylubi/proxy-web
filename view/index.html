@@ -291,7 +291,7 @@
 		
 		function showLog(ob){
 			var pid = $(ob).attr('pid')
-			if (pid == undefined) {
+			if (pid == undefined || pid == "") {
 				alert("not found pid")
 				return 
 			}
@@ -318,7 +318,6 @@
 					if (res.Code == 500) {
 						console.log($(ob).parents('form').next('textarea').val()+res.Output)
 						$(ob).parents('form').next('textarea').val($(ob).parents('form').next('textarea').val()+res.Output+"\r\n")
-						subShowLog(ob)
 						return 
 					}
 					if(!lock[pid] && res.Code == 200){

@@ -146,7 +146,7 @@ func saveLog(reader *bufio.Reader, pid int) {
 func showLog(v http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		r.ParseForm()
-		if r.Form["pid"][0] == "undefined" {
+		if r.Form["pid"][0] == "undefined" || r.Form["pid"][0] == "" {
 			util.ReturnJson(500, 0, "not found pid", v)
 			return
 		}
@@ -156,6 +156,9 @@ func showLog(v http.ResponseWriter, r *http.Request) {
 			return
 		}
 		res := getLog(pid)
+		if res == "" {
+			time.Sleep(2 * time.Second)
+		}
 		util.ReturnJson(200, 0, res, v)
 	}
 }
