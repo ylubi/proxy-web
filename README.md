@@ -65,7 +65,7 @@ kcp形式加密：-B密码
 #### **2.3.udp参数** 
 没有加密模式  
 “本次链接类型”只有udp模式  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs-images/tcp1.png?raw=true" /> 
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs-images/udp1.png?raw=true" /> 
 `path to proxy/proxy udp -p :8081 -T tls -P 2.2.2.2:8081 -C path to file/proxy.crt -K path to file/proxy.key`
 
 #### **2.4.socks参数** 
