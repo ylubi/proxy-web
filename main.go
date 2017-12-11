@@ -5,8 +5,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"proxyWebApplication/server"
-	"proxyWebApplication/util"
+	"proxy-web/server"
+	"proxy-web/util"
 )
 
 func main() {
@@ -26,11 +26,11 @@ func clean() {
 	go func() {
 		for _ = range signalChan {
 			data := util.GetParameter()
-			for _, d := range data {
-				p, _ := os.FindProcess(d.ProcessId)
+			for _, v := range data {
+				p, _ := os.FindProcess(v.ProcessId)
 				p.Kill()
 				p.Release()
-				util.DeleteParameterByPid(d.ProcessId)
+				util.ChangeParameterDataById(0, "否", v.Id)
 			}
 		}
 	}()

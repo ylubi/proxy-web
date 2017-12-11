@@ -1,11 +1,10 @@
 package procotol
 
 import (
-	"net/url"
-	"proxyWebApplication/util"
+	"proxy-web/util"
 )
 
-func GetUdpCommand(data url.Values) (string, error) {
+func GetUdpCommand(data *util.Parameter) (string, error) {
 	var command string
 	encryptCommand, encryptParamater, err := util.HandleEncrypt(data)
 	if err != nil {
@@ -15,6 +14,6 @@ func GetUdpCommand(data url.Values) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	command = path + "proxy udp -p" + data["proxyIp"][0] + encryptCommand + encryptParamater
+	command = path + "proxy udp -p" + data.ProxyIp + encryptCommand + encryptParamater
 	return command, nil
 }

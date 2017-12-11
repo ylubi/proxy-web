@@ -10,11 +10,11 @@ import (
 type Result struct {
 	Code   int
 	Output interface{}
-	Pid    int
+	Id     string
 }
 
-func ReturnJson(code, pid int, output string, v http.ResponseWriter) {
-	r := Result{Code: code, Pid: pid, Output: output}
+func ReturnJson(code int, id, output string, v http.ResponseWriter) {
+	r := Result{Code: code, Id: id, Output: output}
 	res, err := json.Marshal(r)
 	if err != nil {
 		log.Fatal("json error")
