@@ -7,7 +7,6 @@ import (
 
 func GetHttpCommand(data *util.Parameter) (string, error) {
 	var command string
-	fmt.Println(data)
 	encryptCommand, encryptParamater, err := util.HandleEncrypt(data)
 	if err != nil {
 		return "", err

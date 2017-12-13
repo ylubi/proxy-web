@@ -280,6 +280,7 @@ func deleteParameter(v http.ResponseWriter, r *http.Request) {
 func StartServer() {
 	AutoStart()
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	http.HandleFunc("/login", login)
 	http.HandleFunc("/", show)
 	http.HandleFunc("/add", add)
 	http.HandleFunc("/close", close)
@@ -318,11 +319,13 @@ func autoRunCommand(command string, id string) {
 	//错误输出通道
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		log.Fatalln(err.Error())
+		fmt.Println(err.Error())
+		return
 	}
 	err = cmd.Start()
 	if err != nil {
-		log.Fatalln(err.Error())
+		fmt.Println(err.Error())
+		return
 	}
 	//异步等待是否返回错误
 	reader := bufio.NewReader(stderr)
@@ -337,7 +340,8 @@ func autoRunCommand(command string, id string) {
 		pid := cmd.Process.Pid
 		err := util.ChangeParameterDataById(pid, "已开启", id)
 		if err != nil {
-			log.Fatal(err.Error())
+			fmt.Println(err.Error())
+			return
 		}
 	}
 }

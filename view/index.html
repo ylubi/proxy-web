@@ -15,6 +15,7 @@
 				vertical-align:middle !important;
 				text-align: center;
 			}
+
 		</style>
     </head>
     <body>
@@ -196,6 +197,27 @@
   			</div>
 		</div>
         
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModal">
+  			<div class="modal-dialog modal-sm" role="document">
+    			<div class="modal-content">
+			      	<div class="modal-header">
+			        	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			       		 <h4 class="modal-title" id="deleteModal">删除</h4>
+			      	</div>
+	      			<div class="modal-body" style="text-align: center;">
+				        <div>
+			            	<label for="recipient-name" class="control-label">
+			            		你确定要删除吗？
+			            	</label>
+			          	</div>
+	    			</div>
+	      			<div class="modal-footer">
+	        			<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	        			<button type="button" onclick="del()" data-dismiss="modal" class="btn btn-primary">删除</button>
+	      			</div>
+    			</div>
+  			</div>
+		</div>
     </body>
     <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
 	<script type="text/javascript" src="/static/js/notify.js"></script>
@@ -244,8 +266,8 @@
 		                           <span class="autoSpan"></span>\
 		                        </td>\
 		                        <td  style="width:270px;">\
-		                        	<a class="btn btn-primary ng-binding update" onclick="getData(this)"  data-toggle="modal" data-target="#updateModal">修改</a>\
-		                        	<a class="btn btn-primary ng-binding delete" onclick="del(this)">删除</a>\
+		                        	<a class="btn btn-primary ng-binding update" onclick="getData(this)">修改</a>\
+		                        	<a class="btn btn-primary ng-binding delete" onclick="confirmDel(this)">删除</a>\
 		                            <a class="btn btn-primary ng-binding link" onclick="link(this)">连接</a>\
 									<a class="btn btn-primary ng-binding closed" onclick="closed(this)" style="display:none;">关闭</a>\
 									<a class="btn btn-primary ng-binding log" onclick="showLog(this)" pid="">显示日志</a>\
@@ -326,12 +348,14 @@
 				 	$('.proxyLevelSpan').eq(-1).html(proxyMap[data['ProxyLevel']])
 				 	$('.surperiorSpan').eq(-1).html(superiorMap[data['Superior']])
 				}
+
+				$('.log').eq(-1).attr('pid', data['ProcessId'])
+				$('.log').eq(-1).attr('id', data['Id'])
 				if (data['Status'] == "已开启") {
 				 	$('.link').eq(-1).hide()
 				 	$('.closed').eq(-1).show()
+				 	$('.log').click()
 				}
-				$('.log').eq(-1).attr('pid', data['ProcessId'])
-				$('.log').eq(-1).attr('id', data['Id'])
 		}
 
 		initData()
@@ -582,7 +606,6 @@
 			}
 		}
 
-		var num = 0;
 		function getData(ob){
 			var id = $(ob).siblings('.log').attr('id')
 			var status = $(ob).parents('table').find('.statusSpan').html()
@@ -590,6 +613,7 @@
 				$(ob).notify('已开启的代理不能修改！')
 				return
 			}
+			$('#updateModal').modal()
 			$.ajax({
                 type: "POST",
                 cache: false,
@@ -611,10 +635,13 @@
 					$('select[name=proxyLevel]').eq(1).val(res.ProxyLevel)
 					$('input[name=proxyIp]').eq(1).val(res.ProxyIp)
 					$('input[name=superiorProxyIp]').eq(1).val(res.SuperiorProxyIp)
-					var encrypt = JSON.parse(res.EncryptionCondition)
-					for (var i in encrypt) {
-						$('form').eq(1).find('input[name='+i+']').val(encrypt[i])
+					if (res.EncryptionCondition != '') {
+						var encrypt = JSON.parse(res.EncryptionCondition)
+						for (var i in encrypt) {
+							$('form').eq(1).find('input[name='+i+']').val(encrypt[i])
+						}
 					}
+					
 					
                 }
             });
@@ -641,13 +668,20 @@
             });
 		}
 
-		function del(ob){
+		function confirmDel(ob){
+			$('.del').removeClass('del')
 			var id = $(ob).siblings('.log').attr('id')
 			var status = $(ob).parents('table').find('.statusSpan').html()
 			if (status == '已开启') {
 				$(ob).notify('已开启的代理不能删除！')
 				return
 			}
+			$(ob).addClass('del')
+			$('#deleteModal').modal()
+		}
+
+		function del(){
+			var id = $('.del').siblings('.log').attr('id')
 			$.ajax({
                 type: "POST",
                 cache: false,
@@ -656,10 +690,11 @@
 				dataType:"json",
                 success: function (res) {
 					if (res.Code == 200) {
-						$(ob).notify("修改成功", "success")
-						$(ob).parents('table').remove()
+						$('.del').notify("删除成功", "success")
+						$('.del').parents('table').remove()
 					} else {
 						$.notify(res.Output, {className:"error",elementPosition:"bottom right",})
+						$('.del').removeClass('del')
 					}
                 }
             });
