@@ -279,8 +279,9 @@ func deleteParameter(v http.ResponseWriter, r *http.Request) {
 
 func StartServer() {
 	AutoStart()
+	time.Sleep(3 * time.Second)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	http.HandleFunc("/login", login)
+	//	http.HandleFunc("/login", login)
 	http.HandleFunc("/", show)
 	http.HandleFunc("/add", add)
 	http.HandleFunc("/close", close)

@@ -120,11 +120,10 @@ func SaveParameter(data url.Values) (string, string, error) {
 		if data["id"][0] == "" {
 			id, _ := b.NextSequence()
 			stringId = string(id)
-			parameter.Id = stringId
 		} else {
 			stringId = data["id"][0]
 		}
-
+		parameter.Id = stringId
 		buf, err = json.Marshal(parameter)
 		if err != nil {
 			return err
