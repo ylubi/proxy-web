@@ -33,11 +33,14 @@ proxy-web是以[snail007/goproxy](https://github.com/snail007/goproxy/)为基础
 ### 依赖包
 [github.com/boltdb/bolt](https://github.com/boltdb/bolt)使用bolt扩展为数据库  
 [github.com/Unknwon/goconfig](https://github.com/Unknwon/goconfig)解析配置文件  
+[github.com/astaxie/beego/tree/master/session](https://github.com/astaxie/beego/tree/master/session)session模块 
 
 ### 1.运行
 然后用8080端口在浏览器进入，如localhost:8080
-config里可以修改端口  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs-images/preview.png?raw=true" /> 
+首先要登录，可在config里面配置帐号密码，默认都为admin  
+config里也可以可以修改端口  
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/images/login.png?raw=true" />  
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/images/preview.png?raw=true" />  
   
 ### 2.参数介绍
 代理协议：需要用到的协议 如http， tcp等协议。  
@@ -51,34 +54,34 @@ config里可以修改端口
 tls形式加密：-C .crt文件 和 -K参数 .key文件  
 ssh形式加密：有密钥和密码两种方式，-u用户名 -A密码 -S .key文件  
 kcp形式加密：-B密码  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs-images/http1.png?raw=true" />  
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/images/http1.png?raw=true" />  
 `path to proxy/proxy http -t tcp -p :8081`  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs-images/http2.png?raw=true" /> 
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/images/http2.png?raw=true" /> 
 `path to proxy/proxy http -t tls -p :8081 -T tls -P 2.2.2.2:8081 -C path to file/proxy.crt -K path to file/proxy.key`  
 
 #### **2.2.tcp参数** 
 tls形式加密：-C .crt文件 和 -K参数 .key文件  
 kcp形式加密：-B密码  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs-images/tcp1.png?raw=true" /> 
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/images/tcp1.png?raw=true" /> 
 `path to proxy/proxy tcp -t tls -p :8081 -T tls -P 2.2.2.2:8081 -C path to file/proxy.crt -K path to file/proxy.key`  
 
 #### **2.3.udp参数** 
 没有加密模式  
 “本次链接类型”只有udp模式  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs-images/udp1.png?raw=true" /> 
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/images/udp1.png?raw=true" /> 
 `path to proxy/proxy udp -p :8081 -T tls -P 2.2.2.2:8081 -C path to file/proxy.crt -K path to file/proxy.key`
 
 #### **2.4.socks参数** 
 tls形式加密：-C .crt文件 和 -K参数 .key文件  
 ssh形式加密：有密钥和密码两种方式，-u用户名 -A密码 -S .key文件  
 kcp形式加密：-B密码  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs-images/socks.png?raw=true" /> 
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/images/socks.png?raw=true" /> 
 `path to proxy/proxy socks -t tcp -p :8081 -T kcp -P 2.2.2.2:8081 -B 1234 `
 
 #### **2.5.client参数** 
 只有tls形式的机密且必须加密  
 tls形式加密：-C .crt文件 和 -K参数 .key文件 
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs-images/tclient.png?raw=true" /> 
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/images/client.png?raw=true" /> 
 `path to proxy/proxy client -P ":8081" -C path to file/proxy.crt -K path to file/proxy.key `  
 “上级服务器+接口”填写的内容无效
 
@@ -86,19 +89,19 @@ tls形式加密：-C .crt文件 和 -K参数 .key文件
 只有tls形式的机密且必须加密  
 tls形式加密：-C .crt文件 和 -K参数 .key文件  
 “代理服务器+端口”填写-r参数  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs-images/tserver.png?raw=true" /> 
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/images/server.png?raw=true" /> 
 `path to proxy/proxy server -r "udp://:10053@:53" -P "2.2.2.2:8081" -C path to file/proxy.crt -K path to file/proxy.key`
 
 #### **2.7.bridge参数** 
 只有tls形式的机密且必须加密  
 tls形式加密：-C .crt文件 和 -K参数 .key文件  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs-images/tbridge.png?raw=true" /> 
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/images/bridge.png?raw=true" /> 
 `path to proxy/proxy bridge -P ":8081" -C path to file/proxy.crt -K path to file/proxy.key `  
 “上级服务器+接口”填写的内容无效  
 
 ### 源码使用  
 - git下载源码  
-- 配置文件在config,可以修改路径和端口   
+- 配置文件在config,可以修改路径、端口和登录帐号密码   
    
 ### TODO
 - -L参数进程池  
