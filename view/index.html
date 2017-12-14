@@ -191,7 +191,7 @@
 					 </div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-						<button type="button" onclick="update()" data-dismiss="modal" class="btn btn-primary">修改</button>
+						<button type="button" onclick="update()" class="btn btn-primary">修改</button>
 					</div>
 				</div>
 			</div>
@@ -321,10 +321,16 @@
 				data: "id=0",
 				dataType:"json",
 				success: function (res) {
-					if (res != "" && !$.isEmptyObject(res)) {
-						for (var i in res) {
-							 addContent(res[i])
+					if (res.Code == 501) {
+						window.location.href="/login"
+					}
+					if (res.Code == "200") {
+						var output = JSON.parse(res.Output);
+						for (var i in output) {
+							 addContent(output[i])
 						}
+					} else {
+						alert(res.Output)
 					}
 				}
 			});
@@ -382,7 +388,7 @@
 
 		function add() {
 			var ipPattern = /((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?[1-9])))(\:\d)*)/
-			var portPattern = /\:(\d){1,5}/
+			var portPattern = /^:(\d){1,5}$/
 			var proxyIp = $('input[name=proxyIp]').eq(0).val();
 			var superiorProxyIp = $('input[name=superiorProxyIp]').eq(0).val();
 			var proxyLevel = $('select[name=proxyLevel]').eq(0).val()
@@ -408,6 +414,10 @@
 				data: $('form').eq(0).serialize(),
 				dataType:"json",
 				success: function (res) {
+					if (res.Code == 501) {
+						window.location.href="/login"
+						return 
+					}
 					if (res.Code == 200) {
 						$.notify("添加成功", "success")
 						var output = JSON.parse(res.Output)
@@ -430,6 +440,10 @@
 				data: "id="+id,
 				dataType:"json",
 				success: function (res) {
+					if (res.Code == 501) {
+						window.location.href="/login"
+						return 
+					}
 					if (res.Code == 200) {
 						$(ob).parents('table').notify(res.Output, {className:"success",elementPosition:"bottom right",arrowShow:false})
 						$(ob).hide()
@@ -456,6 +470,10 @@
 				data: "id="+id+"&pid="+pid,
 				dataType:"json",
 				success: function (res) {
+					if (res.Code == 501) {
+						window.location.href="/login"
+						return 
+					}
 					if (res.Code == 200) {
 						$(ob).parents('table').notify(res.Output, {className:"success",elementPosition:"bottom right",arrowShow:false})
 						$(ob).siblings(".log").attr('pid', "")
@@ -465,6 +483,9 @@
 					} else {
 						$(ob).parents('table').notify(res.Output, {className:"error",elementPosition:"bottom right",arrowShow:false})
 						$('ob').prop('disabled', false)
+						setTimeout(function(){
+							window.location.reload()
+						}, 2000)
 					}
 				}
 			});
@@ -501,6 +522,10 @@
 				data: "id="+id,
 				dataType:"json",
 				success: function (res) {
+					if (res.Code = 501) {
+						window.location.href="/login"
+						return 
+					}
 					if(lock[id]){
 						return ;
 					}
@@ -547,6 +572,10 @@
 	
 			// 文件上传成功，给item添加成功class, 用样式标记上传成功。
 			uploader.on( 'uploadSuccess', function( file, response ) {
+				if (response.Code == 501) {
+					window.location.href="/login"
+					return 
+				}
 				if (response.Code == 200) {
 					if (response.Output.indexOf('key') >= 0) {
 						var id = '#rt_'+file.source.ruid
@@ -642,35 +671,37 @@
 				data: "id="+id,
 				dataType:"json",
 				success: function (res) {
-					$('input[name=id]').eq(1).val(res.Id)
-					$('select[name=protocol]').eq(1).val(res.Protocol)
-					$('select[name=superior]').eq(1).val(res.Superior)
+					if (res.Code == 501) {
+						window.location.href="/login"
+					}
+					res.Output = JSON.parse(res.Output)
+					$('input[name=id]').eq(1).val(res.Output.Id)
+					$('select[name=protocol]').eq(1).val(res.Output.Protocol)
+					$('select[name=superior]').eq(1).val(res.Output.Superior)
 					judgeEncrypt($('select[name=protocol]').eq(1))
 					encryptItem($('select[name=superior]').eq(1))
-					if (res.Auto == "是") {
+					if (res.Output.Auto == "是") {
 						$('input[name=auto]').eq(3).prop('checked', true)
 					} else {
-						$('input[name=auto]').eq(3).prop('checked', true)
+						$('input[name=auto]').eq(2).prop('checked', true)
 					}
-					$('select[name=local]').eq(1).val(res.Local)
-					$('select[name=proxyLevel]').eq(1).val(res.ProxyLevel)
-					$('input[name=proxyIp]').eq(1).val(res.ProxyIp)
-					$('input[name=superiorProxyIp]').eq(1).val(res.SuperiorProxyIp)
-					if (res.EncryptionCondition != '') {
-						var encrypt = JSON.parse(res.EncryptionCondition)
+					$('select[name=local]').eq(1).val(res.Output.Local)
+					$('select[name=proxyLevel]').eq(1).val(res.Output.ProxyLevel)
+					$('input[name=proxyIp]').eq(1).val(res.Output.ProxyIp)
+					$('input[name=superiorProxyIp]').eq(1).val(res.Output.SuperiorProxyIp)
+					if (res.Output.EncryptionCondition != '') {
+						var encrypt = JSON.parse(res.Output.EncryptionCondition)
 						for (var i in encrypt) {
 							$('form').eq(1).find('input[name='+i+']').val(encrypt[i])
 						}
 					}
-					
-					
 				}
 			});
 		}
 
 		function update(){
 			var ipPattern = /((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?[1-9])))(\:\d)*)/
-			var portPattern = /\:(\d){1,5}/
+			var portPattern = /^:(\d){1,5}$/
 			var proxyIp = $('input[name=proxyIp]').eq(1).val();
 			var superiorProxyIp = $('input[name=superiorProxyIp]').eq(1).val();
 			var proxyLevel = $('select[name=proxyLevel]').eq(1).val()
@@ -695,6 +726,10 @@
 				data: $('form').eq(1).serialize(),
 				dataType:"json",
 				success: function (res) {
+					if (res.Code == 501) {
+						window.location.href="/login"
+						return 
+					}
 					if (res.Code == 200) {
 						$.notify("修改成功", "success")
 						setTimeout(function(){
@@ -729,6 +764,10 @@
 				data: "id="+id,
 				dataType:"json",
 				success: function (res) {
+					if (res.Code == 501) {
+						window.location.href="/login"
+						return 
+					}
 					if (res.Code == 200) {
 						$.notify("删除成功", "success")
 						$('.del').parents('table').remove()

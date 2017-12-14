@@ -1,6 +1,8 @@
 package util
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -183,6 +185,77 @@ func DeleteParameterDataById(id string) error {
 		return err
 	}
 	return nil
+}
+
+func SaveSession(sessionId string) error {
+	db, err := bolt.Open("./db/bucket/proxy.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	defer db.Close()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	err = db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("session"))
+		b.Put([]byte("sessionId"), []byte(sessionId))
+		t := time.Now()
+		timeStamp := t.Unix() + 3600
+		b.Put([]byte("time"), IntToBytes(int(timeStamp)))
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetSession() (string, int, error) {
+	db, err := bolt.Open("./db/bucket/proxy.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	defer db.Close()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	var sessionId string
+	var timeStamp int
+	db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("session"))
+		sessionId = string(b.Get([]byte("sessionId")))
+		timeStamp = BytesToInt(b.Get([]byte("time")))
+		return nil
+	})
+	return sessionId, timeStamp, nil
+}
+
+func InitSession() {
+	db, err := bolt.Open("./db/bucket/proxy.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	defer db.Close()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	err = db.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte("session"))
+		if err != nil {
+			return err
+		}
+		b.Put([]byte("sessionId"), []byte(""))
+		b.Put([]byte("time"), IntToBytes(0))
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+}
+
+func IntToBytes(n int) []byte {
+	tmp := int32(n)
+	bytesBuffer := bytes.NewBuffer([]byte{})
+	binary.Write(bytesBuffer, binary.BigEndian, tmp)
+	return bytesBuffer.Bytes()
+}
+
+func BytesToInt(b []byte) int {
+	bytesBuffer := bytes.NewBuffer(b)
+	var tmp int32
+	binary.Read(bytesBuffer, binary.BigEndian, &tmp)
+	return int(tmp)
 }
 
 func getEncryptionCondition(data url.Values) (string, error) {

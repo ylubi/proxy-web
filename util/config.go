@@ -27,3 +27,19 @@ func GetServerPort() (string, error) {
 	}
 	return path, nil
 }
+
+func GetUsernameAndPassword() (string, string, error) {
+	config, err := goconfig.LoadConfigFile("./config/config.ini")
+	if err != nil {
+		return "", "", err
+	}
+	username, err := config.GetValue("proxy_server", "username")
+	if err != nil {
+		return "", "", err
+	}
+	password, err := config.GetValue("proxy_server", "password")
+	if err != nil {
+		return "", "", err
+	}
+	return username, password, nil
+}

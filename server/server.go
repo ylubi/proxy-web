@@ -16,9 +16,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/astaxie/beego/session"
 )
 
 var logMap = make(map[string]chan string)
+var globalSessions *session.Manager
 
 func add(v http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -31,6 +34,10 @@ func add(v http.ResponseWriter, r *http.Request) {
 
 func show(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
+		if !isLogin(w, r) {
+			http.Redirect(w, r, "/login", 302)
+			return
+		}
 		t, err := template.ParseFiles("./view/index.html")
 		if err != nil {
 			io.WriteString(w, err.Error())
@@ -41,6 +48,10 @@ func show(w http.ResponseWriter, r *http.Request) {
 }
 
 func getData(w http.ResponseWriter, r *http.Request) {
+	if !isLogin(w, r) {
+		util.ReturnJson(501, "", "not login", w)
+		return
+	}
 	var data interface{}
 	var err error
 	r.ParseForm()
@@ -49,19 +60,23 @@ func getData(w http.ResponseWriter, r *http.Request) {
 	} else {
 		data, err = util.GetParameterById(r.Form["id"][0])
 		if err != nil {
-			io.WriteString(w, err.Error())
+			util.ReturnJson(501, "", err.Error(), w)
 		}
 	}
 	dataJson, err := json.Marshal(data)
 	if err != nil {
-		io.WriteString(w, err.Error())
+		util.ReturnJson(501, "", err.Error(), w)
 		return
 	}
-	io.WriteString(w, string(dataJson))
+	util.ReturnJson(200, "", string(dataJson), w)
 }
 
 func link(v http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
+		if !isLogin(v, r) {
+			util.ReturnJson(501, "", "not login", v)
+			return
+		}
 		r.ParseForm()
 		var command string
 		var err error
@@ -169,6 +184,10 @@ func saveLog(reader *bufio.Reader, id string) {
 
 func showLog(v http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
+		if !isLogin(v, r) {
+			util.ReturnJson(501, "", "not login", v)
+			return
+		}
 		r.ParseForm()
 		if r.Form["id"][0] == "undefined" || r.Form["id"][0] == "" {
 			util.ReturnJson(500, "", "not found pid", v)
@@ -183,6 +202,10 @@ func showLog(v http.ResponseWriter, r *http.Request) {
 }
 
 func close(v http.ResponseWriter, r *http.Request) {
+	if !isLogin(v, r) {
+		util.ReturnJson(501, "", "not login", v)
+		return
+	}
 	r.ParseForm()
 	if r.Form["pid"][0] == "undefined" {
 		util.ReturnJson(500, "", "pid not found", v)
@@ -192,13 +215,14 @@ func close(v http.ResponseWriter, r *http.Request) {
 		util.ReturnJson(500, "", "id not found", v)
 		return
 	}
-	pid, err := strconv.Atoi(r.Form["pid"][0])
-	p, err := os.FindProcess(pid)
+	err := util.ChangeParameterDataById(0, "未开启", r.Form["id"][0])
+	delete(logMap, r.Form["id"][0])
 	if err != nil {
 		util.ReturnJson(500, "", err.Error(), v)
 		return
 	}
-	err = util.ChangeParameterDataById(0, "未开启", r.Form["id"][0])
+	pid, err := strconv.Atoi(r.Form["pid"][0])
+	p, err := os.FindProcess(pid)
 	if err != nil {
 		util.ReturnJson(500, "", err.Error(), v)
 		return
@@ -213,13 +237,16 @@ func close(v http.ResponseWriter, r *http.Request) {
 		util.ReturnJson(500, "", err.Error(), v)
 		return
 	}
-	delete(logMap, r.Form["id"][0])
 	util.ReturnJson(200, "", "success", v)
 	return
 }
 
 func uploade(v http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
+		if !isLogin(v, r) {
+			util.ReturnJson(501, "", "not login", v)
+			return
+		}
 		file, head, err := r.FormFile("file")
 		fileSuffix := path.Ext(head.Filename)
 		if err != nil {
@@ -267,6 +294,10 @@ func waitProcess(cmd *exec.Cmd, cmdChan chan int, id string) {
 }
 
 func deleteParameter(v http.ResponseWriter, r *http.Request) {
+	if !isLogin(v, r) {
+		util.ReturnJson(501, "", "not login", v)
+		return
+	}
 	r.ParseForm()
 	id := r.Form["id"][0]
 	err := util.DeleteParameterDataById(id)
@@ -277,11 +308,65 @@ func deleteParameter(v http.ResponseWriter, r *http.Request) {
 	util.ReturnJson(200, "", "success", v)
 }
 
+func login(v http.ResponseWriter, r *http.Request) {
+	if isLogin(v, r) {
+		http.Redirect(v, r, "/", 302)
+		return
+	}
+	t, err := template.ParseFiles("./view/login.html")
+	if err != nil {
+		io.WriteString(v, err.Error())
+		return
+	}
+	t.Execute(v, nil)
+}
+
+func doLogin(v http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	if isLogin(v, r) {
+		util.ReturnJson(500, "", "The other man is using it", v)
+	}
+	username, password, err := util.GetUsernameAndPassword()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	if (r.Form["username"][0] == username) && (r.Form["password"][0] == password) {
+		sess, _ := globalSessions.SessionStart(v, r)
+		defer sess.SessionRelease(v)
+		sessionId := sess.SessionID()
+		util.SaveSession(sessionId)
+		util.ReturnJson(200, "", "success", v)
+		return
+	}
+	util.ReturnJson(500, "", "login failed", v)
+}
+
+func isLogin(v http.ResponseWriter, r *http.Request) bool {
+	sessionId, timeStamp, err := util.GetSession()
+	if err != nil {
+		return false
+	}
+	t := time.Now()
+	now := int(t.Unix())
+	if timeStamp < now {
+		return false
+	}
+	sess, _ := globalSessions.SessionStart(v, r)
+	defer sess.SessionRelease(v)
+	if sess.SessionID() == sessionId {
+		return true
+	} else {
+		return false
+	}
+}
+
 func StartServer() {
 	AutoStart()
 	time.Sleep(3 * time.Second)
+	initSession()
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	//	http.HandleFunc("/login", login)
+	http.HandleFunc("/login", login)
+	http.HandleFunc("/doLogin", doLogin)
 	http.HandleFunc("/", show)
 	http.HandleFunc("/add", add)
 	http.HandleFunc("/close", close)
@@ -337,6 +422,8 @@ func autoRunCommand(command string, id string) {
 	//判断2秒内是否有channel返回，有则是失败，阻塞3秒以上则为成功
 	select {
 	case <-cmdChan:
+		Output := getLog(id)
+		fmt.Println(Output)
 	case <-second:
 		pid := cmd.Process.Pid
 		err := util.ChangeParameterDataById(pid, "已开启", id)
@@ -345,4 +432,19 @@ func autoRunCommand(command string, id string) {
 			return
 		}
 	}
+}
+
+func initSession() {
+	sessionConfig := &session.ManagerConfig{
+		CookieName:      "sessionid",
+		EnableSetCookie: true,
+		Gclifetime:      3600,
+		Maxlifetime:     3600,
+		Secure:          false,
+		CookieLifeTime:  3600,
+		ProviderConfig:  "./tmp",
+	}
+	globalSessions, _ = session.NewManager("file", sessionConfig)
+	go globalSessions.GC()
+	util.InitSession()
 }
