@@ -3,3 +3,4 @@ proxy
 *.exe~
 /db/bucket/
 /static/upload/
+/tmp/
