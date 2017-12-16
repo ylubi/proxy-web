@@ -394,6 +394,8 @@ func AutoStart() {
 				log.Fatal(err.Error())
 			}
 			go autoRunCommand(command, value.Id)
+		} else {
+			util.ChangeParameterDataById(0, "未开启", value.Id)
 		}
 	}
 }

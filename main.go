@@ -30,7 +30,7 @@ func clean() {
 				p, _ := os.FindProcess(v.ProcessId)
 				p.Kill()
 				p.Release()
-				util.ChangeParameterDataById(0, "未开启", v.Id)
+
 			}
 		}
 	}()
