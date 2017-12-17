@@ -32,8 +32,8 @@ proxy-web是用go语言写的，基于[snail007/goproxy](https://github.com/snai
 
 ### 配置
 配置文件为config/config.ini  
-可以配置的属性有：端口（默认28080），goproxy的路径，登录账号和密码（都为admin）  
-默认[snail007/goproxy](https://github.com/snail007/goproxy/releases)在与proxy-web平级的proxyService目录内  
+可以配置的属性有：端口（默认28080），goproxy的路径（默认[snail007/goproxy](https://github.com/snail007/goproxy/releases)路径在与proxy-web平级的proxyService目录内），登录账号和密码（都为admin）  
+
 
 ### 依赖包
 [github.com/boltdb/bolt](https://github.com/boltdb/bolt)使用bolt扩展为数据库  
@@ -77,7 +77,7 @@ kcp形式加密：-B密码
 
 #### **2.3.udp参数** 
 没有加密模式  
-“本次连接类型”只有udp模式  
+“本地连接类型”只有udp模式  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/udp1.png?raw=true" />  
 `path to proxy/proxy udp -p :8081 -T tls -P 2.2.2.2:8081 -C path to file/proxy.crt -K path to file/proxy.key`
 
