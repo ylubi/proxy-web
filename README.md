@@ -61,7 +61,7 @@ proxy-web是用go语言写的，基于[snail007/goproxy](https://github.com/snai
 参数具体怎样使用请查看goproxy手册
 
 #### **2.1.http参数** 
-tls形式加密：-C .crt文件 和 -K参数 .key文件  
+tls形式加密：-C .crt文件 和 -K .key文件  
 ssh形式加密：有密钥和密码两种方式，-u 用户名 -A 密码 -S 私钥文件 -s 私钥密码  
 kcp形式加密：-B 密码  
 <img src="https://github.com/yincongcyincong/proxy-web/blob/master/docs/image/http1.png?raw=true" />  
@@ -70,7 +70,7 @@ kcp形式加密：-B 密码
 `path to proxy/proxy http -t tls -p :8081 -T tls -P 2.2.2.2:8081 -C path to file/proxy.crt -K path to file/proxy.key`  
 
 #### **2.2.tcp参数** 
-tls形式加密：-C .crt文件 和 -K参数 .key文件  
+tls形式加密：-C .crt文件 和 -K .key文件  
 kcp形式加密：-B密码  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/tcp1.png?raw=true" />  
 `path to proxy/proxy tcp -t tls -p :8081 -T tls -P 2.2.2.2:8081 -C path to file/proxy.crt -K path to file/proxy.key`  
@@ -82,7 +82,7 @@ kcp形式加密：-B密码
 `path to proxy/proxy udp -p :8081 -T tls -P 2.2.2.2:8081 -C path to file/proxy.crt -K path to file/proxy.key`
 
 #### **2.4.socks参数** 
-tls形式加密：-C .crt文件 和 -K参数 .key文件  
+tls形式加密：-C .crt文件 和 -K .key文件  
 ssh形式加密：有密钥和密码两种方式，-u 用户名 -A 密码 -S 私钥文件 -s 私钥密码  
 kcp形式加密：-B 密码  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/socks.png?raw=true" />  
@@ -90,29 +90,28 @@ kcp形式加密：-B 密码
 
 #### **2.5.client参数** 
 只有tls形式的加密且必须加密  
-tls形式加密：-C .crt文件 和 -K参数 .key文件 
+tls形式加密：-C .crt文件 和 -K .key文件 
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/client.png?raw=true" />  
 `path to proxy/proxy client -P ":8081" -C path to file/proxy.crt -K path to file/proxy.key `  
 “上级服务器+端口”填写的内容无效
 
 #### **2.6.server参数** 
 只有tls形式的加密且必须加密  
-tls形式加密：-C .crt文件 和 -K参数 .key文件  
-“代理服务器+端口”填写-r参数  
+tls形式加密：-C .crt文件 和 -K .key文件  
+“代理服务器+端口”代表-r参数  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/server.png?raw=true" />  
 `path to proxy/proxy server -r "udp://:10053@:53" -P "2.2.2.2:8081" -C path to file/proxy.crt -K path to file/proxy.key`
 
 #### **2.7.bridge参数** 
 只有tls形式的加密且必须加密  
-tls形式加密：-C .crt文件 和 -K参数 .key文件  
+tls形式加密：-C .crt文件 和 -K .key文件  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/bridge.png?raw=true" />  
 `path to proxy/proxy bridge -P ":8081" -C path to file/proxy.crt -K path to file/proxy.key `  
 “上级服务器+端口”填写的内容无效  
 
 ### 源码使用  
-- git下载源码  
-- 配置文件在config,可以修改路径、端口和登录账号密码   
-   
+- git下载源码  
+   
 ### TODO
 - -L参数进程池  
 - server -r参数分解  
