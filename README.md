@@ -45,7 +45,7 @@ config里也可以修改端口
 ### 2.参数介绍
 代理协议：需要用到的协议 如http， tcp等协议。  
 本地连接类型：-t参数。  
-链式代理：此次连接的类型，顶级代理不需要“上级服务器+端口”。  
+链式代理：本地连接的类型，顶级代理不需要“上级服务器+端口”。  
 代理服务器+端口：-p参数。  
 上级服务器+端口：-P参数。  
 父级连接类型：-T参数 选取后可能会有不同的加密方式，上传文件的加密方式会有默认文件，tcp形式默认不加密。 
@@ -67,7 +67,7 @@ kcp形式加密：-B密码
 
 #### **2.3.udp参数** 
 没有加密模式  
-“本次连接类型”只有udp模式  
+“本地连接类型”只有udp模式  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/udp1.png?raw=true" />  
 `path to proxy/proxy udp -p :8081 -T tls -P 2.2.2.2:8081 -C path to file/proxy.crt -K path to file/proxy.key`
 
