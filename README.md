@@ -36,7 +36,7 @@ proxy-web是以[snail007/goproxy](https://github.com/snail007/goproxy/)为基础
 [github.com/astaxie/beego/tree/master/session](https://github.com/astaxie/beego/tree/master/session) session模块 
 
 ### 1.运行
-然后用8080端口在浏览器进入，如localhost:8080  
+然后用28080端口在浏览器进入，如localhost:28080  
 首先要登录，可在config里面配置账号密码，默认都为admin  
 config里也可以修改端口  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/login.png?raw=true" />  
