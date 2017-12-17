@@ -38,7 +38,7 @@ proxy-web是用go语言写的，基于[snail007/goproxy](https://github.com/snai
 ### 依赖包
 [github.com/boltdb/bolt](https://github.com/boltdb/bolt)使用bolt扩展为数据库  
 [github.com/Unknwon/goconfig](https://github.com/Unknwon/goconfig)解析配置文件  
-[github.com/astaxie/beego/tree/master/session](https://github.com/astaxie/beego/tree/master/session) session模块 
+[github.com/astaxie/beego/tree/master/session](https://github.com/astaxie/beego/tree/master/session) session模块  
 这些依赖已经在源码内解决，无需go get
 
 ### 1.使用
@@ -47,7 +47,7 @@ proxy-web是用go语言写的，基于[snail007/goproxy](https://github.com/snai
 账号密码都为admin，登录进入  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/empty.png?raw=true" />  
 点击，添加代理，显示添加代理的弹框，可以选择代理是否开启proxy-web服务时也自动启动  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/preview.png?raw=true" /> 
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/add.png?raw=true" /> 
 代理添加完成后可执行修改、删除、启用和显示日志的操作  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/preview.png?raw=true" />  
 
@@ -62,7 +62,7 @@ proxy-web是用go语言写的，基于[snail007/goproxy](https://github.com/snai
 
 #### **2.1.http参数** 
 tls形式加密：-C .crt文件 和 -K参数 .key文件  
-ssh形式加密：有密钥和密码两种方式，-u 用户名 -A 密码 -S 私钥文件 -s 私钥密码 
+ssh形式加密：有密钥和密码两种方式，-u 用户名 -A 密码 -S 私钥文件 -s 私钥密码  
 kcp形式加密：-B 密码  
 <img src="https://github.com/yincongcyincong/proxy-web/blob/master/docs/image/http1.png?raw=true" />  
 `path to proxy/proxy http -t tcp -p :8081`  
@@ -83,7 +83,7 @@ kcp形式加密：-B密码
 
 #### **2.4.socks参数** 
 tls形式加密：-C .crt文件 和 -K参数 .key文件  
-ssh形式加密：有密钥和密码两种方式，-u 用户名 -A 密码 -S 私钥文件 -s 私钥密码   
+ssh形式加密：有密钥和密码两种方式，-u 用户名 -A 密码 -S 私钥文件 -s 私钥密码  
 kcp形式加密：-B 密码  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/socks.png?raw=true" />  
 `path to proxy/proxy socks -t tcp -p :8081 -T kcp -P 2.2.2.2:8081 -B 1234 `
