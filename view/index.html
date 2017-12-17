@@ -604,6 +604,7 @@
 			$('input[type=password]').val('')
 			var protocol = $(ob).val();
 			$(".encryptTerm").remove();
+			$(ob).parents('form').find('select[name=superior]').val('1')
 			switch (protocol) {
 				case "client":
 				case "bridge":
