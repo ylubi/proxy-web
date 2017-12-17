@@ -268,7 +268,7 @@
 								<td  style="width:270px;">\
 									<a class="btn btn-primary ng-binding update" onclick="getData(this)">修改</a>\
 									<a class="btn btn-primary ng-binding delete" onclick="confirmDel(this)">删除</a>\
-									<a class="btn btn-primary ng-binding link" onclick="link(this)">连接</a>\
+									<a class="btn btn-primary ng-binding link" onclick="link(this)">启用</a>\
 									<a class="btn btn-primary ng-binding closed" onclick="closed(this)" style="display:none;">关闭</a>\
 									<a class="btn btn-primary ng-binding log" onclick="showLog(this)" pid="">显示日志</a>\
 									<a class="btn btn-primary ng-binding nolog" onclick="stopLog(this)" style="display:none;">隐藏日志</a>\
@@ -382,6 +382,8 @@
 				$(obj).parents('form').find('.superior').after(keyHtml)
 				$(obj).parents('form').find('.superior').after(passHtml)
 				$(obj).parents('form').find('.superior').after(userHtml)
+				$(obj).parents('form').find('input[name=password]').siblings('label').html('私钥密码')
+				$(obj).parents('form').find('input[name=key]').siblings('label').html('私钥文件')
 				upload()
 			}
 		}
