@@ -52,7 +52,7 @@ config里也可以修改端口
 
 #### **2.1.http参数** 
 tls形式加密：-C .crt文件 和 -K参数 .key文件  
-ssh形式加密：有密钥和密码两种方式，-u 用户名 -A 密码 -S .key文件 -s 密钥密码 
+ssh形式加密：有密钥和密码两种方式，-u 用户名 -A 密码 -S .key文件 -s 密钥密码   
 kcp形式加密：-B 密码  
 <img src="https://github.com/yincongcyincong/proxy-web/blob/master/docs/image/http1.png?raw=true" />  
 `path to proxy/proxy http -t tcp -p :8081`  
