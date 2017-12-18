@@ -30,6 +30,7 @@ func init() {
 
 func main() {
 	server.StartServer()
+	clean()
 }
 
 func clean() {
