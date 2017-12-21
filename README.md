@@ -32,7 +32,7 @@ proxy-web是用go语言写的，基于[snail007/goproxy](https://github.com/snai
 
 ### 配置
 配置文件为config/config.ini  
-可以配置的属性有：端口（默认28080），goproxy的路径（默认[snail007/goproxy](https://github.com/snail007/goproxy/releases)路径在与proxy-web平级的proxyService目录内），登录账号和密码（都为admin）  
+可以配置的属性有：端口（默认28080），goproxy的路径（默认[snail007/goproxy](https://github.com/snail007/goproxy/releases)路径在proxy-web目录下的proxyService目录内），登录账号和密码（都为admin）  
 
 
 ### 依赖包
