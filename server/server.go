@@ -13,6 +13,7 @@ import (
 	"path"
 	"proxy-web/procotol"
 	"proxy-web/util"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -241,6 +242,27 @@ func close(v http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func keygen(v http.ResponseWriter, r *http.Request) {
+	os := runtime.GOOS
+	if os != "linux" {
+		util.ReturnJson(500, "", "os error", v)
+		return
+	}
+	fmt.Println(os)
+	path, err := util.GetServerPath()
+	command := path + "proxy keygen"
+	commandList := strings.Split(command, " ")
+	cmd := exec.Command(commandList[0], commandList[1:]...)
+	err = cmd.Run()
+
+	if err != nil {
+		util.ReturnJson(500, "", err.Error(), v)
+		return
+	}
+	util.ReturnJson(200, "", "success", v)
+	return
+}
+
 func uploade(v http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		if !isLogin(v, r) {
@@ -375,6 +397,7 @@ func StartServer() {
 	http.HandleFunc("/showLog", showLog)
 	http.HandleFunc("/uploade", uploade)
 	http.HandleFunc("/delete", deleteParameter)
+	http.HandleFunc("/keygen", keygen)
 	port, err := util.GetServerPort()
 	if err != nil {
 		log.Fatal("get port failure: ", err)

@@ -24,6 +24,9 @@
 				<button class="btn btn-default ng-binding add" data-toggle="modal" data-target="#exampleModal" >
 					<span class="glyphicon glyphicon-plus"></span> 添加代理
 				</button> 
+				<button class="btn btn-default ng-binding" data-toggle="modal" data-target="#keygenModal" >
+					<span class="glyphicon glyphicon-lock"></span> 生成加密证书
+				</button> 
 			</div>
 		</div>
 
@@ -218,6 +221,29 @@
 				</div>
 			</div>
 		</div>
+		
+		<div class="modal fade" id="keygenModal" tabindex="-1" role="dialog" aria-labelledby="deleteModal">
+			<div class="modal-dialog modal-sm" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						 <h4 class="modal-title" id="deleteModal">加密</h4>
+					</div>
+					<div class="modal-body" style="text-align: center;">
+						<div>
+							<label for="recipient-name" class="control-label">
+								你确定要生成加密文件吗？
+							</label>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						<button type="button" onclick="keygen()" data-dismiss="modal" class="btn btn-primary">确定</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
 	</body>
 	<script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
 	<script type="text/javascript" src="/static/js/notify.js"></script>
@@ -368,20 +394,24 @@
 
 		function encryptItem(obj){
 			var val = $(obj).val()
+			var protocol = $(obj).parents('form').find('select[name=protocol]').val();
+			if (protocol == 'server' || protocol == 'client' || protocol == 'bridge') {
+				val = 3
+			}
 			$('.encryptTerm').remove();
 			if (val == 3) {
-				$(obj).parents('form').find('.superior').after(crtHtml)
-				$(obj).parents('form').find('.superior').after(keyHtml)
+				$(obj).parents('form').append(crtHtml)
+				$(obj).parents('form').append(keyHtml)
 				upload()
 			} else if (val == 4)  {
-				$(obj).parents('form').find('.superior').after(passHtml)
+				$(obj).parents('form').append(passHtml)
 			} else if (val == 5)  {
-				$(obj).parents('form').find('.superior').after(passHtml)
-				$(obj).parents('form').find('.superior').after(userHtml)
+				$(obj).parents('form').append(passHtml)
+				$(obj).parents('form').append(userHtml)
 			} else if (val == 6)  {
-				$(obj).parents('form').find('.superior').after(keyHtml)
-				$(obj).parents('form').find('.superior').after(passHtml)
-				$(obj).parents('form').find('.superior').after(userHtml)
+				$(obj).parents('form').append(keyHtml)
+				$(obj).parents('form').append(passHtml)
+				$(obj).parents('form').append(userHtml)
 				$(obj).parents('form').find('input[name=password]').siblings('label').html('私钥密码')
 				$(obj).parents('form').find('input[name=key]').siblings('label').html('私钥文件')
 				upload()
@@ -427,6 +457,25 @@
 						$('#exampleModal').modal('hide')
 					} else {
 						$.notify(res.Output, {className:"error",elementPosition:"bottom right",})
+					}
+				}
+			});
+		}
+		
+		function keygen()
+		{
+			$.ajax({
+				type: "POST",
+				cache: false,
+				url: "/keygen",
+				data: "",
+				dataType:"json",
+				success: function (res) {
+					if (res.Code == 200) {
+						$.notify("success", "success")
+					} else {
+						$.notify(res.Output, "error")
+						
 					}
 				}
 			});
