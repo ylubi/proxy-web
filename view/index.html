@@ -103,6 +103,7 @@
 									<option label="kcp" value="4">kcp</option>
 									<option label="ssh(密码)" value="5">ssh(密码)</option>
 									<option label="ssh(密钥)" value="6">ssh(密钥)</option>
+									<option label="basic认证（文件）" value="7">basic认证（文件）</option>
 								</select>
 							</div>
 						</form>
@@ -188,6 +189,7 @@
 									<option label="kcp" value="4">kcp</option>
 									<option label="ssh(密码)" value="5">ssh(密码)</option>
 									<option label="ssh(密钥)" value="6">ssh(密钥)</option>
+									<option label="basic认证（文件）" value="7">basic认证（文件）</option>
 								</select>
 							</div>
 						</form>
@@ -333,7 +335,16 @@
 								用户名:\
 							</label>\
 							<input type="text" name="username" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写用户名">\
-						</div>'    
+						</div>'  
+						
+		var txtHtml = '<div class="form-group encryptTerm">\
+							<label for="recipient-name" class="control-label">\
+								账号密码文件（txt类型）:\
+							</label>\
+							<br>\
+							<input type="hidden" name="txt">\
+							<a class="btn btn-primary ng-binding file_upload">.txt文件</a>\
+						</div>'  
 
 		var superiorMap = ['', 'tcp', 'upd', 'tls', 'kcp', 'ssh(密码)', 'ssh(密码)']  
 		
@@ -402,7 +413,10 @@
 			if (val == 3) {
 				$(obj).parents('form').append(crtHtml)
 				$(obj).parents('form').append(keyHtml)
-				upload()
+				setTimeout(function(){
+					upload('crt,key')
+				}, 500)
+				
 			} else if (val == 4)  {
 				$(obj).parents('form').append(passHtml)
 			} else if (val == 5)  {
@@ -414,7 +428,14 @@
 				$(obj).parents('form').append(userHtml)
 				$(obj).parents('form').find('input[name=password]').siblings('label').html('私钥密码')
 				$(obj).parents('form').find('input[name=key]').siblings('label').html('私钥文件')
-				upload()
+				setTimeout(function(){
+					upload('key')
+				}, 500)
+			} else if(val == 7) {
+				$(obj).parents('form').append(txtHtml)
+				setTimeout(function(){
+					upload('txt')
+				}, 500)
 			}
 		}
 
@@ -600,7 +621,7 @@
 			lock[id] = true
 		}
 		
-		function upload(){
+		function upload(types){
 			 var uploader = WebUploader.create({
 				// 选完文件后，是否自动上传。
 				auto: true,
@@ -617,7 +638,7 @@
 				// 只允许选择图片文件。
 				accept: {
 					title: 'Images',
-					extensions: 'crt,key',
+					extensions: types,
 				}
 			});
 	
@@ -643,7 +664,7 @@
 	
 			uploader.on("error",function (type){
 				if (type=="Q_TYPE_DENIED"){
-					$.notify("请上传key，crt类型的文件", {className:"error",elementPosition:"bottom right",})
+					$.notify("请上传" + types + "类型的文件", {className:"error",elementPosition:"bottom right",})
 				}else if(type=="F_EXCEED_SIZE"){
 					$.notify("文件大小不能超过8M", {className:"error",elementPosition:"bottom right",})
 				}
@@ -665,7 +686,7 @@
 					$(ob).parents('form').find('.local').hide()
 					$(ob).parents('form').find('.superior').after(crtHtml)
 					$(ob).parents('form').find('.superior').after(keyHtml)
-					upload()
+					upload('crt,key')
 				break;
 				case "udp":
 					var val = '<option label="tcp" value="1" selected="selected">tcp</option>\

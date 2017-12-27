@@ -297,7 +297,12 @@ func getEncryptionCondition(data url.Values) (string, error) {
 			log.Fatal(err.Error())
 		}
 		return string(data), nil
-
+	case "7":
+		jsons["txt"] = data["txt"][0]
+		data, err := json.Marshal(jsons)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
 	}
 	err := fmt.Errorf("%s", "parameter error")
 	return "", err
