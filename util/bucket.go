@@ -303,6 +303,7 @@ func getEncryptionCondition(data url.Values) (string, error) {
 		if err != nil {
 			log.Fatal(err.Error())
 		}
+		return string(data), nil
 	}
 	err := fmt.Errorf("%s", "parameter error")
 	return "", err

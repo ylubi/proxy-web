@@ -346,7 +346,7 @@
 							<a class="btn btn-primary ng-binding file_upload">.txt文件</a>\
 						</div>'  
 
-		var superiorMap = ['', 'tcp', 'upd', 'tls', 'kcp', 'ssh(密码)', 'ssh(密码)']  
+		var superiorMap = ['', 'tcp', 'upd', 'tls', 'kcp', 'ssh(密码)', 'ssh(密码)', 'Basic认证']  
 		
 		var proxyMap = ['', '顶级代理', '非顶级代理']
 
@@ -649,13 +649,8 @@
 					return 
 				}
 				if (response.Code == 200) {
-					if (response.Output.indexOf('key') >= 0) {
-						var id = '#rt_'+file.source.ruid
-						$(id).parents('a').siblings('input[name=key]').val(response.Output)
-					} else if (response.Output.indexOf('crt') >= 0) {
-						var id = '#rt_'+file.source.ruid
-						$(id).parents('a').siblings('input[name=crt]').val(response.Output)
-					}
+					var id = '#rt_'+file.source.ruid
+					$(id).parents('a').siblings('input').val(response.Output)
 					$(id).notify('上传成功', 'success')
 				} else {
 					$.notify(response.Output, {className:"error",elementPosition:"bottom right",})
@@ -717,7 +712,8 @@
 						   <option label="tls" value="3">tls</option>\
 						   <option label="kcp" value="4">kcp</option>\
 						   <option label="ssh(密码)" value="5">ssh(密码)</option>\
-						   <option label="ssh(密钥)" value="6">ssh(密钥)</option>'
+						   <option label="ssh(密钥)" value="6">ssh(密钥)</option>\
+						   <option label="basic认证（文件）" value="7">basic认证（文件）</option>'
 					$(ob).parents('form').find("select[name=encrypt]").html(val);
 					$(ob).parents('form').find(".encryptTerm").remove();
 					$(ob).parents('form').find('.superior').show()
@@ -750,8 +746,8 @@
 					res.Output = JSON.parse(res.Output)
 					$('input[name=id]').eq(1).val(res.Output.Id)
 					$('select[name=protocol]').eq(1).val(res.Output.Protocol)
-					$('select[name=superior]').eq(1).val(res.Output.Superior)
 					judgeEncrypt($('select[name=protocol]').eq(1))
+					$('select[name=superior]').eq(1).val(res.Output.Superior)
 					encryptItem($('select[name=superior]').eq(1))
 					if (res.Output.Auto == "是") {
 						$('input[name=auto]').eq(3).prop('checked', true)
@@ -764,6 +760,7 @@
 					$('input[name=superiorProxyIp]').eq(1).val(res.Output.SuperiorProxyIp)
 					if (res.Output.EncryptionCondition != '') {
 						var encrypt = JSON.parse(res.Output.EncryptionCondition)
+						console.log(encrypt)
 						for (var i in encrypt) {
 							$('form').eq(1).find('input[name='+i+']').val(encrypt[i])
 						}

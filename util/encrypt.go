@@ -43,6 +43,13 @@ func HandleEncrypt(data *Parameter) (string, string, error) {
 			return "", "", err
 		}
 		encryptParamater = HandelSshKey(encrypt["username"], encrypt["key"], encrypt["password"])
+	case 7:
+		encryptCommand = ""
+		encrypt, err := getEncrypt(data.EncryptionCondition)
+		if err != nil {
+			return "", "", err
+		}
+		encryptParamater = " -F " + encrypt["txt"]
 	default:
 		err := fmt.Errorf("%s", "parameter encrypt error")
 		return "", "", err
