@@ -117,7 +117,6 @@ func getCommand(id string) (string, error) {
 		err := fmt.Errorf("protocol parameter error")
 		return "", err
 	}
-	fmt.Println(command)
 	return command, nil
 }
 
