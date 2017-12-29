@@ -25,6 +25,7 @@ type Parameter struct {
 	Local               string
 	Status              string
 	Auto                string
+	Always              string
 }
 
 func GetParameter() map[string]*Parameter {
@@ -115,6 +116,12 @@ func SaveParameter(data url.Values) (string, string, error) {
 	parameter.Auto = data["auto"][0]
 	parameter.ProcessId = 0
 	parameter.Local = data["local"][0]
+	if (parameter.Protocol != "http" && parameter.Protocol != "socks") || parameter.ProxyLevel != 2 {
+		parameter.Always = "0"
+	} else {
+		parameter.Always = data["always"][0]
+	}
+
 	var stringId string
 	var buf []byte
 	err = db.Update(func(tx *bolt.Tx) error {

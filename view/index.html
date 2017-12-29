@@ -93,6 +93,14 @@
 								</label>
 								<input type="text" name="superiorProxyIp" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="0.0.0.0:80">
 							</div>
+							<div class="form-group always">
+								<label for="recipient-name " class="control-label">
+									是否强制走上级代理（一级代理默认否）:
+								</label>
+								<br>
+								<input type="radio" name="always" checked value="0" class="ng-pristine ng-valid ng-not-empty ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								<input type="radio" name="always" value="1" class="ng-pristine ng-valid ng-not-empty ng-touched">&nbsp;<label>是</label>
+							</div>
 							<div class="form-group superior">
 								<label for="recipient-name" class="control-label">
 									父级连接类型:
@@ -178,6 +186,14 @@
 									上级服务器+端口(一级代理不用填写):
 								</label>
 								<input type="text" name="superiorProxyIp" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="0.0.0.0:80">
+							</div>
+							<div class="form-group always">
+								<label for="recipient-name " class="control-label">
+									是否强制走上级代理（一级代理默认否）:
+								</label>
+								<br>
+								<input type="radio" name="always" value="0" class="ng-pristine ng-valid ng-not-empty ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								<input type="radio" name="always" value="1" class="ng-pristine ng-valid ng-not-empty ng-touched">&nbsp;&nbsp;<label>是</label>
 							</div>
 							<div class="form-group superior">
 								<label for="recipient-name" class="control-label">
@@ -676,6 +692,7 @@
 				case "client":
 				case "bridge":
 				case "server":
+					$(ob).parents('form').find('.always').hide()
 					$(ob).parents('form').find('.chain').hide()
 					$(ob).parents('form').find('.superior').hide()
 					$(ob).parents('form').find('.local').hide()
@@ -691,6 +708,7 @@
 					$(ob).parents('form').find('.superior').show()
 					$(ob).parents('form').find('.encryptItem').show();
 					$(ob).parents('form').find('.chain').show()
+					$(ob).parents('form').find('.always').hide()
 					$(ob).parents('form').find('.local').hide()
 					$(ob).parents('form').find('.superiorth').show()
 				break;
@@ -705,6 +723,7 @@
 					$(ob).parents('form').find('.encryptItem').show();
 					$(ob).parents('form').find('.chain').show()
 					$(ob).parents('form').find('.local').show()
+					$(ob).parents('form').find('.always').hide()
 					$(ob).parents('form').find('.superiorth').show()
 				break;
 				default:
@@ -721,6 +740,7 @@
 					$(ob).parents('form').find('.chain').show()
 					$(ob).parents('form').find('.local').show()
 					$(ob).parents('form').find('.superiorth').show()
+					$(ob).parents('form').find('.always').show()
 				break
 			}
 		}
@@ -757,6 +777,12 @@
 					$('select[name=local]').eq(1).val(res.Output.Local)
 					$('select[name=proxyLevel]').eq(1).val(res.Output.ProxyLevel)
 					$('input[name=proxyIp]').eq(1).val(res.Output.ProxyIp)
+					if (res.Output.Always == "1") {
+						$('input[name=always]').eq(3).prop('checked', true)
+					} else {
+						$('input[name=always]').eq(2).prop('checked', true)
+					}
+					
 					$('input[name=superiorProxyIp]').eq(1).val(res.Output.SuperiorProxyIp)
 					if (res.Output.EncryptionCondition != '') {
 						var encrypt = JSON.parse(res.Output.EncryptionCondition)
