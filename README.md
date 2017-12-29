@@ -7,6 +7,7 @@ proxy-web是用go语言写的，基于[snail007/goproxy](https://github.com/snai
 ### 使用前须知
  - [作用](#作用)
  - [下载](#下载)
+ - [更新](#更新)
  - [配置](#配置)
  - [依赖包](#依赖包)
  
@@ -29,6 +30,14 @@ proxy-web是用go语言写的，基于[snail007/goproxy](https://github.com/snai
  
 ### 下载
 [下载地址](https://github.com/yincongcyincong/proxy-web/releases)  
+
+### 更新
+1、 可以在linux下自动生成证书和key文件  
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/keygen.png?raw=true" />  
+2、 Basic认证操作，仅支持文件  
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/basic.png?raw=true" />  
+3、--always参数，使下级代理流量全部使用上级代理  
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/always.png?raw=true" />   
 
 ### 配置
 配置文件为config/config.ini  
