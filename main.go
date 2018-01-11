@@ -1,3 +1,4 @@
+//go:generate goversioninfo -icon=school.ico
 package main
 
 import (

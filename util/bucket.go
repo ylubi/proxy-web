@@ -26,6 +26,7 @@ type Parameter struct {
 	Status              string
 	Auto                string
 	Always              string
+	Compress            string
 }
 
 func GetParameter() map[string]*Parameter {
@@ -120,6 +121,11 @@ func SaveParameter(data url.Values) (string, string, error) {
 		parameter.Always = "0"
 	} else {
 		parameter.Always = data["always"][0]
+	}
+	if parameter.Protocol == "client" || parameter.Protocol == "server" {
+		parameter.Compress = data["compress"][0]
+	} else {
+		parameter.Compress = "0"
 	}
 
 	var stringId string
@@ -299,13 +305,6 @@ func getEncryptionCondition(data url.Values) (string, error) {
 		jsons["username"] = data["username"][0]
 		jsons["key"] = data["key"][0]
 		jsons["password"] = data["password"][0]
-		data, err := json.Marshal(jsons)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		return string(data), nil
-	case "7":
-		jsons["txt"] = data["txt"][0]
 		data, err := json.Marshal(jsons)
 		if err != nil {
 			log.Fatal(err.Error())

@@ -111,7 +111,6 @@
 									<option label="kcp" value="4">kcp</option>
 									<option label="ssh(密码)" value="5">ssh(密码)</option>
 									<option label="ssh(密钥)" value="6">ssh(密钥)</option>
-									<option label="basic认证（文件）" value="7">basic认证（文件）</option>
 								</select>
 							</div>
 						</form>
@@ -205,7 +204,6 @@
 									<option label="kcp" value="4">kcp</option>
 									<option label="ssh(密码)" value="5">ssh(密码)</option>
 									<option label="ssh(密钥)" value="6">ssh(密钥)</option>
-									<option label="basic认证（文件）" value="7">basic认证（文件）</option>
 								</select>
 							</div>
 						</form>
@@ -361,6 +359,15 @@
 							<input type="hidden" name="txt">\
 							<a class="btn btn-primary ng-binding file_upload">.txt文件</a>\
 						</div>'  
+		
+		var compressHtml = '<div class="form-group compress">\
+								<label for="recipient-name " class="control-label">\
+									是否压缩:\
+								</label>\
+								<br>\
+								<input type="radio" name="compress" value="0" class="ng-pristine ng-valid ng-not-empty ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+								<input type="radio" name="compress" value="1" class="ng-pristine ng-valid ng-not-empty ng-touched">&nbsp;&nbsp;<label>是</label>\
+							</div>'
 
 		var superiorMap = ['', 'tcp', 'upd', 'tls', 'kcp', 'ssh(密码)', 'ssh(密码)', 'Basic认证']  
 		
@@ -447,11 +454,6 @@
 				setTimeout(function(){
 					upload('key')
 				}, 500)
-			} else if(val == 7) {
-				$(obj).parents('form').append(txtHtml)
-				setTimeout(function(){
-					upload('txt')
-				}, 500)
 			}
 		}
 
@@ -464,10 +466,6 @@
 			
 			if (proxyLevel == '2' && superiorProxyIp == '') {
 				$.notify("非顶级代理的上级服务器ip不能为空", "error")
-				return ;
-			}
-			if (!ipPattern.test(proxyIp) && !portPattern.test(proxyIp)) {
-				$.notify("ip或端口格式不正确", "error")
 				return ;
 			}
 
@@ -688,16 +686,19 @@
 			var protocol = $(ob).val();
 			$(".encryptTerm").remove();
 			$(ob).parents('form').find('select[name=superior]').val('1')
+			$(ob).parents('form').find('.compress').remove()
 			switch (protocol) {
 				case "client":
-				case "bridge":
 				case "server":
+					$(ob).parents('form').append(compressHtml)
+					$(ob).parents('form').find('input[name=compress]').eq(0).prop('checked', true)
+				case "bridge":
+					$(ob).parents('form').find('.superior').after(crtHtml)
+					$(ob).parents('form').find('.superior').after(keyHtml)
 					$(ob).parents('form').find('.always').hide()
 					$(ob).parents('form').find('.chain').hide()
 					$(ob).parents('form').find('.superior').hide()
 					$(ob).parents('form').find('.local').hide()
-					$(ob).parents('form').find('.superior').after(crtHtml)
-					$(ob).parents('form').find('.superior').after(keyHtml)
 					upload('crt,key')
 				break;
 				case "udp":
@@ -731,8 +732,7 @@
 						   <option label="tls" value="3">tls</option>\
 						   <option label="kcp" value="4">kcp</option>\
 						   <option label="ssh(密码)" value="5">ssh(密码)</option>\
-						   <option label="ssh(密钥)" value="6">ssh(密钥)</option>\
-						   <option label="basic认证（文件）" value="7">basic认证（文件）</option>'
+						   <option label="ssh(密钥)" value="6">ssh(密钥)</option>'
 					$(ob).parents('form').find("select[name=encrypt]").html(val);
 					$(ob).parents('form').find(".encryptTerm").remove();
 					$(ob).parents('form').find('.superior').show()
@@ -766,9 +766,9 @@
 					res.Output = JSON.parse(res.Output)
 					$('input[name=id]').eq(1).val(res.Output.Id)
 					$('select[name=protocol]').eq(1).val(res.Output.Protocol)
-					judgeEncrypt($('select[name=protocol]').eq(1))
 					$('select[name=superior]').eq(1).val(res.Output.Superior)
 					encryptItem($('select[name=superior]').eq(1))
+					judgeEncrypt($('select[name=protocol]').eq(1))
 					if (res.Output.Auto == "是") {
 						$('input[name=auto]').eq(3).prop('checked', true)
 					} else {
@@ -781,6 +781,9 @@
 						$('input[name=always]').eq(3).prop('checked', true)
 					} else {
 						$('input[name=always]').eq(2).prop('checked', true)
+					}
+					if (res.Output.Compress == "1") {
+						$('input[name=compress]').eq(-1).prop('checked', true)
 					}
 					
 					$('input[name=superiorProxyIp]').eq(1).val(res.Output.SuperiorProxyIp)
