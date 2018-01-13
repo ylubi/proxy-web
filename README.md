@@ -120,7 +120,8 @@ tls形式加密：-C .crt文件 和 -K .key文件
 `path to proxy/proxy bridge -P ":8081" -C path to file/proxy.crt -K path to file/proxy.key `  
 “上级服务器+端口”填写的内容无效  
 
-### 源码使用  
+### 源码使用  
+- 使用linux或者其他平台编译，请删除resource.syso  
 - git下载源码  
    
 ### TODO
