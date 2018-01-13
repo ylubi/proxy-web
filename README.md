@@ -121,7 +121,7 @@ tls形式加密：-C .crt文件 和 -K .key文件
 “上级服务器+端口”填写的内容无效  
 
 ### 源码使用  
-- 使用linux或者其他平台编译，请删除resource.syso  
+- 使用非windows编译，请删除resource.syso  
 - git下载源码  
    
 ### TODO
