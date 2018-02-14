@@ -766,9 +766,9 @@
 					res.Output = JSON.parse(res.Output)
 					$('input[name=id]').eq(1).val(res.Output.Id)
 					$('select[name=protocol]').eq(1).val(res.Output.Protocol)
+					judgeEncrypt($('select[name=protocol]').eq(1))
 					$('select[name=superior]').eq(1).val(res.Output.Superior)
 					encryptItem($('select[name=superior]').eq(1))
-					judgeEncrypt($('select[name=protocol]').eq(1))
 					if (res.Output.Auto == "是") {
 						$('input[name=auto]').eq(3).prop('checked', true)
 					} else {

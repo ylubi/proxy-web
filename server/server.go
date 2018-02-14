@@ -98,23 +98,28 @@ func getCommand(id string) (string, error) {
 		return "", err
 	}
 	var command string
+	var p procotol.Protocol
 	switch parameter.Protocol {
 	case "http":
-		command, err = procotol.GetHttpCommand(parameter)
+		p = procotol.NewHttp()
 	case "tcp":
-		command, err = procotol.GetTcpCommand(parameter)
+		p = procotol.NewTcp()
 	case "socks":
-		command, err = procotol.GetSocksCommand(parameter)
+		p = procotol.NewSocks()
 	case "udp":
-		command, err = procotol.GetUdpCommand(parameter)
+		p = procotol.NewUdp()
 	case "server":
-		command, err = procotol.GetServerCommand(parameter)
+		p = procotol.NewServer()
 	case "client":
-		command, err = procotol.GetClientCommand(parameter)
+		p = procotol.NewClient()
 	case "bridge":
-		command, err = procotol.GetBridgeCommand(parameter)
+		p = procotol.NewBridge()
 	default:
 		err := fmt.Errorf("protocol parameter error")
+		return "", err
+	}
+	command, err = p.GetCommand(parameter)
+	if err != nil {
 		return "", err
 	}
 	return command, nil
@@ -166,7 +171,7 @@ func runCommand(command string, v http.ResponseWriter, id string) {
 }
 
 func saveLog(reader *bufio.Reader, id string) {
-	logMap[id] = make(chan string, 10)
+	logMap[id] = make(chan string, 50)
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
@@ -248,7 +253,7 @@ func keygen(v http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println(os)
-	path, err := util.GetServerPath()
+	path, err := util.NewConfig().GetServerPath()
 	command := path + "proxy keygen"
 	commandList := strings.Split(command, " ")
 	cmd := exec.Command(commandList[0], commandList[1:]...)
@@ -296,7 +301,7 @@ func uploade(v http.ResponseWriter, r *http.Request) {
 func getLog(id string) string {
 	var log string
 	output := ""
-	for i := 0; i <= 10; i++ {
+	for i := 0; i <= 20; i++ {
 		select {
 		case log = <-logMap[id]:
 			output += log
@@ -347,7 +352,7 @@ func doLogin(v http.ResponseWriter, r *http.Request) {
 	if isLogin(v, r) {
 		util.ReturnJson(500, "", "The other man is using it", v)
 	}
-	username, password, err := util.GetUsernameAndPassword()
+	username, password, err := util.NewConfig().GetUsernameAndPassword()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -397,7 +402,7 @@ func StartServer() {
 	http.HandleFunc("/uploade", uploade)
 	http.HandleFunc("/delete", deleteParameter)
 	http.HandleFunc("/keygen", keygen)
-	port, err := util.GetServerPort()
+	port, err := util.NewConfig().GetServerPort()
 	if err != nil {
 		log.Fatal("get port failure: ", err)
 	}

@@ -5,8 +5,15 @@ import (
 	"proxy-web/util"
 )
 
-func GetBridgeCommand(data *util.Parameter) (string, error) {
-	path, err := util.GetServerPath()
+type Bridge struct {
+}
+
+func NewBridge() Protocol {
+	return &Bridge{}
+}
+
+func (b *Bridge) GetCommand(data *util.Parameter) (string, error) {
+	path, err := util.NewConfig().GetServerPath()
 	if err != nil {
 		return "", err
 	}

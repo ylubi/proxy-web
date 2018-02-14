@@ -4,13 +4,20 @@ import (
 	"proxy-web/util"
 )
 
-func GetUdpCommand(data *util.Parameter) (string, error) {
+type Udp struct {
+}
+
+func NewUdp() Protocol {
+	return &Udp{}
+}
+
+func (u *Udp) GetCommand(data *util.Parameter) (string, error) {
 	var command string
 	encryptCommand, encryptParamater, err := util.HandleEncrypt(data)
 	if err != nil {
 		return "", err
 	}
-	path, err := util.GetServerPath()
+	path, err := util.NewConfig().GetServerPath()
 	if err != nil {
 		return "", err
 	}

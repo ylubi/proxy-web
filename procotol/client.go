@@ -5,8 +5,15 @@ import (
 	"proxy-web/util"
 )
 
-func GetClientCommand(data *util.Parameter) (string, error) {
-	path, err := util.GetServerPath()
+type Client struct {
+}
+
+func NewClient() Protocol {
+	return &Client{}
+}
+
+func (c *Client) GetCommand(data *util.Parameter) (string, error) {
+	path, err := util.NewConfig().GetServerPath()
 	compress := util.CompressCommand(data.Compress)
 	if err != nil {
 		return "", err

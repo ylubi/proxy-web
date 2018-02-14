@@ -65,7 +65,7 @@ func getEncrypt(encryptionCondition string) (map[string]string, error) {
 
 func HandelTls(crt, key string) string {
 	var command string
-	path, err := GetServerPath()
+	path, err := NewConfig().GetServerPath()
 	if err != nil {
 		return ""
 	}
@@ -94,7 +94,7 @@ func HandelSshPassword(user, password string) string {
 
 func HandelSshKey(user, key, password string) string {
 	command := " -u " + user
-	path, err := GetServerPath()
+	path, err := NewConfig().GetServerPath()
 	if err != nil {
 		return ""
 	}

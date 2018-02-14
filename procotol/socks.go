@@ -5,14 +5,21 @@ import (
 	"proxy-web/util"
 )
 
-func GetSocksCommand(data *util.Parameter) (string, error) {
+type Socks struct {
+}
+
+func NewSocks() Protocol {
+	return &Socks{}
+}
+
+func (s *Socks) GetCommand(data *util.Parameter) (string, error) {
 	var command string
 	encryptCommand, encryptParamater, err := util.HandleEncrypt(data)
 	alwaysCommand := util.AlwaysCommand(data.Always, data.ProxyLevel)
 	if err != nil {
 		return "", err
 	}
-	path, err := util.GetServerPath()
+	path, err := util.NewConfig().GetServerPath()
 	if err != nil {
 		return "", err
 	}

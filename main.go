@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	_ "net/http/pprof"
 	"proxy-web/server"
 	"proxy-web/util"
 )

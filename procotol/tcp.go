@@ -5,13 +5,20 @@ import (
 	"proxy-web/util"
 )
 
-func GetTcpCommand(data *util.Parameter) (string, error) {
+type Tcp struct {
+}
+
+func NewTcp() Protocol {
+	return &Tcp{}
+}
+
+func (t *Tcp) GetCommand(data *util.Parameter) (string, error) {
 	var command string
 	encryptCommand, encryptParamater, err := util.HandleEncrypt(data)
 	if err != nil {
 		return "", err
 	}
-	path, err := util.GetServerPath()
+	path, err := util.NewConfig().GetServerPath()
 	if err != nil {
 		return "", err
 	}
