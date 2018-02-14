@@ -35,11 +35,11 @@ proxy-web是用go语言写的，基于[snail007/goproxy](https://github.com/snai
 1、 可以在linux下自动生成证书和key文件  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/keygen.png?raw=true" />  
 2、 支持--c参数压缩  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/compress.png?raw=true" />  
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/compress.jpg?raw=true" />  
 3、--always参数，使下级代理流量全部使用上级代理  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/always.png?raw=true" />   
 4、支持在“代理服务器+端口”input框里面加参数
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/param.png?raw=true" />  
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/param.jpg?raw=true" />  
 
 ### 配置
 配置文件为config/config.ini  
@@ -120,7 +120,8 @@ tls形式加密：-C .crt文件 和 -K .key文件
 `path to proxy/proxy bridge -P ":8081" -C path to file/proxy.crt -K path to file/proxy.key `  
 “上级服务器+端口”填写的内容无效  
 
-### 源码使用  
+### 源码使用  
+- 使用非windows编译，请删除resource.syso  
 - git下载源码  
    
 ### TODO
