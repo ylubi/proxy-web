@@ -809,10 +809,6 @@
 				$.notify("非顶级代理的上级服务器ip不能为空", "error")
 				return ;
 			}
-			if (!ipPattern.test(proxyIp) && !portPattern.test(proxyIp)) {
-				$.notify("ip或端口格式不正确", "error")
-				return ;
-			}
 
 			if (!ipPattern.test(superiorProxyIp) && !portPattern.test(superiorProxyIp) && superiorProxyIp != '') {
 				$.notify("ip或端口格式不正确", "error")
