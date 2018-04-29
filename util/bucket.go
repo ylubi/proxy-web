@@ -4,29 +4,19 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/url"
-	"strconv"
 	"time"
 
 	"github.com/boltdb/bolt"
 )
 
 type Parameter struct {
-	Id                  string
-	Protocol            string
-	ProxyLevel          int
-	ProxyIp             string
-	SuperiorProxyIp     string
-	Superior            int
-	EncryptionCondition string
-	ProcessId           int
-	Local               string
-	Status              string
-	Auto                string
-	Always              string
-	Compress            string
+	Id        string
+	Params    string // 参数
+	ProcessId int    // 进程 id
+	Status    string // 是否开启
+	Auto      string // 是否自动开启
 }
 
 func GetParameter() map[string]*Parameter {
@@ -93,40 +83,15 @@ func SaveParameter(data url.Values) (string, string, error) {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	if (data["protocol"][0] == "client") || (data["protocol"][0] == "server") || (data["protocol"][0] == "bridge") {
-		data["superior"][0] = "3"
-	}
 	parameter := new(Parameter)
 
-	parameter.EncryptionCondition, err = getEncryptionCondition(data)
-	if err != nil {
-		return "", "", err
-	}
-	parameter.Protocol = data["protocol"][0]
-	parameter.ProxyLevel, err = strconv.Atoi(data["proxyLevel"][0])
-	if err != nil {
-		return "", "", err
-	}
-	parameter.ProxyIp = data["proxyIp"][0]
-	parameter.SuperiorProxyIp = data["superiorProxyIp"][0]
-	parameter.Superior, err = strconv.Atoi(data["superior"][0])
+	parameter.Params = data.Get("param")
 	if err != nil {
 		return "", "", err
 	}
 	parameter.Status = "未开启"
-	parameter.Auto = data["auto"][0]
+	parameter.Auto = data.Get("auto")
 	parameter.ProcessId = 0
-	parameter.Local = data["local"][0]
-	if (parameter.Protocol != "http" && parameter.Protocol != "socks") || parameter.ProxyLevel != 2 {
-		parameter.Always = "0"
-	} else {
-		parameter.Always = data["always"][0]
-	}
-	if parameter.Protocol == "client" || parameter.Protocol == "server" {
-		parameter.Compress = data["compress"][0]
-	} else {
-		parameter.Compress = "0"
-	}
 
 	var stringId string
 	var buf []byte
@@ -269,48 +234,4 @@ func BytesToInt(b []byte) int {
 	var tmp int32
 	binary.Read(bytesBuffer, binary.BigEndian, &tmp)
 	return int(tmp)
-}
-
-func getEncryptionCondition(data url.Values) (string, error) {
-	jsons := make(map[string]string)
-	switch data["superior"][0] {
-	case "1":
-		return "", nil
-	case "2":
-		return "", nil
-	case "3":
-		jsons["crt"] = data["crt"][0]
-		jsons["key"] = data["key"][0]
-		data, err := json.Marshal(jsons)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		return string(data), nil
-	case "4":
-		jsons["password"] = data["password"][0]
-		data, err := json.Marshal(jsons)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		return string(data), nil
-	case "5":
-		jsons["username"] = data["username"][0]
-		jsons["password"] = data["password"][0]
-		data, err := json.Marshal(jsons)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		return string(data), nil
-	case "6":
-		jsons["username"] = data["username"][0]
-		jsons["key"] = data["key"][0]
-		jsons["password"] = data["password"][0]
-		data, err := json.Marshal(jsons)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-		return string(data), nil
-	}
-	err := fmt.Errorf("%s", "parameter error")
-	return "", err
 }

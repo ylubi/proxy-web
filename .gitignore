@@ -4,3 +4,4 @@ proxy
 /db/bucket/
 /static/upload/
 /tmp/
+.idea/

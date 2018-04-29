@@ -14,7 +14,7 @@ import (
 	"proxy-web/util"
 )
 
-var daemon = flag.Bool("d", true, "default run deamon")
+var daemon = flag.Bool("d", true, "default run daemon")
 
 func init() {
 	if !flag.Parsed() {
