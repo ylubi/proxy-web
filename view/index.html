@@ -1,281 +1,211 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>proxy</title>
-		<link rel="stylesheet" href="/static/css/bootstrap.min.css">
-		<style>
-			.upImgBtn{
-				opacity:0;
-			}
-			th {
-				text-align: center;
-			}
-			td{
-				font-size:15px;
-				vertical-align:middle !important;
-				text-align: center;
-			}
+<head>
+    <title>proxy</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <style>
+        .upImgBtn {
+            opacity: 0;
+        }
 
-		</style>
-	</head>
-	<body>
-		<div class="ng-scope" style="margin:5px 0 10px 2px;">
-			<div class="profile-actions">
-				<button class="btn btn-default ng-binding add" data-toggle="modal" data-target="#exampleModal" >
-					<span class="glyphicon glyphicon-plus"></span> 添加代理
-				</button> 
-				<button class="btn btn-default ng-binding" data-toggle="modal" data-target="#keygenModal" >
-					<span class="glyphicon glyphicon-lock"></span> 生成加密证书
-				</button> 
-			</div>
-		</div>
+        th {
+            text-align: center;
+        }
 
-		<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						 <h4 class="modal-title" id="exampleModalLabel">添加连接</h4>
-					</div>
-					<div class="modal-body">
-						<form>
-							<input type="hidden" name="id" value="">	
-							<div class="form-group">
-								<label for="recipient-name" class="control-label">
-									代理协议:
-								</label>
-								<select onchange="judgeEncrypt(this)"  class="form-control ng-pristine ng-valid ng-not-empty ng-touched" name="protocol">
-									<option label="http" value="http" selected="selected">http</option>
-									<option label="tcp" value="tcp">tcp</option>
-									<option label="udp" value="udp">udp</option>
-									<option label="socks" value="socks">socks</option>
-									<option label="server" value="server">server</option>
-									<option label="client" value="client">client</option>
-									<option label="bridge" value="bridge">bridge</option>
-								</select>
-							</div>
-							<div class="form-group auto">
-								<label  class="control-label">
-									是否开启自启动:
-								</label>
-								<br>
-								<input type="radio" name="auto" data-val="" checked value="否" class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-								<input type="radio" name="auto" value="是" class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>是</label>
-							</div>
-							<div class="form-group local">
-								<label for="recipient-name" class="control-label">
-									本地连接类型:
-								</label>
-								<select name="local" class="form-control ng-pristine ng-valid ng-not-empty ng-touched">
-									<option label="tcp" value="1" selected="selected">tcp</option>
-									<option label="tls" value="3">tls</option>
-									<option label="kcp" value="4">kcp</option>
-								</select>
-							</div>
-							<div class="form-group chain">
-								<label for="recipient-name" class="control-label">
-									链式代理:
-								</label>
-								<select name="proxyLevel" class="form-control ng-pristine ng-valid ng-not-empty ng-touched">
-									<option label="顶级代理" value="1" selected="selected">顶级代理</option>
-									<option label="非顶级代理" value="2">非顶级代理</option>
-								</select>
-							</div>
-							<div class="form-group">
-								<label for="recipient-name" class="control-label">
-									代理服务器+端口:
-								</label>
-								<input type="text" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="0.0.0.0:80" name="proxyIp">
-							</div>
-							<div class="form-group">
-								<label for="recipient-name " class="control-label">
-									上级服务器+端口(一级代理不用填写):
-								</label>
-								<input type="text" name="superiorProxyIp" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="0.0.0.0:80">
-							</div>
-							<div class="form-group always">
-								<label for="recipient-name " class="control-label">
-									是否强制走上级代理（一级代理默认否）:
-								</label>
-								<br>
-								<input type="radio" name="always" checked value="0" class="ng-pristine ng-valid ng-not-empty ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-								<input type="radio" name="always" value="1" class="ng-pristine ng-valid ng-not-empty ng-touched">&nbsp;<label>是</label>
-							</div>
-							<div class="form-group superior">
-								<label for="recipient-name" class="control-label">
-									父级连接类型:
-								</label>
-								<select class="form-control ng-pristine ng-valid ng-not-empty ng-touched" name="superior" onchange="encryptItem(this)">
-									<option label="tcp" value="1" selected="selected">tcp</option>
-									<option label="tls" value="3">tls</option>
-									<option label="kcp" value="4">kcp</option>
-									<option label="ssh(密码)" value="5">ssh(密码)</option>
-									<option label="ssh(密钥)" value="6">ssh(密钥)</option>
-								</select>
-							</div>
-						</form>
-					 </div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-						<button type="button" onclick="add()" class="btn btn-primary">添加</button>
-					</div>
-				</div>
-			</div>
-		</div>
+        td {
+            font-size: 15px;
+            vertical-align: middle !important;
+            text-align: center;
+        }
 
-		<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						 <h4 class="modal-title" id="exampleModalLabel">添加连接</h4>
-					</div>
-					<div class="modal-body">
-						<form>
-							<input type="hidden" name="id" value="">	
-							<div class="form-group">
-								<label for="recipient-name" class="control-label">
-									代理协议:
-								</label>
-								<select onchange="judgeEncrypt(this)"  class="form-control ng-pristine ng-valid ng-not-empty ng-touched" name="protocol">
-									<option label="http" value="http" selected="selected">http</option>
-									<option label="tcp" value="tcp">tcp</option>
-									<option label="udp" value="udp">udp</option>
-									<option label="socks" value="socks">socks</option>
-									<option label="server" value="server">server</option>
-									<option label="client" value="client">client</option>
-									<option label="bridge" value="bridge">bridge</option>
-								</select>
-							</div>
-							<div class="form-group auto">
-								<label  class="control-label">
-									是否开启自启动:
-								</label>
-								<br>
-								<input type="radio" name="auto" data-val="" checked value="否" class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-								<input type="radio" name="auto" value="是" class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>是</label>
-							</div>
-							<div class="form-group local">
-								<label for="recipient-name" class="control-label">
-									本地连接类型:
-								</label>
-								<select name="local" class="form-control ng-pristine ng-valid ng-not-empty ng-touched">
-									<option label="tcp" value="1" selected="selected">tcp</option>
-									<option label="tls" value="3">tls</option>
-									<option label="kcp" value="4">kcp</option>
-								</select>
-							</div>
-							<div class="form-group chain">
-								<label for="recipient-name" class="control-label">
-									链式代理:
-								</label>
-								<select name="proxyLevel" class="form-control ng-pristine ng-valid ng-not-empty ng-touched">
-									<option label="顶级代理" value="1" selected="selected">顶级代理</option>
-									<option label="非顶级代理" value="2">非顶级代理</option>
-								</select>
-							</div>
-							<div class="form-group">
-								<label for="recipient-name" class="control-label">
-									代理服务器+端口:
-								</label>
-								<input type="text" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="0.0.0.0:80" name="proxyIp">
-							</div>
-							<div class="form-group">
-								<label for="recipient-name " class="control-label">
-									上级服务器+端口(一级代理不用填写):
-								</label>
-								<input type="text" name="superiorProxyIp" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="0.0.0.0:80">
-							</div>
-							<div class="form-group always">
-								<label for="recipient-name " class="control-label">
-									是否强制走上级代理（一级代理默认否）:
-								</label>
-								<br>
-								<input type="radio" name="always" value="0" class="ng-pristine ng-valid ng-not-empty ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-								<input type="radio" name="always" value="1" class="ng-pristine ng-valid ng-not-empty ng-touched">&nbsp;&nbsp;<label>是</label>
-							</div>
-							<div class="form-group superior">
-								<label for="recipient-name" class="control-label">
-									父级连接类型:
-								</label>
-								<select class="form-control ng-pristine ng-valid ng-not-empty ng-touched" name="superior" onchange="encryptItem(this)">
-									<option label="tcp" value="1" selected="selected">tcp</option>
-									<option label="tls" value="3">tls</option>
-									<option label="kcp" value="4">kcp</option>
-									<option label="ssh(密码)" value="5">ssh(密码)</option>
-									<option label="ssh(密钥)" value="6">ssh(密钥)</option>
-								</select>
-							</div>
-						</form>
-					 </div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-						<button type="button" onclick="update()" class="btn btn-primary">修改</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModal">
-			<div class="modal-dialog modal-sm" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						 <h4 class="modal-title" id="deleteModal">删除</h4>
-					</div>
-					<div class="modal-body" style="text-align: center;">
-						<div>
-							<label for="recipient-name" class="control-label">
-								你确定要删除吗？
-							</label>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-						<button type="button" onclick="del()" data-dismiss="modal" class="btn btn-primary">删除</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<div class="modal fade" id="keygenModal" tabindex="-1" role="dialog" aria-labelledby="deleteModal">
-			<div class="modal-dialog modal-sm" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						 <h4 class="modal-title" id="deleteModal">加密</h4>
-					</div>
-					<div class="modal-body" style="text-align: center;">
-						<div>
-							<label for="recipient-name" class="control-label">
-								你确定要生成加密文件吗？
-							</label>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-						<button type="button" onclick="keygen()" data-dismiss="modal" class="btn btn-primary">确定</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-	</body>
-	<script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
-	<script type="text/javascript" src="/static/js/notify.js"></script>
-	<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="/static/webupload/webuploader.js"></script>
-	<script type="text/javascript">
-		
-		var html = '<table class="fixed-servers table table-bordered table-striped width-limit-lg">\
+    </style>
+</head>
+<body>
+<div class="ng-scope" style="margin:5px 0 10px 2px;">
+    <div class="profile-actions">
+        <button class="btn btn-default ng-binding add" data-toggle="modal" data-target="#exampleModal">
+            <span class="glyphicon glyphicon-plus"></span> 添加代理
+        </button>
+        <button class="btn btn-default ng-binding" data-toggle="modal" data-target="#keygenModal">
+            <span class="glyphicon glyphicon-lock"></span> 生成加密证书
+        </button>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="exampleModalLabel">添加连接</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" name="id" value="">
+
+                    <div class="form-group auto">
+                        <label class="control-label">
+                            名称:
+                        </label>
+                        <br>
+                        <input type="text" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="" name="name">
+                    </div>
+
+                    <div class="form-group auto">
+                        <label class="control-label">
+                            参数:
+                        </label>
+                        <br>
+                        <textarea  class="form-control" rows="6"></textarea>
+                    </div>
+
+                    <div class="form-group auto">
+                        <label class="control-label">
+                            是否开启自启动:
+                        </label>
+                        <br>
+                        <input type="radio" name="auto" data-val="" checked value="否"
+                               class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="radio" name="auto" value="是"
+                               class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>是</label>
+                    </div>
+
+                    <div class="form-group encryptTerm">
+                        <label for="recipient-name" class="control-label">
+                            上传key文件:
+                        </label>
+                        <br>
+                        <input type="hidden" name="key">
+                        <a class="btn btn-primary ng-binding file_upload">.key文件</a>
+                    </div>
+
+                    <div class="form-group encryptTerm">
+                        <label for="recipient-name" class="control-label">
+                            上传crt文件:
+                        </label>
+                        <br>
+                        <input type="hidden" name="crt">
+                        <a class="btn btn-primary ng-binding file_upload">.crt文件</a>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="add()" class="btn btn-primary">添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="exampleModalLabel">添加连接</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" name="id" value="">
+
+                    <div class="form-group auto">
+                        <label class="control-label">
+                            是否开启自启动:
+                        </label>
+                        <br>
+                        <input type="radio" name="auto" data-val="" checked value="否"
+                               class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="radio" name="auto" value="是"
+                               class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>是</label>
+                    </div>
+
+                    <div class="form-group encryptTerm">
+                        <label for="recipient-name" class="control-label">
+                            上传key文件:
+                        </label>
+                        <br>
+                        <input type="hidden" name="key">
+                        <a class="btn btn-primary ng-binding file_upload">.key文件</a>
+                    </div>
+
+                    <div class="form-group encryptTerm">
+                        <label for="recipient-name" class="control-label">
+                            上传crt文件:
+                        </label>
+                        <br>
+                        <input type="hidden" name="crt">
+                        <a class="btn btn-primary ng-binding file_upload">.crt文件</a>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="update()" class="btn btn-primary">修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModal">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="deleteModal">删除</h4>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <div>
+                    <label for="recipient-name" class="control-label">
+                        你确定要删除吗？
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" onclick="del()" data-dismiss="modal" class="btn btn-primary">删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="keygenModal" tabindex="-1" role="dialog" aria-labelledby="deleteModal">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="deleteModal">加密</h4>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <div>
+                    <label for="recipient-name" class="control-label">
+                        你确定要生成加密文件吗？
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" onclick="keygen()" data-dismiss="modal" class="btn btn-primary">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="/static/js/notify.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/webupload/webuploader.js"></script>
+<script type="text/javascript">
+
+    var html = '<table class="fixed-servers table table-bordered table-striped width-limit-lg">\
 						<thead>\
 							<tr style="background-color: #f9f9f9;">\
-								<th class="ng-binding">代理协议</th>\
-								<th class="ng-binding">本地连接类型</th>\
-								<th class="ng-binding">链式代理</th>\
-								<th class="ng-binding">代理服务器+端口</th>\
-								<th class="ng-binding">上级服务器+端口</th>\
-								<th class="ng-binding">父级连接类型</th>\
+							    <th class="ng-binding">名称</th>\
+								<th class="ng-binding">参数</th>\
 								<th class="ng-binding">状态</th>\
 								<th class="ng-binding">开机自启动</th>\
 								<th class="ng-binding">操作</th>\
@@ -283,23 +213,11 @@
 						</thead>\
 						<tbody>\
 							<tr style="background-color:#fff;">\
+							    <td style="width:100px;">\
+                                    <span class="nameSpan"></span>\
+                                </td>\
 								<td style="width:100px;">\
-									<span class="protocolSpan"></span>\
-								</td>\
-								<td style="width:100px;">\
-									<span class="localSpan"></span>\
-								</td>\
-								<td style="width:140px;">\
-									<span class="proxyLevelSpan"></span>\
-								</td>\
-								<td style="width:176px;">\
-									<span class="proxyIpSpan"></span>\
-								</td>\
-								<td style="width:176px;">\
-									<span class="sProxyIpSpan"></span>\
-								</td>\
-								<td style="width:110px;">\
-								   <span class="surperiorSpan"></span>\
+									<span class="paramSpan"></span>\
 								</td>\
 								<td style="width:80px;">\
 								   <span class="statusSpan"></span>\
@@ -319,559 +237,461 @@
 						</tbody>\
 					</table>';
 
-		var keyHtml = '<div class="form-group encryptTerm">\
-							<label for="recipient-name" class="control-label">\
-								上传key文件:\
-							</label>\
-							<br>\
-							<input type="hidden" name="key">\
-							<a class="btn btn-primary ng-binding file_upload">.key文件</a>\
-						</div>'
 
-		var crtHtml = '<div class="form-group encryptTerm">\
-							<label for="recipient-name" class="control-label">\
-								上传crt文件:\
-							</label>\
-							<br>\
-							<input type="hidden" name="crt">\
-							<a class="btn btn-primary ng-binding file_upload">.crt文件</a>\
-						</div>'
+    function initData() {
+        $.ajax({
+            type: "POST",
+            cache: false,
+            url: "/getData",
+            data: "id=0",
+            dataType: "json",
+            success: function (res) {
+                if (res.Code == 501) {
+                    window.location.href = "/login"
+                }
+                if (res.Code == "200") {
+                    var output = JSON.parse(res.Output);
+                    for (var i in output) {
+                        addContent(output[i])
+                    }
+                } else {
+                    alert(res.Output)
+                }
+            }
+        });
+    }
 
-		var passHtml = '<div class="form-group encryptTerm">\
-							<label for="recipient-name" class="control-label">\
-								密码:\
-							</label>\
-							<input type="password" name="password" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写密码">\
-						</div>'
+    function addContent(data) {
+        $('body').append(html)
 
-		var userHtml = '<div class="form-group encryptTerm">\
-							<label for="recipient-name" class="control-label">\
-								用户名:\
-							</label>\
-							<input type="text" name="username" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="请填写用户名">\
-						</div>'  
-						
-		var txtHtml = '<div class="form-group encryptTerm">\
-							<label for="recipient-name" class="control-label">\
-								账号密码文件（txt类型）:\
-							</label>\
-							<br>\
-							<input type="hidden" name="txt">\
-							<a class="btn btn-primary ng-binding file_upload">.txt文件</a>\
-						</div>'  
-		
-		var compressHtml = '<div class="form-group compress">\
-								<label for="recipient-name " class="control-label">\
-									是否压缩:\
-								</label>\
-								<br>\
-								<input type="radio" name="compress" value="0" class="ng-pristine ng-valid ng-not-empty ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
-								<input type="radio" name="compress" value="1" class="ng-pristine ng-valid ng-not-empty ng-touched">&nbsp;&nbsp;<label>是</label>\
-							</div>'
+        $('.statusSpan').eq(-1).html(data['Status'])
+        $('.autoSpan').eq(-1).html(data['Auto'])
 
-		var superiorMap = ['', 'tcp', 'upd', 'tls', 'kcp', 'ssh(密码)', 'ssh(密码)', 'Basic认证']  
-		
-		var proxyMap = ['', '顶级代理', '非顶级代理']
+        $('.log').eq(-1).attr('pid', data['ProcessId'])
+        $('.log').eq(-1).attr('id', data['Id'])
+        if (data['Status'] == "已开启") {
+            $('.link').eq(-1).hide()
+            $('.closed').eq(-1).show()
+            $('.log').eq(-1).click()
+        }
+    }
 
-		function initData(){
-			$.ajax({
-				type: "POST",
-				cache: false,
-				url: "/getData",
-				data: "id=0",
-				dataType:"json",
-				success: function (res) {
-					if (res.Code == 501) {
-						window.location.href="/login"
-					}
-					if (res.Code == "200") {
-						var output = JSON.parse(res.Output);
-						for (var i in output) {
-							 addContent(output[i])
-						}
-					} else {
-						alert(res.Output)
-					}
-				}
-			});
-		}
+    initData()
 
-		function addContent(data){
-				$('body').append(html)
-				$('.protocolSpan').eq(-1).html(data['Protocol'])
-				 
-				$('.proxyIpSpan').eq(-1).html(data['ProxyIp'])
-				$('.sProxyIpSpan').eq(-1).html(data['SuperiorProxyIp'])
-				 
-				$('.statusSpan').eq(-1).html(data['Status'])
-				$('.autoSpan').eq(-1).html(data['Auto'])
-				if (data['Protocol'] == 'server' || data['Protocol'] == 'bridge' || data['Protocol'] == 'client') {
-					$('.localSpan').eq(-1).html('-')
-					$('.proxyLevelSpan').eq(-1).html('-')
-					$('.surperiorSpan').eq(-1).html('-')
-				} else {
-					$('.localSpan').eq(-1).html(superiorMap[data['Local']])
-					$('.proxyLevelSpan').eq(-1).html(proxyMap[data['ProxyLevel']])
-					$('.surperiorSpan').eq(-1).html(superiorMap[data['Superior']])
-				}
+    function add() {
 
-				$('.log').eq(-1).attr('pid', data['ProcessId'])
-				$('.log').eq(-1).attr('id', data['Id'])
-				if (data['Status'] == "已开启") {
-					$('.link').eq(-1).hide()
-					$('.closed').eq(-1).show()
-					$('.log').eq(-1).click()
-				}
-		}
+        $.ajax({
+            type: "POST",
+            cache: false,
+            url: "/add",
+            data: $('form').eq(0).serialize(),
+            dataType: "json",
+            success: function (res) {
+                if (res.Code == 501) {
+                    window.location.href = "/login"
+                    return
+                }
+                if (res.Code == 200) {
+                    $.notify("添加成功", "success")
+                    var output = JSON.parse(res.Output)
+                    addContent(output)
+                    $('#exampleModal').modal('hide')
+                } else {
+                    $.notify(res.Output, {className: "error", elementPosition: "bottom right",})
+                }
+            }
+        });
+    }
 
-		initData()
+    function keygen() {
+        $.ajax({
+            type: "POST",
+            cache: false,
+            url: "/keygen",
+            data: "",
+            dataType: "json",
+            success: function (res) {
+                if (res.Code == 200) {
+                    $.notify("success", "success")
+                } else {
+                    $.notify(res.Output, "error")
+                }
+            }
+        });
+    }
 
-		function encryptItem(obj){
-			var val = $(obj).val()
-			var protocol = $(obj).parents('form').find('select[name=protocol]').val();
-			if (protocol == 'server' || protocol == 'client' || protocol == 'bridge') {
-				val = 3
-			}
-			$('.encryptTerm').remove();
-			if (val == 3) {
-				$(obj).parents('form').append(crtHtml)
-				$(obj).parents('form').append(keyHtml)
-				setTimeout(function(){
-					upload('crt,key')
-				}, 500)
-				
-			} else if (val == 4)  {
-				$(obj).parents('form').append(passHtml)
-			} else if (val == 5)  {
-				$(obj).parents('form').append(passHtml)
-				$(obj).parents('form').append(userHtml)
-			} else if (val == 6)  {
-				$(obj).parents('form').append(keyHtml)
-				$(obj).parents('form').append(passHtml)
-				$(obj).parents('form').append(userHtml)
-				$(obj).parents('form').find('input[name=password]').siblings('label').html('私钥密码')
-				$(obj).parents('form').find('input[name=key]').siblings('label').html('私钥文件')
-				setTimeout(function(){
-					upload('key')
-				}, 500)
-			}
-		}
+    function link(ob) {
+        $(ob).prop('disabled', true)
+        var id = $(ob).siblings('.log').attr('id')
+        $.ajax({
+            type: "POST",
+            cache: false,
+            url: "/link",
+            data: "id=" + id,
+            dataType: "json",
+            success: function (res) {
+                if (res.Code == 501) {
+                    window.location.href = "/login"
+                    return
+                }
+                if (res.Code == 200) {
+                    $(ob).parents('table').notify(res.Output, {
+                        className: "success",
+                        elementPosition: "bottom right",
+                        arrowShow: false
+                    })
+                    $(ob).hide()
+                    $(ob).siblings('.closed').show()
+                    $(ob).siblings('.log').attr('pid', res.Id)
+                    $(ob).parents('table').find('.statusSpan').html("已开启")
+                } else {
+                    $(ob).parents('table').notify(res.Output, {
+                        className: "error",
+                        elementPosition: "bottom right",
+                        arrowShow: false
+                    })
+                    $(ob).prop('disabled', false)
+                }
+            }
+        });
+    }
 
-		function add() {
-			var ipPattern = /((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?[1-9])))(\:\d)*)/
-			var portPattern = /^:(\d){1,5}$/
-			var proxyIp = $('input[name=proxyIp]').eq(0).val();
-			var superiorProxyIp = $('input[name=superiorProxyIp]').eq(0).val();
-			var proxyLevel = $('select[name=proxyLevel]').eq(0).val()
-			
-			if (proxyLevel == '2' && superiorProxyIp == '') {
-				$.notify("非顶级代理的上级服务器ip不能为空", "error")
-				return ;
-			}
+    function closed(ob) {
+        $('ob').prop('disabled', false)
+        var id = $(ob).siblings('.log').attr('id')
+        var pid = $(ob).siblings('.log').attr('pid')
+        lock[id] = true
+        $.ajax({
+            type: "POST",
+            cache: false,
+            url: "/close",
+            data: "id=" + id + "&pid=" + pid,
+            dataType: "json",
+            success: function (res) {
+                if (res.Code == 501) {
+                    window.location.href = "/login"
+                    return
+                }
+                if (res.Code == 200) {
+                    $(ob).parents('table').notify(res.Output, {
+                        className: "success",
+                        elementPosition: "bottom right",
+                        arrowShow: false
+                    })
+                    $(ob).siblings(".log").attr('pid', "")
+                    $(ob).hide()
+                    $(ob).siblings('.link').show()
+                    $(ob).parents('table').find('.statusSpan').html("未开启")
+                } else {
+                    $(ob).parents('table').notify(res.Output, {
+                        className: "error",
+                        elementPosition: "bottom right",
+                        arrowShow: false
+                    })
+                    $('ob').prop('disabled', false)
+                    setTimeout(function () {
+                        window.location.reload()
+                    }, 2000)
+                }
+            }
+        });
+    }
 
-			if (!ipPattern.test(superiorProxyIp) && !portPattern.test(superiorProxyIp) && superiorProxyIp != '') {
-				$.notify("ip或端口格式不正确", "error")
-				return ;
-			}
 
-			$.ajax({
-				type: "POST",
-				cache: false,
-				url: "/add",
-				data: $('form').eq(0).serialize(),
-				dataType:"json",
-				success: function (res) {
-					if (res.Code == 501) {
-						window.location.href="/login"
-						return 
-					}
-					if (res.Code == 200) {
-						$.notify("添加成功", "success")
-						var output = JSON.parse(res.Output)
-						addContent(output)
-						$('#exampleModal').modal('hide')
-					} else {
-						$.notify(res.Output, {className:"error",elementPosition:"bottom right",})
-					}
-				}
-			});
-		}
-		
-		function keygen()
-		{
-			$.ajax({
-				type: "POST",
-				cache: false,
-				url: "/keygen",
-				data: "",
-				dataType:"json",
-				success: function (res) {
-					if (res.Code == 200) {
-						$.notify("success", "success")
-					} else {
-						$.notify(res.Output, "error")
-						
-					}
-				}
-			});
-		}
-		
-		function link(ob){
-			$(ob).prop('disabled', true)
-			var id = $(ob).siblings('.log').attr('id')
-			$.ajax({
-				type: "POST",
-				cache: false,
-				url: "/link",
-				data: "id="+id,
-				dataType:"json",
-				success: function (res) {
-					if (res.Code == 501) {
-						window.location.href="/login"
-						return 
-					}
-					if (res.Code == 200) {
-						$(ob).parents('table').notify(res.Output, {className:"success",elementPosition:"bottom right",arrowShow:false})
-						$(ob).hide()
-						$(ob).siblings('.closed').show()
-						$(ob).siblings('.log').attr('pid', res.Id)
-						$(ob).parents('table').find('.statusSpan').html("已开启")
-					} else {
-						$(ob).parents('table').notify(res.Output, {className:"error",elementPosition:"bottom right",arrowShow:false})
-						$(ob).prop('disabled', false)
-					}
-				}
-			});
-		}
-		
-		function closed(ob){
-			$('ob').prop('disabled', false)
-			var id = $(ob).siblings('.log').attr('id')
-			var pid = $(ob).siblings('.log').attr('pid')
-			lock[id] = true
-			$.ajax({
-				type: "POST",
-				cache: false,
-				url: "/close",
-				data: "id="+id+"&pid="+pid,
-				dataType:"json",
-				success: function (res) {
-					if (res.Code == 501) {
-						window.location.href="/login"
-						return 
-					}
-					if (res.Code == 200) {
-						$(ob).parents('table').notify(res.Output, {className:"success",elementPosition:"bottom right",arrowShow:false})
-						$(ob).siblings(".log").attr('pid', "")
-						$(ob).hide()
-						$(ob).siblings('.link').show()
-						$(ob).parents('table').find('.statusSpan').html("未开启")
-					} else {
-						$(ob).parents('table').notify(res.Output, {className:"error",elementPosition:"bottom right",arrowShow:false})
-						$('ob').prop('disabled', false)
-						setTimeout(function(){
-							window.location.reload()
-						}, 2000)
-					}
-				}
-			});
-		}
-		
-		
-		var lock = new Object()
-		
-		function showLog(ob){
-			var id = $(ob).attr('id')
-			if (id == undefined || id == "") {
-				$(ob).notify("not found id", {className:"error",elementPosition:"bottom right",})
-				return 
-			}
-			var status = $(ob).parents('table').find('.statusSpan').html()
-			if (status == '未开启') {
-				$(ob).notify("cannt showlog", {className:"error",elementPosition:"bottom right",})
-				return 
-			}
-			$(ob).siblings(".nolog").show()
-			$(ob).hide()
-			var html = '<textarea class="form-control" rows="6"></textarea>'
-			$(ob).parents('table').after(html)
-			lock[id] = false
-			subShowLog(ob);
-		}
-		
-		function subShowLog(ob){
-			var id = $(ob).attr('id')
-			$.ajax({
-				type: "POST",
-				cache: false,
-				url: "/showLog",
-				data: "id="+id,
-				dataType:"json",
-				success: function (res) {
-					if (res.Code == 501) {
-						window.location.href="/login"
-						return 
-					}
-					if(lock[id]){
-						return ;
-					}
-					if (res.Code == 500) {
-						$(ob).siblings('.nolog').notify(res.Output, {className:"error",elementPosition:"bottom right",})
-						return 
-					}
-					if(!lock[id] && res.Code == 200){
-						$(ob).parents('table').next('textarea').val($(ob).parents('table').next('textarea').val()+res.Output)
-						subShowLog(ob)
-					}
-			   }
-		   });
-		}
-		
-		function stopLog(ob){
-			$(ob).siblings(".log").show()
-			$(ob).hide()
-			$(ob).parents('table').next('textarea').remove()
-			id = $(ob).siblings(".log").attr('id')
-			lock[id] = true
-		}
-		
-		function upload(types){
-			 var uploader = WebUploader.create({
-				// 选完文件后，是否自动上传。
-				auto: true,
-				// 限制上传数量。
-				fileNumLimit: 8,
-				// swf文件路径
-				swf: '/static/webupload/Uploader.swf',
-				// 文件接收服务端。
-				server: '/uploade',
-				// 选择文件的按钮。可选。
-				// 内部根据当前运行是创建，可能是input元素，也可能是flash.
-				pick: '.file_upload',
-				compress:false,
-				// 只允许选择图片文件。
-				accept: {
-					title: 'Images',
-					extensions: types,
-				}
-			});
-	
-			// 文件上传成功，给item添加成功class, 用样式标记上传成功。
-			uploader.on( 'uploadSuccess', function( file, response ) {
-				if (response.Code == 501) {
-					window.location.href="/login"
-					return 
-				}
-				if (response.Code == 200) {
-					var id = '#rt_'+file.source.ruid
-					$(id).parents('a').siblings('input').val(response.Output)
-					$(id).notify('上传成功', 'success')
-				} else {
-					$.notify(response.Output, {className:"error",elementPosition:"bottom right",})
-				}
-			});
-	
-			uploader.on("error",function (type){
-				if (type=="Q_TYPE_DENIED"){
-					$.notify("请上传" + types + "类型的文件", {className:"error",elementPosition:"bottom right",})
-				}else if(type=="F_EXCEED_SIZE"){
-					$.notify("文件大小不能超过8M", {className:"error",elementPosition:"bottom right",})
-				}
-			});
-		}
-		
-		function judgeEncrypt(ob){
-			$('input[type=text]').val('')
-			$('input[type=password]').val('')
-			var protocol = $(ob).val();
-			$(".encryptTerm").remove();
-			$(ob).parents('form').find('select[name=superior]').val('1')
-			$(ob).parents('form').find('.compress').remove()
-			switch (protocol) {
-				case "client":
-				case "server":
-					$(ob).parents('form').append(compressHtml)
-					$(ob).parents('form').find('input[name=compress]').eq(0).prop('checked', true)
-				case "bridge":
-					$(ob).parents('form').find('.superior').after(crtHtml)
-					$(ob).parents('form').find('.superior').after(keyHtml)
-					$(ob).parents('form').find('.always').hide()
-					$(ob).parents('form').find('.chain').hide()
-					$(ob).parents('form').find('.superior').hide()
-					$(ob).parents('form').find('.local').hide()
-					upload('crt,key')
-				break;
-				case "udp":
-					var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
+    var lock = new Object()
+
+    function showLog(ob) {
+        var id = $(ob).attr('id')
+        if (id == undefined || id == "") {
+            $(ob).notify("not found id", {className: "error", elementPosition: "bottom right",})
+            return
+        }
+        var status = $(ob).parents('table').find('.statusSpan').html()
+        if (status == '未开启') {
+            $(ob).notify("cannt showlog", {className: "error", elementPosition: "bottom right",})
+            return
+        }
+        $(ob).siblings(".nolog").show()
+        $(ob).hide()
+        var html = '<textarea class="form-control" rows="6"></textarea>'
+        $(ob).parents('table').after(html)
+        lock[id] = false
+        subShowLog(ob);
+    }
+
+    function subShowLog(ob) {
+        var id = $(ob).attr('id')
+        $.ajax({
+            type: "POST",
+            cache: false,
+            url: "/showLog",
+            data: "id=" + id,
+            dataType: "json",
+            success: function (res) {
+                if (res.Code == 501) {
+                    window.location.href = "/login"
+                    return
+                }
+                if (lock[id]) {
+                    return;
+                }
+                if (res.Code == 500) {
+                    $(ob).siblings('.nolog').notify(res.Output, {className: "error", elementPosition: "bottom right",})
+                    return
+                }
+                if (!lock[id] && res.Code == 200) {
+                    $(ob).parents('table').next('textarea').val($(ob).parents('table').next('textarea').val() + res.Output)
+                    subShowLog(ob)
+                }
+            }
+        });
+    }
+
+    function stopLog(ob) {
+        $(ob).siblings(".log").show()
+        $(ob).hide()
+        $(ob).parents('table').next('textarea').remove()
+        id = $(ob).siblings(".log").attr('id')
+        lock[id] = true
+    }
+
+    function upload(types) {
+        var uploader = WebUploader.create({
+            // 选完文件后，是否自动上传。
+            auto: true,
+            // 限制上传数量。
+            fileNumLimit: 8,
+            // swf文件路径
+            swf: '/static/webupload/Uploader.swf',
+            // 文件接收服务端。
+            server: '/uploade',
+            // 选择文件的按钮。可选。
+            // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+            pick: '.file_upload',
+            compress: false,
+            // 只允许选择图片文件。
+            accept: {
+                title: 'Images',
+                extensions: types,
+            }
+        });
+
+        // 文件上传成功，给item添加成功class, 用样式标记上传成功。
+        uploader.on('uploadSuccess', function (file, response) {
+            if (response.Code == 501) {
+                window.location.href = "/login"
+                return
+            }
+            if (response.Code == 200) {
+                var id = '#rt_' + file.source.ruid
+                $(id).parents('a').siblings('input').val(response.Output)
+                $(id).notify('上传成功', 'success')
+            } else {
+                $.notify(response.Output, {className: "error", elementPosition: "bottom right",})
+            }
+        });
+
+        uploader.on("error", function (type) {
+            if (type == "Q_TYPE_DENIED") {
+                $.notify("请上传" + types + "类型的文件", {className: "error", elementPosition: "bottom right",})
+            } else if (type == "F_EXCEED_SIZE") {
+                $.notify("文件大小不能超过8M", {className: "error", elementPosition: "bottom right",})
+            }
+        });
+    }
+
+    function judgeEncrypt(ob) {
+        $('input[type=text]').val('')
+        $('input[type=password]').val('')
+        var protocol = $(ob).val();
+        $(".encryptTerm").remove();
+        $(ob).parents('form').find('select[name=superior]').val('1')
+        $(ob).parents('form').find('.compress').remove()
+        switch (protocol) {
+            case "client":
+            case "server":
+                $(ob).parents('form').append(compressHtml)
+                $(ob).parents('form').find('input[name=compress]').eq(0).prop('checked', true)
+            case "bridge":
+                $(ob).parents('form').find('.superior').after(crtHtml)
+                $(ob).parents('form').find('.superior').after(keyHtml)
+                $(ob).parents('form').find('.always').hide()
+                $(ob).parents('form').find('.chain').hide()
+                $(ob).parents('form').find('.superior').hide()
+                $(ob).parents('form').find('.local').hide()
+                upload('crt,key')
+                break;
+            case "udp":
+                var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
 						   <option label="udp" value="2">udp</option>\
 						   <option label="tls" value="3">tls</option>'
-					$(ob).parents('form').find("select[name=encrypt]").html(val);
-					$(ob).parents('form').find('.superior').show()
-					$(ob).parents('form').find('.encryptItem').show();
-					$(ob).parents('form').find('.chain').show()
-					$(ob).parents('form').find('.always').hide()
-					$(ob).parents('form').find('.local').hide()
-					$(ob).parents('form').find('.superiorth').show()
-				break;
-				case "tcp":
-					var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
+                $(ob).parents('form').find("select[name=encrypt]").html(val);
+                $(ob).parents('form').find('.superior').show()
+                $(ob).parents('form').find('.encryptItem').show();
+                $(ob).parents('form').find('.chain').show()
+                $(ob).parents('form').find('.always').hide()
+                $(ob).parents('form').find('.local').hide()
+                $(ob).parents('form').find('.superiorth').show()
+                break;
+            case "tcp":
+                var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
 						   <option label="udp" value="2">udp</option>\
 						   <option label="tls" value="3">tls</option>\
 							<option label="kcp" value="4">kcp</option>'
-					$(ob).parents('form').find("select[name=encrypt]").html(val);
-					$(ob).parents('form').find(".encryptTerm").remove();
-					$(ob).parents('form').find('.superior').show()
-					$(ob).parents('form').find('.encryptItem').show();
-					$(ob).parents('form').find('.chain').show()
-					$(ob).parents('form').find('.local').show()
-					$(ob).parents('form').find('.always').hide()
-					$(ob).parents('form').find('.superiorth').show()
-				break;
-				default:
-					var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
+                $(ob).parents('form').find("select[name=encrypt]").html(val);
+                $(ob).parents('form').find(".encryptTerm").remove();
+                $(ob).parents('form').find('.superior').show()
+                $(ob).parents('form').find('.encryptItem').show();
+                $(ob).parents('form').find('.chain').show()
+                $(ob).parents('form').find('.local').show()
+                $(ob).parents('form').find('.always').hide()
+                $(ob).parents('form').find('.superiorth').show()
+                break;
+            default:
+                var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
 						   <option label="tls" value="3">tls</option>\
 						   <option label="kcp" value="4">kcp</option>\
 						   <option label="ssh(密码)" value="5">ssh(密码)</option>\
 						   <option label="ssh(密钥)" value="6">ssh(密钥)</option>'
-					$(ob).parents('form').find("select[name=encrypt]").html(val);
-					$(ob).parents('form').find(".encryptTerm").remove();
-					$(ob).parents('form').find('.superior').show()
-					$(ob).parents('form').find('.encryptItem').show();
-					$(ob).parents('form').find('.chain').show()
-					$(ob).parents('form').find('.local').show()
-					$(ob).parents('form').find('.superiorth').show()
-					$(ob).parents('form').find('.always').show()
-				break
-			}
-		}
+                $(ob).parents('form').find("select[name=encrypt]").html(val);
+                $(ob).parents('form').find(".encryptTerm").remove();
+                $(ob).parents('form').find('.superior').show()
+                $(ob).parents('form').find('.encryptItem').show();
+                $(ob).parents('form').find('.chain').show()
+                $(ob).parents('form').find('.local').show()
+                $(ob).parents('form').find('.superiorth').show()
+                $(ob).parents('form').find('.always').show()
+                break
+        }
+    }
 
-		function getData(ob){
-			var id = $(ob).siblings('.log').attr('id')
-			var status = $(ob).parents('table').find('.statusSpan').html()
-			if (status == '已开启') {
-				$(ob).notify('已开启的代理不能修改！')
-				return
-			}
-			$('#updateModal').modal()
-			$.ajax({
-				type: "POST",
-				cache: false,
-				url: "/getData",
-				data: "id="+id,
-				dataType:"json",
-				success: function (res) {
-					if (res.Code == 501) {
-						window.location.href="/login"
-					}
-					res.Output = JSON.parse(res.Output)
-					$('input[name=id]').eq(1).val(res.Output.Id)
-					$('select[name=protocol]').eq(1).val(res.Output.Protocol)
-					judgeEncrypt($('select[name=protocol]').eq(1))
-					$('select[name=superior]').eq(1).val(res.Output.Superior)
-					encryptItem($('select[name=superior]').eq(1))
-					if (res.Output.Auto == "是") {
-						$('input[name=auto]').eq(3).prop('checked', true)
-					} else {
-						$('input[name=auto]').eq(2).prop('checked', true)
-					}
-					$('select[name=local]').eq(1).val(res.Output.Local)
-					$('select[name=proxyLevel]').eq(1).val(res.Output.ProxyLevel)
-					$('input[name=proxyIp]').eq(1).val(res.Output.ProxyIp)
-					if (res.Output.Always == "1") {
-						$('input[name=always]').eq(3).prop('checked', true)
-					} else {
-						$('input[name=always]').eq(2).prop('checked', true)
-					}
-					if (res.Output.Compress == "1") {
-						$('input[name=compress]').eq(-1).prop('checked', true)
-					}
-					
-					$('input[name=superiorProxyIp]').eq(1).val(res.Output.SuperiorProxyIp)
-					if (res.Output.EncryptionCondition != '') {
-						var encrypt = JSON.parse(res.Output.EncryptionCondition)
-						console.log(encrypt)
-						for (var i in encrypt) {
-							$('form').eq(1).find('input[name='+i+']').val(encrypt[i])
-						}
-					}
-				}
-			});
-		}
+    function getData(ob) {
+        var id = $(ob).siblings('.log').attr('id')
+        var status = $(ob).parents('table').find('.statusSpan').html()
+        if (status == '已开启') {
+            $(ob).notify('已开启的代理不能修改！')
+            return
+        }
+        $('#updateModal').modal()
+        $.ajax({
+            type: "POST",
+            cache: false,
+            url: "/getData",
+            data: "id=" + id,
+            dataType: "json",
+            success: function (res) {
+                if (res.Code == 501) {
+                    window.location.href = "/login"
+                }
+                res.Output = JSON.parse(res.Output)
+                $('input[name=id]').eq(1).val(res.Output.Id)
+                $('select[name=protocol]').eq(1).val(res.Output.Protocol)
+                judgeEncrypt($('select[name=protocol]').eq(1))
+                $('select[name=superior]').eq(1).val(res.Output.Superior)
+                encryptItem($('select[name=superior]').eq(1))
+                if (res.Output.Auto == "是") {
+                    $('input[name=auto]').eq(3).prop('checked', true)
+                } else {
+                    $('input[name=auto]').eq(2).prop('checked', true)
+                }
+                $('select[name=local]').eq(1).val(res.Output.Local)
+                $('select[name=proxyLevel]').eq(1).val(res.Output.ProxyLevel)
+                $('input[name=proxyIp]').eq(1).val(res.Output.ProxyIp)
+                if (res.Output.Always == "1") {
+                    $('input[name=always]').eq(3).prop('checked', true)
+                } else {
+                    $('input[name=always]').eq(2).prop('checked', true)
+                }
+                if (res.Output.Compress == "1") {
+                    $('input[name=compress]').eq(-1).prop('checked', true)
+                }
 
-		function update(){
-			var ipPattern = /((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?[1-9])))(\:\d)*)/
-			var portPattern = /^:(\d){1,5}$/
-			var proxyIp = $('input[name=proxyIp]').eq(1).val();
-			var superiorProxyIp = $('input[name=superiorProxyIp]').eq(1).val();
-			var proxyLevel = $('select[name=proxyLevel]').eq(1).val()
-			
-			if (proxyLevel == '2' && superiorProxyIp == '') {
-				$.notify("非顶级代理的上级服务器ip不能为空", "error")
-				return ;
-			}
+                $('input[name=superiorProxyIp]').eq(1).val(res.Output.SuperiorProxyIp)
+                if (res.Output.EncryptionCondition != '') {
+                    var encrypt = JSON.parse(res.Output.EncryptionCondition)
+                    console.log(encrypt)
+                    for (var i in encrypt) {
+                        $('form').eq(1).find('input[name=' + i + ']').val(encrypt[i])
+                    }
+                }
+            }
+        });
+    }
 
-			if (!ipPattern.test(superiorProxyIp) && !portPattern.test(superiorProxyIp) && superiorProxyIp != '') {
-				$.notify("ip或端口格式不正确", "error")
-				return ;
-			}
-			$.ajax({
-				type: "POST",
-				cache: false,
-				url: "/add",
-				data: $('form').eq(1).serialize(),
-				dataType:"json",
-				success: function (res) {
-					if (res.Code == 501) {
-						window.location.href="/login"
-						return 
-					}
-					if (res.Code == 200) {
-						$.notify("修改成功", "success")
-						setTimeout(function(){
-							window.location.reload()
-						}, 2000)
-						
-					} else {
-						$.notify(res.Output, {className:"error",elementPosition:"bottom right",})
-					}
-				}
-			});
-		}
+    function update() {
+        var ipPattern = /((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?[1-9])))(\:\d)*)/
+        var portPattern = /^:(\d){1,5}$/
+        var proxyIp = $('input[name=proxyIp]').eq(1).val();
+        var superiorProxyIp = $('input[name=superiorProxyIp]').eq(1).val();
+        var proxyLevel = $('select[name=proxyLevel]').eq(1).val()
 
-		function confirmDel(ob){
-			$('.del').removeClass('del')
-			var id = $(ob).siblings('.log').attr('id')
-			var status = $(ob).parents('table').find('.statusSpan').html()
-			if (status == '已开启') {
-				$(ob).notify('已开启的代理不能删除！')
-				return
-			}
-			$(ob).addClass('del')
-			$('#deleteModal').modal()
-		}
+        if (proxyLevel == '2' && superiorProxyIp == '') {
+            $.notify("非顶级代理的上级服务器ip不能为空", "error")
+            return;
+        }
 
-		function del(){
-			var id = $('.del').siblings('.log').attr('id')
-			$.ajax({
-				type: "POST",
-				cache: false,
-				url: "/delete",
-				data: "id="+id,
-				dataType:"json",
-				success: function (res) {
-					if (res.Code == 501) {
-						window.location.href="/login"
-						return 
-					}
-					if (res.Code == 200) {
-						$.notify("删除成功", "success")
-						$('.del').parents('table').remove()
-					} else {
-						$.notify(res.Output, {className:"error",elementPosition:"bottom right",})
-						$('.del').removeClass('del')
-					}
-				}
-			});
-		}
-	</script>
+        if (!ipPattern.test(superiorProxyIp) && !portPattern.test(superiorProxyIp) && superiorProxyIp != '') {
+            $.notify("ip或端口格式不正确", "error")
+            return;
+        }
+        $.ajax({
+            type: "POST",
+            cache: false,
+            url: "/add",
+            data: $('form').eq(1).serialize(),
+            dataType: "json",
+            success: function (res) {
+                if (res.Code == 501) {
+                    window.location.href = "/login"
+                    return
+                }
+                if (res.Code == 200) {
+                    $.notify("修改成功", "success")
+                    setTimeout(function () {
+                        window.location.reload()
+                    }, 2000)
+
+                } else {
+                    $.notify(res.Output, {className: "error", elementPosition: "bottom right",})
+                }
+            }
+        });
+    }
+
+    function confirmDel(ob) {
+        $('.del').removeClass('del')
+        var id = $(ob).siblings('.log').attr('id')
+        var status = $(ob).parents('table').find('.statusSpan').html()
+        if (status == '已开启') {
+            $(ob).notify('已开启的代理不能删除！')
+            return
+        }
+        $(ob).addClass('del')
+        $('#deleteModal').modal()
+    }
+
+    function del() {
+        var id = $('.del').siblings('.log').attr('id')
+        $.ajax({
+            type: "POST",
+            cache: false,
+            url: "/delete",
+            data: "id=" + id,
+            dataType: "json",
+            success: function (res) {
+                if (res.Code == 501) {
+                    window.location.href = "/login"
+                    return
+                }
+                if (res.Code == 200) {
+                    $.notify("删除成功", "success")
+                    $('.del').parents('table').remove()
+                } else {
+                    $.notify(res.Output, {className: "error", elementPosition: "bottom right",})
+                    $('.del').removeClass('del')
+                }
+            }
+        });
+    }
+</script>
 </html>

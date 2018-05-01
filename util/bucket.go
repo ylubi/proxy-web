@@ -13,6 +13,7 @@ import (
 
 type Parameter struct {
 	Id        string
+	Name      string // 名称
 	Params    string // 参数
 	ProcessId int    // 进程 id
 	Status    string // 是否开启
@@ -85,6 +86,7 @@ func SaveParameter(data url.Values) (string, string, error) {
 	}
 	parameter := new(Parameter)
 
+	parameter.Name = data.Get("name")
 	parameter.Params = data.Get("param")
 	if err != nil {
 		return "", "", err
