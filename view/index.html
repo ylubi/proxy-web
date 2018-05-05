@@ -23,7 +23,7 @@
 <body>
 <div class="ng-scope" style="margin:5px 0 10px 2px;">
     <div class="profile-actions">
-        <button class="btn btn-default ng-binding add" data-toggle="modal" data-target="#exampleModal">
+        <button onclick="startUpload()" class="btn btn-default ng-binding add" data-toggle="modal" data-target="#exampleModal">
             <span class="glyphicon glyphicon-plus"></span> 添加代理
         </button>
         <button class="btn btn-default ng-binding" data-toggle="modal" data-target="#keygenModal">
@@ -38,7 +38,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="exampleModalLabel">添加连接</h4>
+                <h4 class="modal-title" id="exampleModalLabel">添加proxy</h4>
             </div>
             <div class="modal-body">
                 <form>
@@ -57,7 +57,7 @@
                             参数:
                         </label>
                         <br>
-                        <textarea  class="form-control" rows="6"></textarea>
+                        <textarea  class="form-control" rows="6" name="param"></textarea>
                     </div>
 
                     <div class="form-group auto">
@@ -86,7 +86,7 @@
                         </label>
                         <br>
                         <input type="hidden" name="crt">
-                        <a class="btn btn-primary ng-binding file_upload">.crt文件</a>
+                        <a class="btn btn-primary ng-binding file_upload" >.crt文件</a>
                     </div>
                 </form>
             </div>
@@ -104,11 +104,27 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="exampleModalLabel">添加连接</h4>
+                <h4 class="modal-title" id="exampleModalLabel">修改proxy</h4>
             </div>
             <div class="modal-body">
                 <form>
                     <input type="hidden" name="id" value="">
+
+                    <div class="form-group auto">
+                        <label class="control-label">
+                            名称:
+                        </label>
+                        <br>
+                        <input type="text" class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched" placeholder="" name="name">
+                    </div>
+
+                    <div class="form-group auto">
+                        <label class="control-label">
+                            参数:
+                        </label>
+                        <br>
+                        <textarea  class="form-control" rows="6" name="param"></textarea>
+                    </div>
 
                     <div class="form-group auto">
                         <label class="control-label">
@@ -127,7 +143,7 @@
                         </label>
                         <br>
                         <input type="hidden" name="key">
-                        <a class="btn btn-primary ng-binding file_upload">.key文件</a>
+                        <a class="btn btn-primary ng-binding file_upload" >.key文件</a>
                     </div>
 
                     <div class="form-group encryptTerm">
@@ -136,7 +152,7 @@
                         </label>
                         <br>
                         <input type="hidden" name="crt">
-                        <a class="btn btn-primary ng-binding file_upload">.crt文件</a>
+                        <a class="btn btn-primary ng-binding file_upload"  >.crt文件</a>
                     </div>
                 </form>
             </div>
@@ -216,7 +232,7 @@
 							    <td style="width:100px;">\
                                     <span class="nameSpan"></span>\
                                 </td>\
-								<td style="width:100px;">\
+								<td style="width:430px;">\
 									<span class="paramSpan"></span>\
 								</td>\
 								<td style="width:80px;">\
@@ -236,7 +252,6 @@
 							</tr>\
 						</tbody>\
 					</table>';
-
 
     function initData() {
         $.ajax({
@@ -263,7 +278,8 @@
 
     function addContent(data) {
         $('body').append(html)
-
+        $('.paramSpan').eq(-1).html(data['Params'])
+        $('.nameSpan').eq(-1).html(data['Name'])
         $('.statusSpan').eq(-1).html(data['Status'])
         $('.autoSpan').eq(-1).html(data['Auto'])
 
@@ -500,71 +516,6 @@
         });
     }
 
-    function judgeEncrypt(ob) {
-        $('input[type=text]').val('')
-        $('input[type=password]').val('')
-        var protocol = $(ob).val();
-        $(".encryptTerm").remove();
-        $(ob).parents('form').find('select[name=superior]').val('1')
-        $(ob).parents('form').find('.compress').remove()
-        switch (protocol) {
-            case "client":
-            case "server":
-                $(ob).parents('form').append(compressHtml)
-                $(ob).parents('form').find('input[name=compress]').eq(0).prop('checked', true)
-            case "bridge":
-                $(ob).parents('form').find('.superior').after(crtHtml)
-                $(ob).parents('form').find('.superior').after(keyHtml)
-                $(ob).parents('form').find('.always').hide()
-                $(ob).parents('form').find('.chain').hide()
-                $(ob).parents('form').find('.superior').hide()
-                $(ob).parents('form').find('.local').hide()
-                upload('crt,key')
-                break;
-            case "udp":
-                var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
-						   <option label="udp" value="2">udp</option>\
-						   <option label="tls" value="3">tls</option>'
-                $(ob).parents('form').find("select[name=encrypt]").html(val);
-                $(ob).parents('form').find('.superior').show()
-                $(ob).parents('form').find('.encryptItem').show();
-                $(ob).parents('form').find('.chain').show()
-                $(ob).parents('form').find('.always').hide()
-                $(ob).parents('form').find('.local').hide()
-                $(ob).parents('form').find('.superiorth').show()
-                break;
-            case "tcp":
-                var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
-						   <option label="udp" value="2">udp</option>\
-						   <option label="tls" value="3">tls</option>\
-							<option label="kcp" value="4">kcp</option>'
-                $(ob).parents('form').find("select[name=encrypt]").html(val);
-                $(ob).parents('form').find(".encryptTerm").remove();
-                $(ob).parents('form').find('.superior').show()
-                $(ob).parents('form').find('.encryptItem').show();
-                $(ob).parents('form').find('.chain').show()
-                $(ob).parents('form').find('.local').show()
-                $(ob).parents('form').find('.always').hide()
-                $(ob).parents('form').find('.superiorth').show()
-                break;
-            default:
-                var val = '<option label="tcp" value="1" selected="selected">tcp</option>\
-						   <option label="tls" value="3">tls</option>\
-						   <option label="kcp" value="4">kcp</option>\
-						   <option label="ssh(密码)" value="5">ssh(密码)</option>\
-						   <option label="ssh(密钥)" value="6">ssh(密钥)</option>'
-                $(ob).parents('form').find("select[name=encrypt]").html(val);
-                $(ob).parents('form').find(".encryptTerm").remove();
-                $(ob).parents('form').find('.superior').show()
-                $(ob).parents('form').find('.encryptItem').show();
-                $(ob).parents('form').find('.chain').show()
-                $(ob).parents('form').find('.local').show()
-                $(ob).parents('form').find('.superiorth').show()
-                $(ob).parents('form').find('.always').show()
-                break
-        }
-    }
-
     function getData(ob) {
         var id = $(ob).siblings('.log').attr('id')
         var status = $(ob).parents('table').find('.statusSpan').html()
@@ -585,55 +536,23 @@
                 }
                 res.Output = JSON.parse(res.Output)
                 $('input[name=id]').eq(1).val(res.Output.Id)
-                $('select[name=protocol]').eq(1).val(res.Output.Protocol)
-                judgeEncrypt($('select[name=protocol]').eq(1))
-                $('select[name=superior]').eq(1).val(res.Output.Superior)
-                encryptItem($('select[name=superior]').eq(1))
+                $('input[name=name]').eq(1).val(res.Output.Name)
+                $('textarea[name=param]').eq(1).val(res.Output.Params)
+                $('input[name=key]').eq(1).val(res.Output.Key)
+                $('textarea[name=crt]').eq(1).val(res.Output.Crt)
                 if (res.Output.Auto == "是") {
                     $('input[name=auto]').eq(3).prop('checked', true)
                 } else {
                     $('input[name=auto]').eq(2).prop('checked', true)
                 }
-                $('select[name=local]').eq(1).val(res.Output.Local)
-                $('select[name=proxyLevel]').eq(1).val(res.Output.ProxyLevel)
-                $('input[name=proxyIp]').eq(1).val(res.Output.ProxyIp)
-                if (res.Output.Always == "1") {
-                    $('input[name=always]').eq(3).prop('checked', true)
-                } else {
-                    $('input[name=always]').eq(2).prop('checked', true)
-                }
-                if (res.Output.Compress == "1") {
-                    $('input[name=compress]').eq(-1).prop('checked', true)
-                }
-
-                $('input[name=superiorProxyIp]').eq(1).val(res.Output.SuperiorProxyIp)
-                if (res.Output.EncryptionCondition != '') {
-                    var encrypt = JSON.parse(res.Output.EncryptionCondition)
-                    console.log(encrypt)
-                    for (var i in encrypt) {
-                        $('form').eq(1).find('input[name=' + i + ']').val(encrypt[i])
-                    }
-                }
+                setTimeout(function () {
+                    upload("crt,key")
+                }, 100)
             }
         });
     }
 
     function update() {
-        var ipPattern = /((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?[1-9])))(\:\d)*)/
-        var portPattern = /^:(\d){1,5}$/
-        var proxyIp = $('input[name=proxyIp]').eq(1).val();
-        var superiorProxyIp = $('input[name=superiorProxyIp]').eq(1).val();
-        var proxyLevel = $('select[name=proxyLevel]').eq(1).val()
-
-        if (proxyLevel == '2' && superiorProxyIp == '') {
-            $.notify("非顶级代理的上级服务器ip不能为空", "error")
-            return;
-        }
-
-        if (!ipPattern.test(superiorProxyIp) && !portPattern.test(superiorProxyIp) && superiorProxyIp != '') {
-            $.notify("ip或端口格式不正确", "error")
-            return;
-        }
         $.ajax({
             type: "POST",
             cache: false,
@@ -692,6 +611,12 @@
                 }
             }
         });
+    }
+
+    function startUpload(){
+        setTimeout(function () {
+            upload("crt,key")
+        }, 1000)
     }
 </script>
 </html>

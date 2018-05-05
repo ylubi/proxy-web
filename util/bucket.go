@@ -18,6 +18,8 @@ type Parameter struct {
 	ProcessId int    // 进程 id
 	Status    string // 是否开启
 	Auto      string // 是否自动开启
+	Key       string // .key 文件路径
+	Crt       string // .crt 文件路径
 }
 
 func GetParameter() map[string]*Parameter {
@@ -88,6 +90,8 @@ func SaveParameter(data url.Values) (string, string, error) {
 
 	parameter.Name = data.Get("name")
 	parameter.Params = data.Get("param")
+	parameter.Crt = data.Get("crt")
+	parameter.Key = data.Get("key")
 	if err != nil {
 		return "", "", err
 	}
@@ -103,7 +107,7 @@ func SaveParameter(data url.Values) (string, string, error) {
 			id, _ := b.NextSequence()
 			stringId = string(id)
 		} else {
-			stringId = data["id"][0]
+			stringId = data.Get("id")
 		}
 		parameter.Id = stringId
 		buf, err = json.Marshal(parameter)

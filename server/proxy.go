@@ -85,9 +85,16 @@ func getCommand(id string) (command string, err error) {
 	if err != nil {
 		return
 	}
-	command += serverPath + " "
+	command += serverPath + "proxy "
 	command += parameter.Params
 	command = strings.Replace(command, "  ", " ", -1)
+	command = strings.Replace(command, "\n", "", -1)
+	if parameter.Key != "" {
+		command += " -K " + parameter.Key
+	}
+	if parameter.Key != "" {
+		command += " -C " + parameter.Crt
+	}
 	return command, nil
 }
 
