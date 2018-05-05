@@ -55,11 +55,11 @@ v 2.0 全面更新，可以自由配置参数
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/delete.jpg?raw=true" />
 
 ### 2.参数介绍
-名称：代理的名称。
-参数：指[snail007/goproxy](https://github.com/snail007/goproxy/)中的各种参数。
-开启proxy-web自动启动goproxy功能。
-加密文件上传。
-参数具体怎样使用请查看goproxy手册
+名称：代理的名称。  
+参数：指[snail007/goproxy](https://github.com/snail007/goproxy/)中的各种参数。  
+开启proxy-web自动启动goproxy功能。  
+加密文件上传。  
+参数具体怎样使用请查看goproxy手册。  
 
 ### 源码使用  
 - 使用非windows编译，请删除resource.syso  
