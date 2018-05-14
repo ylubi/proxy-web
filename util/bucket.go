@@ -103,11 +103,12 @@ func SaveParameter(data url.Values) (string, string, error) {
 	var buf []byte
 	err = db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("proxy"))
-		if data["id"][0] == "" {
+		id := data.Get("id")
+		if id == "" {
 			id, _ := b.NextSequence()
 			stringId = string(id)
 		} else {
-			stringId = data.Get("id")
+			stringId = id
 		}
 		parameter.Id = stringId
 		buf, err = json.Marshal(parameter)
