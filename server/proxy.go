@@ -212,7 +212,7 @@ func uploade(v http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 		t := time.Now().Unix()
-		fw, err := os.Create("./static/upload/" + strconv.FormatInt(t, 10) + fileSuffix)
+		fw, err := os.Create("./upload/" + strconv.FormatInt(t, 10) + fileSuffix)
 		defer fw.Close()
 		if err != nil {
 			util.ReturnJson(500, "", err.Error(), v)
