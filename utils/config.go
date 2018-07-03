@@ -57,7 +57,9 @@ func (c *Config) GetServicesFilePath() (string, error) {
 }
 
 func (c *Config) UpdateAutoStart(autoStart string)(isSuccess bool){
+	c.File.DeleteKey("config", "auto_start")
 	isSuccess = c.File.SetValue("config", "auto_start", autoStart)
+	goconfig.SaveConfigFile(c.File, "./config/config.ini")
 	return
 }
 

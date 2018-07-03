@@ -192,7 +192,6 @@ func autoStart(v http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	auto := r.Form.Get("auto")
 	var dir string
-
 	switch runtime.GOOS {
 	case "windows":
 		if auto == "auto" {
@@ -227,6 +226,12 @@ func autoStart(v http.ResponseWriter, r *http.Request) {
 				utils.ReturnJson(string(output), "", v)
 				return
 			}
+			is_success := utils.NewConfig().UpdateAutoStart("false")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
 			utils.ReturnJson("success", output, v)
 			return
 		}
@@ -243,10 +248,16 @@ func autoStart(v http.ResponseWriter, r *http.Request) {
 				utils.ReturnJson(string(output), "", v)
 				return
 			}
-			utils.ReturnJson("success", output, v)
+			is_success := utils.NewConfig().UpdateAutoStart("true")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
+			utils.ReturnJson("success", string(output), v)
 			return
 		} else {
-			command := `./config/autostart disable -k "proxy"`
+			command := `./config/autostart disable -k proxy`
 			commandSlice := strings.Split(command, " ")
 			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 			output, err := cmd.CombinedOutput()
@@ -255,7 +266,13 @@ func autoStart(v http.ResponseWriter, r *http.Request) {
 				utils.ReturnJson(string(output), "", v)
 				return
 			}
-			utils.ReturnJson("success", output, v)
+			is_success := utils.NewConfig().UpdateAutoStart("false")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
+			utils.ReturnJson("success", string(output), v)
 			return
 		}
 	case "linux":
@@ -270,10 +287,16 @@ func autoStart(v http.ResponseWriter, r *http.Request) {
 				utils.ReturnJson(string(output), "", v)
 				return
 			}
-			utils.ReturnJson("success", output, v)
+			is_success := utils.NewConfig().UpdateAutoStart("true")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
+			utils.ReturnJson("success", string(output), v)
 			return
 		} else {
-			command := `./config/autostart disable -k "proxy"`
+			command := `./config/autostart disable -k proxy`
 			commandSlice := strings.Split(command, " ")
 			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 			output, err := cmd.CombinedOutput()
@@ -282,7 +305,13 @@ func autoStart(v http.ResponseWriter, r *http.Request) {
 				utils.ReturnJson(string(output), "", v)
 				return
 			}
-			utils.ReturnJson("success", output, v)
+			is_success := utils.NewConfig().UpdateAutoStart("false")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
+			utils.ReturnJson("success", string(output), v)
 			return
 		}
 

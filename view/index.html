@@ -344,7 +344,6 @@
     function closed(ob) {
         $('ob').prop('disabled', false)
         var id = $(ob).siblings('.log').attr('id')
-        lock[id] = true
         $.ajax({
             type: "POST",
             cache: false,
