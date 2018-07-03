@@ -249,7 +249,7 @@
 									<a class="btn btn-primary ng-binding delete" onclick="confirmDel(this)">删除</a>\
 									<a class="btn btn-primary ng-binding link" onclick="link(this)">启用</a>\
 									<a class="btn btn-primary ng-binding closed" onclick="closed(this)" style="display:none;">关闭</a>\
-									<a class="btn btn-primary ng-binding log" onclick="showLog()">显示日志</a>\
+									<a class="btn btn-primary ng-binding log" onclick="showLog(this)">显示日志</a>\
 								</td>\
 							</tr>\
 						</tbody>\
@@ -363,8 +363,9 @@
         });
     }
 
-    function showLog() {
-        window.location.href = "/"
+    function showLog(ob) {
+        var id = $(ob).attr('id')
+        window.location.href = "/log?id=" + id
     }
 
     function upload(types) {

@@ -240,7 +240,7 @@ func autoStart(v http.ResponseWriter, r *http.Request) {
 		if auto == "auto" {
 			command := `./config/autostart enable -k proxy -n proxy -c`
 			commandSlice := strings.Split(command, " ")
-			commandSlice = append(commandSlice, `echo \"autostart\">~/config/autostart.txt`)
+			commandSlice = append(commandSlice, `echo \"autostart\">~/autostart.txt`)
 			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 			output, err := cmd.CombinedOutput()
 			if err != nil {
@@ -279,7 +279,7 @@ func autoStart(v http.ResponseWriter, r *http.Request) {
 		if auto == "auto" {
 			command := `./config/autostart enable -k proxy -n proxy -c`
 			commandSlice := strings.Split(command, " ")
-			commandSlice = append(commandSlice, `echo \"autostart\">~/config/autostart.txt`)
+			commandSlice = append(commandSlice, `echo \"autostart\">~/autostart.txt`)
 			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 			output, err := cmd.CombinedOutput()
 			if err != nil {
