@@ -6,7 +6,6 @@ import (
 	"io"
 	"html/template"
 	"path"
-	"proxy/util"
 	"time"
 	"os"
 	"strconv"
@@ -139,7 +138,7 @@ func uploade(v http.ResponseWriter, r *http.Request) {
 		file, head, err := r.FormFile("file")
 		fileSuffix := path.Ext(head.Filename)
 		if err != nil {
-			util.ReturnJson(500, "", err.Error(), v)
+			utils.ReturnJson(err.Error(), "",  v)
 			return
 		}
 		defer file.Close()
@@ -147,16 +146,16 @@ func uploade(v http.ResponseWriter, r *http.Request) {
 		fw, err := os.Create("./upload/" + strconv.FormatInt(t, 10) + fileSuffix)
 		defer fw.Close()
 		if err != nil {
-			util.ReturnJson(500, "", err.Error(), v)
+			utils.ReturnJson(err.Error(), "",  v)
 			return
 		}
 		_, err = io.Copy(fw, file)
 		if err != nil {
-			util.ReturnJson(500, "", err.Error(), v)
+			utils.ReturnJson(err.Error(), "", v)
 			return
 		}
 		name := fw.Name()
-		util.ReturnJson(200, "", name, v)
+		utils.ReturnJson("", name, v)
 		return
 	}
 }
