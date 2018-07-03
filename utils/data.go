@@ -184,7 +184,7 @@ func GetAllParams() (datas []map[string]interface{}, err error) {
 	defer fd.Close()
 
 	allData, err := ioutil.ReadAll(fd)
-	if err != nil {
+	if err != nil || len(allData) == 0 {
 		return
 	}
 	dataMap := make(map[string]interface{})

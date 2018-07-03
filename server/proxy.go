@@ -22,8 +22,8 @@ func add(v http.ResponseWriter, r *http.Request) {
 	name := r.Form.Get("name")
 	command := r.Form.Get("command")
 	autoStart := r.Form.Get("auto")
-	keyFile := r.Form.Get("key_file")
-	crtFile := r.Form.Get("crt_file")
+	keyFile := r.Form.Get("key")
+	crtFile := r.Form.Get("crt")
 	log := r.Form.Get("log")
 
 	serviceId, err := utils.SaveParams(name, command, autoStart, keyFile, crtFile, log)
@@ -70,6 +70,7 @@ func getData(v http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		v.WriteHeader(http.StatusInternalServerError)
 		utils.ReturnJson(err.Error(), "", v)
+		return
 	}
 	utils.ReturnJson("success", data, v)
 }
@@ -178,8 +179,8 @@ func update(v http.ResponseWriter, r *http.Request) {
 	name := r.Form.Get("name")
 	command := r.Form.Get("command")
 	autoStart := r.Form.Get("auto")
-	keyFile := r.Form.Get("key_file")
-	crtFile := r.Form.Get("crt_file")
+	keyFile := r.Form.Get("key")
+	crtFile := r.Form.Get("crt")
 	log := r.Form.Get("log")
 
 	err := utils.UpdateParams(id, name, command, autoStart, keyFile, crtFile, log)
