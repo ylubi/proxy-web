@@ -1,4 +1,4 @@
-package util
+package utils
 
 import (
 	"log"
@@ -46,4 +46,22 @@ func (c *Config) GetUsernameAndPassword() (string, string, error) {
 		return "", "", err
 	}
 	return username, password, nil
+}
+
+func (c *Config) GetServicesFilePath() (string, error) {
+	serviceFile, err := c.File.GetValue("proxy_server", "services")
+	if err != nil {
+		return "", err
+	}
+	return serviceFile, nil
+}
+
+func (c *Config) UpdateAutoStart(autoStart string)(isSuccess bool){
+	isSuccess = c.File.SetValue("config", "auto_start", autoStart)
+	return
+}
+
+func (c *Config) GetAutoStart()(autoStart bool){
+	autoStart = c.File.MustBool("config", "auto_start")
+	return
 }

@@ -5,29 +5,29 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/exec"
 	"os/signal"
 	"syscall"
 
 	_ "net/http/pprof"
 	"proxy-web/server"
-	"proxy-web/util"
+	"sync"
 )
 
 var daemon = flag.Bool("d", true, "default run daemon")
+var lock sync.Mutex
 
 func init() {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
-	if *daemon {
-		args := make([]string, 1)
-		args[0] = "-d=false"
-		cmd := exec.Command(os.Args[0], args...)
-		cmd.Start()
-		fmt.Println("[PID]", cmd.Process.Pid)
-		os.Exit(0)
-	}
+	//if !flag.Parsed() {
+	//	flag.Parse()
+	//}
+	//if *daemon {
+	//	args := make([]string, 1)
+	//	args[0] = "-d=false"
+	//	cmd := exec.Command(os.Args[0], args...)
+	//	cmd.Start()
+	//	fmt.Println("[PID]", cmd.Process.Pid)
+	//	os.Exit(0)
+	//}
 }
 
 func main() {
@@ -45,15 +45,7 @@ func clean() {
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
 	go func() {
-		for _ = range signalChan {
-			data := util.GetParameter()
-			for _, v := range data {
-				p, _ := os.FindProcess(v.ProcessId)
-				p.Kill()
-				p.Release()
-
-			}
-		}
+		fmt.Println("close")
 	}()
 	<-cleanupDone
 }

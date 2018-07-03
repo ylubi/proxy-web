@@ -2,6 +2,7 @@ proxy
 *.exe
 *.exe~
 /db/bucket/
-/static/upload/
+/upload/
+/data/services/
 /tmp/
 .idea/

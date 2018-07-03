@@ -1,29 +1,45 @@
 package server
 
 import (
-	"proxy-web/util"
+	"proxy-web/utils"
+	"net/http"
+	"io"
+	"html/template"
+	"path"
+	"proxy/util"
 	"time"
 	"os"
 	"strconv"
-	"io"
-	"net/http"
-	"encoding/json"
 	"fmt"
 	"strings"
-	"os/exec"
-	"bufio"
+	"github.com/snail007/goproxy/sdk/android-ios"
 	"runtime"
-	"path"
-	"html/template"
+	"path/filepath"
+	"os/exec"
 )
 
 func add(v http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	id, parameter, err := util.SaveParameter(r.Form)
+	name := r.Form.Get("name")
+	command := r.Form.Get("command")
+	autoStart := r.Form.Get("auto")
+	keyFile := r.Form.Get("key_file")
+	crtFile := r.Form.Get("crt_file")
+
+	serviceId, err := utils.SaveParams(name, command, autoStart, keyFile, crtFile)
 	if err != nil {
-		util.ReturnJson(500, "", err.Error(), v)
+		v.WriteHeader(http.StatusInternalServerError)
+		utils.ReturnJson(err.Error(), "", v)
+		return
 	}
-	util.ReturnJson(200, id, parameter, v)
+
+	data := make(map[string]interface{})
+	data["id"] = serviceId
+	data["command"] = command
+	data["auto_start"] = autoStart
+	data["name"] = name
+	data["status"] = "未开启"
+	utils.ReturnJson("success", data, v)
 }
 
 func show(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +49,9 @@ func show(w http.ResponseWriter, r *http.Request) {
 			io.WriteString(w, err.Error())
 			return
 		}
-		t.Execute(w, nil)
+		autoStart := utils.NewConfig().GetAutoStart()
+		data := map[string]interface{}{"auto_start": autoStart}
+		t.Execute(w, data)
 	}
 }
 
@@ -42,20 +60,16 @@ func getData(w http.ResponseWriter, r *http.Request) {
 	var err error
 	r.ParseForm()
 	id := r.Form.Get("id")
+
 	if id == "0" {
-		data = util.GetParameter()
+		data, err = utils.GetAllParams()
 	} else {
-		data, err = util.GetParameterById(id)
+		data, err = utils.GetParamsById(id)
 		if err != nil {
-			util.ReturnJson(501, "", err.Error(), w)
+			utils.ReturnJson(err.Error(), "", w)
 		}
 	}
-	dataJson, err := json.Marshal(data)
-	if err != nil {
-		util.ReturnJson(501, "", err.Error(), w)
-		return
-	}
-	util.ReturnJson(200, "", string(dataJson), w)
+	utils.ReturnJson("success", data, w)
 }
 
 func link(v http.ResponseWriter, r *http.Request) {
@@ -66,139 +80,57 @@ func link(v http.ResponseWriter, r *http.Request) {
 		id := r.Form.Get("id")
 		command, err = getCommand(id)
 		if err != nil {
-			util.ReturnJson(500, "", err.Error(), v)
+			utils.ReturnJson(err.Error(), "", v)
 			return
 		}
 		fmt.Println(command)
-		runCommand(command, v, id)
+		errStr := proxy.Start(id, command)
+		if errStr != "" {
+			utils.ReturnJson(errStr, "", v)
+			return
+		}
+		utils.ChangeParameterDataById(id, "已开启")
+		utils.ReturnJson("success", "", v)
 	}
 }
 
 func getCommand(id string) (command string, err error) {
-	parameter, err := util.GetParameterById(id)
+	parameter, err := utils.GetParamsById(id)
 	if err != nil {
 		return "", err
 	}
 
-	config := util.NewConfig()
-	serverPath, err := config.GetServerPath()
-	if err != nil {
-		return
-	}
-	command += serverPath + "proxy "
-	command += parameter.Params
+	command += parameter["command"].(string)
 	command = strings.Replace(command, "  ", " ", -1)
 	command = strings.Replace(command, "\n", "", -1)
-	if parameter.Key != "" {
-		command += " -K " + parameter.Key
+	if parameter["key_file"].(string) != "" {
+		command += " -K " + parameter["key_file"].(string)
 	}
-	if parameter.Key != "" {
-		command += " -C " + parameter.Crt
+	if parameter["crt_file"].(string) != "" {
+		command += " -C " + parameter["crt_file"].(string)
+	}
+	command += " --log " + parameter["log"].(string)
+	s, err := os.Stat("./log/")
+	if err != nil || !s.IsDir() {
+		os.Mkdir("./log/", os.ModePerm)
 	}
 	return command, nil
 }
 
-func runCommand(command string, v http.ResponseWriter, id string) {
-	var Code int
-	cmdChan := make(chan int)
-	commandList := strings.Split(command, " ")
-	cmd := exec.Command(commandList[0], commandList[1:]...)
-	//错误输出通道
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		util.ReturnJson(500, "", err.Error(), v)
-		return
-	}
-	err = cmd.Start()
-	if err != nil {
-		util.ReturnJson(500, "", err.Error(), v)
-		return
-	}
-	//异步等待是否返回错误
-	reader := bufio.NewReader(stderr)
-	go saveLog(reader, id)
-	go waitProcess(cmd, cmdChan, id)
-	second := time.After(3 * time.Second)
-	var stringPid string
-	if err != nil {
-		util.ReturnJson(500, "", err.Error(), v)
-		return
-	}
-	//判断2秒内是否有channel返回，有则是失败，阻塞3秒以上则为成功
-	select {
-	case <-cmdChan:
-		Code = 500
-	case <-second:
-		pid := cmd.Process.Pid
-		err := util.ChangeParameterDataById(pid, "已开启", id)
-		stringPid = strconv.Itoa(pid)
-		if err != nil {
-			util.ReturnJson(500, "", err.Error(), v)
-			return
-		}
-		Code = 200
-	}
-	//进行输入流读取
-	Output := getLog(id)
-	util.ReturnJson(Code, stringPid, Output, v)
-}
-
 func close(v http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	pid := r.Form.Get("pid")
 	id := r.Form.Get("id")
-	if pid == "undefined" {
-		util.ReturnJson(500, "", "pid not found", v)
-		return
-	}
 	if id == "undefined" {
-		util.ReturnJson(500, "", "id not found", v)
+		utils.ReturnJson("id not found", "", v)
 		return
 	}
-	err := util.ChangeParameterDataById(0, "未开启", id)
-	delete(logMap, id)
+	err := utils.ChangeParameterDataById(id, "未开启")
 	if err != nil {
-		util.ReturnJson(500, "", err.Error(), v)
+		utils.ReturnJson(err.Error(), "", v)
 		return
 	}
-	pidInt, err := strconv.Atoi(pid)
-	p, err := os.FindProcess(pidInt)
-	if err != nil {
-		util.ReturnJson(500, "", err.Error(), v)
-		return
-	}
-	err = p.Kill()
-	if err != nil {
-		util.ReturnJson(500, "", err.Error(), v)
-		return
-	}
-	err = p.Release()
-	if err != nil {
-		util.ReturnJson(500, "", err.Error(), v)
-		return
-	}
-	util.ReturnJson(200, "", "success", v)
-	return
-}
-
-func keygen(v http.ResponseWriter, r *http.Request) {
-	os := runtime.GOOS
-	if os != "linux" {
-		util.ReturnJson(500, "", "os error", v)
-		return
-	}
-	fmt.Println(os)
-	path, err := util.NewConfig().GetServerPath()
-	command := path + "proxy keygen"
-	commandList := strings.Split(command, " ")
-	cmd := exec.Command(commandList[0], commandList[1:]...)
-	err = cmd.Run()
-
-	if err != nil {
-		util.ReturnJson(500, "", err.Error(), v)
-		return
-	}
-	util.ReturnJson(200, "", "success", v)
+	proxy.Stop(id)
+	utils.ReturnJson("success", "", v)
 	return
 }
 
@@ -229,20 +161,131 @@ func uploade(v http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func update(v http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	id := r.Form.Get("id")
+	name := r.Form.Get("name")
+	command := r.Form.Get("command")
+	autoStart := r.Form.Get("auto")
+	keyFile := r.Form.Get("key_file")
+	crtFile := r.Form.Get("crt_file")
+
+	err := utils.UpdateParams(id, name, command, autoStart, keyFile, crtFile)
+	if err != nil {
+		v.WriteHeader(http.StatusInternalServerError)
+		utils.ReturnJson(err.Error(), "", v)
+		return
+	}
+	utils.ReturnJson("success", "", v)
+}
+
 func deleteParameter(v http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	id := r.Form.Get("id")
-	err := util.DeleteParameterDataById(id)
+	err := utils.DeleteParam(id)
 	if err != nil {
-		util.ReturnJson(500, "", err.Error(), v)
+		utils.ReturnJson(err.Error(), "", v)
 	}
-	delete(logMap, id)
-	util.ReturnJson(200, "", "success", v)
+	utils.ReturnJson("success", "", v)
 }
 
-func waitProcess(cmd *exec.Cmd, cmdChan chan int, id string) {
-	cmd.Wait()
-	cmdChan <- 1
-	time.Sleep(1 * time.Second)
-	delete(logMap, id)
+func autoStart(v http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	auto := r.Form.Get("auto")
+	var dir string
+
+	switch runtime.GOOS {
+	case "windows":
+		if auto == "auto" {
+			dir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
+			dir = strings.Replace(dir, "\\", "/", -1)
+			command := `./config/autostart.exe enable -k proxy-web -n proxy-web -c`
+			commandSlice := strings.Split(command, " ")
+			commandSlice = append(commandSlice, dir+`/proxy-web.exe c:`)
+			fmt.Println(commandSlice)
+			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+			output, err := cmd.CombinedOutput()
+			if err != nil {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson(string(output), "", v)
+				return
+			}
+			is_success := utils.NewConfig().UpdateAutoStart("true")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
+			utils.ReturnJson("success", output, v)
+			return
+		} else {
+			command := `./config/autostart.exe disable -k proxy-web`
+			commandSlice := strings.Split(command, " ")
+			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+			output, err := cmd.CombinedOutput()
+			if err != nil {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson(string(output), "", v)
+				return
+			}
+			utils.ReturnJson("success", output, v)
+			return
+		}
+
+	case "darwin":
+		if auto == "auto" {
+			command := `./config/autostart enable -k proxy -n proxy -c`
+			commandSlice := strings.Split(command, " ")
+			commandSlice = append(commandSlice, `echo \"autostart\">~/config/autostart.txt`)
+			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+			output, err := cmd.CombinedOutput()
+			if err != nil {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson(string(output), "", v)
+				return
+			}
+			utils.ReturnJson("success", output, v)
+			return
+		} else {
+			command := `./config/autostart disable -k "proxy"`
+			commandSlice := strings.Split(command, " ")
+			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+			output, err := cmd.CombinedOutput()
+			if err != nil {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson(string(output), "", v)
+				return
+			}
+			utils.ReturnJson("success", output, v)
+			return
+		}
+	case "linux":
+		if auto == "auto" {
+			command := `./config/autostart enable -k proxy -n proxy -c`
+			commandSlice := strings.Split(command, " ")
+			commandSlice = append(commandSlice, `echo \"autostart\">~/config/autostart.txt`)
+			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+			output, err := cmd.CombinedOutput()
+			if err != nil {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson(string(output), "", v)
+				return
+			}
+			utils.ReturnJson("success", output, v)
+			return
+		} else {
+			command := `./config/autostart disable -k "proxy"`
+			commandSlice := strings.Split(command, " ")
+			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+			output, err := cmd.CombinedOutput()
+			if err != nil {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson(string(output), "", v)
+				return
+			}
+			utils.ReturnJson("success", output, v)
+			return
+		}
+
+	}
 }

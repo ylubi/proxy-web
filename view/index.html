@@ -26,9 +26,12 @@
         <button onclick="startUpload()" class="btn btn-default ng-binding add" data-toggle="modal" data-target="#exampleModal">
             <span class="glyphicon glyphicon-plus"></span> 添加代理
         </button>
-        <button class="btn btn-default ng-binding" data-toggle="modal" data-target="#keygenModal">
+        <label class="checkbox-inline">
+            <input {{if .auto_start}} checked {{end}}type="checkbox" class="auto_start" value="auto"> 开机启动
+        </label>
+       <!-- <button class="btn btn-default ng-binding" data-toggle="modal" data-target="#keygenModal">
             <span class="glyphicon glyphicon-lock"></span> 生成加密证书
-        </button>
+        </button> -->
     </div>
 </div>
 
@@ -57,7 +60,7 @@
                             参数:
                         </label>
                         <br>
-                        <textarea  class="form-control" rows="6" name="param"></textarea>
+                        <textarea  class="form-control" rows="6" name="command"></textarea>
                     </div>
 
                     <div class="form-group auto">
@@ -123,7 +126,7 @@
                             参数:
                         </label>
                         <br>
-                        <textarea  class="form-control" rows="6" name="param"></textarea>
+                        <textarea  class="form-control" rows="6" name="command"></textarea>
                     </div>
 
                     <div class="form-group auto">
@@ -233,7 +236,7 @@
                                     <span class="nameSpan"></span>\
                                 </td>\
 								<td style="width:430px;">\
-									<span class="paramSpan"></span>\
+									<span class="commandSpan"></span>\
 								</td>\
 								<td style="width:80px;">\
 								   <span class="statusSpan"></span>\
@@ -246,8 +249,7 @@
 									<a class="btn btn-primary ng-binding delete" onclick="confirmDel(this)">删除</a>\
 									<a class="btn btn-primary ng-binding link" onclick="link(this)">启用</a>\
 									<a class="btn btn-primary ng-binding closed" onclick="closed(this)" style="display:none;">关闭</a>\
-									<a class="btn btn-primary ng-binding log" onclick="showLog(this)" pid="">显示日志</a>\
-									<a class="btn btn-primary ng-binding nolog" onclick="stopLog(this)" style="display:none;">隐藏日志</a>\
+									<a class="btn btn-primary ng-binding log" onclick="showLog()">显示日志</a>\
 								</td>\
 							</tr>\
 						</tbody>\
@@ -261,16 +263,8 @@
             data: "id=0",
             dataType: "json",
             success: function (res) {
-                if (res.Code == 501) {
-                    window.location.href = "/login"
-                }
-                if (res.Code == "200") {
-                    var output = JSON.parse(res.Output);
-                    for (var i in output) {
-                        addContent(output[i])
-                    }
-                } else {
-                    alert(res.Output)
+                for (var i in res.data) {
+                    addContent(res.data[i])
                 }
             }
         });
@@ -278,17 +272,15 @@
 
     function addContent(data) {
         $('body').append(html)
-        $('.paramSpan').eq(-1).html(data['Params'])
-        $('.nameSpan').eq(-1).html(data['Name'])
-        $('.statusSpan').eq(-1).html(data['Status'])
-        $('.autoSpan').eq(-1).html(data['Auto'])
+        $('.commandSpan').eq(-1).html(data['command'])
+        $('.nameSpan').eq(-1).html(data['name'])
+        $('.statusSpan').eq(-1).html(data['status'])
+        $('.autoSpan').eq(-1).html(data['auto_start'])
 
-        $('.log').eq(-1).attr('pid', data['ProcessId'])
-        $('.log').eq(-1).attr('id', data['Id'])
-        if (data['Status'] == "已开启") {
+        $('.log').eq(-1).attr('id', data['id'])
+        if (data['status'] == "已开启") {
             $('.link').eq(-1).hide()
             $('.closed').eq(-1).show()
-            $('.log').eq(-1).click()
         }
     }
 
@@ -303,18 +295,9 @@
             data: $('form').eq(0).serialize(),
             dataType: "json",
             success: function (res) {
-                if (res.Code == 501) {
-                    window.location.href = "/login"
-                    return
-                }
-                if (res.Code == 200) {
-                    $.notify("添加成功", "success")
-                    var output = JSON.parse(res.Output)
-                    addContent(output)
-                    $('#exampleModal').modal('hide')
-                } else {
-                    $.notify(res.Output, {className: "error", elementPosition: "bottom right",})
-                }
+                $.notify("添加成功", "success")
+                addContent(res.data)
+                $('#exampleModal').modal('hide')
             }
         });
     }
@@ -346,28 +329,14 @@
             data: "id=" + id,
             dataType: "json",
             success: function (res) {
-                if (res.Code == 501) {
-                    window.location.href = "/login"
-                    return
-                }
-                if (res.Code == 200) {
-                    $(ob).parents('table').notify(res.Output, {
-                        className: "success",
-                        elementPosition: "bottom right",
-                        arrowShow: false
-                    })
-                    $(ob).hide()
-                    $(ob).siblings('.closed').show()
-                    $(ob).siblings('.log').attr('pid', res.Id)
-                    $(ob).parents('table').find('.statusSpan').html("已开启")
-                } else {
-                    $(ob).parents('table').notify(res.Output, {
-                        className: "error",
-                        elementPosition: "bottom right",
-                        arrowShow: false
-                    })
-                    $(ob).prop('disabled', false)
-                }
+                $(ob).parents('table').notify("启动成功", {
+                    className: "success",
+                    elementPosition: "bottom right",
+                    arrowShow: false
+                })
+                $(ob).hide()
+                $(ob).siblings('.closed').show()
+                $(ob).parents('table').find('.statusSpan').html("已开启")
             }
         });
     }
@@ -375,100 +344,28 @@
     function closed(ob) {
         $('ob').prop('disabled', false)
         var id = $(ob).siblings('.log').attr('id')
-        var pid = $(ob).siblings('.log').attr('pid')
         lock[id] = true
         $.ajax({
             type: "POST",
             cache: false,
             url: "/close",
-            data: "id=" + id + "&pid=" + pid,
-            dataType: "json",
-            success: function (res) {
-                if (res.Code == 501) {
-                    window.location.href = "/login"
-                    return
-                }
-                if (res.Code == 200) {
-                    $(ob).parents('table').notify(res.Output, {
-                        className: "success",
-                        elementPosition: "bottom right",
-                        arrowShow: false
-                    })
-                    $(ob).siblings(".log").attr('pid', "")
-                    $(ob).hide()
-                    $(ob).siblings('.link').show()
-                    $(ob).parents('table').find('.statusSpan').html("未开启")
-                } else {
-                    $(ob).parents('table').notify(res.Output, {
-                        className: "error",
-                        elementPosition: "bottom right",
-                        arrowShow: false
-                    })
-                    $('ob').prop('disabled', false)
-                    setTimeout(function () {
-                        window.location.reload()
-                    }, 2000)
-                }
-            }
-        });
-    }
-
-
-    var lock = new Object()
-
-    function showLog(ob) {
-        var id = $(ob).attr('id')
-        if (id == undefined || id == "") {
-            $(ob).notify("not found id", {className: "error", elementPosition: "bottom right",})
-            return
-        }
-        var status = $(ob).parents('table').find('.statusSpan').html()
-        if (status == '未开启') {
-            $(ob).notify("cannt showlog", {className: "error", elementPosition: "bottom right",})
-            return
-        }
-        $(ob).siblings(".nolog").show()
-        $(ob).hide()
-        var html = '<textarea class="form-control" rows="6"></textarea>'
-        $(ob).parents('table').after(html)
-        lock[id] = false
-        subShowLog(ob);
-    }
-
-    function subShowLog(ob) {
-        var id = $(ob).attr('id')
-        $.ajax({
-            type: "POST",
-            cache: false,
-            url: "/showLog",
             data: "id=" + id,
             dataType: "json",
             success: function (res) {
-                if (res.Code == 501) {
-                    window.location.href = "/login"
-                    return
-                }
-                if (lock[id]) {
-                    return;
-                }
-                if (res.Code == 500) {
-                    $(ob).siblings('.nolog').notify(res.Output, {className: "error", elementPosition: "bottom right",})
-                    return
-                }
-                if (!lock[id] && res.Code == 200) {
-                    $(ob).parents('table').next('textarea').val($(ob).parents('table').next('textarea').val() + res.Output)
-                    subShowLog(ob)
-                }
+                $(ob).parents('table').notify("关闭成功", {
+                    className: "success",
+                    elementPosition: "bottom right",
+                    arrowShow: false
+                })
+                $(ob).hide()
+                $(ob).siblings('.link').show()
+                $(ob).parents('table').find('.statusSpan').html("未开启")
             }
         });
     }
 
-    function stopLog(ob) {
-        $(ob).siblings(".log").show()
-        $(ob).hide()
-        $(ob).parents('table').next('textarea').remove()
-        id = $(ob).siblings(".log").attr('id')
-        lock[id] = true
+    function showLog() {
+        window.location.href = "/"
     }
 
     function upload(types) {
@@ -524,6 +421,9 @@
             return
         }
         $('#updateModal').modal()
+        setTimeout(function () {
+            upload("crt,key")
+        }, 1000)
         $.ajax({
             type: "POST",
             cache: false,
@@ -531,23 +431,16 @@
             data: "id=" + id,
             dataType: "json",
             success: function (res) {
-                if (res.Code == 501) {
-                    window.location.href = "/login"
-                }
-                res.Output = JSON.parse(res.Output)
-                $('input[name=id]').eq(1).val(res.Output.Id)
-                $('input[name=name]').eq(1).val(res.Output.Name)
-                $('textarea[name=param]').eq(1).val(res.Output.Params)
-                $('input[name=key]').eq(1).val(res.Output.Key)
-                $('input[name=crt]').eq(1).val(res.Output.Crt)
-                if (res.Output.Auto == "是") {
+                $('input[name=id]').eq(1).val(res.data.id)
+                $('input[name=name]').eq(1).val(res.data.name)
+                $('textarea[name=command]').eq(1).val(res.data.command)
+                $('input[name=key]').eq(1).val(res.data.key)
+                $('input[name=crt]').eq(1).val(res.data.crt)
+                if (res.data.auto_start == "是") {
                     $('input[name=auto]').eq(3).prop('checked', true)
                 } else {
                     $('input[name=auto]').eq(2).prop('checked', true)
                 }
-                setTimeout(function () {
-                    upload("crt,key")
-                }, 100)
             }
         });
     }
@@ -556,23 +449,14 @@
         $.ajax({
             type: "POST",
             cache: false,
-            url: "/add",
+            url: "/update",
             data: $('form').eq(1).serialize(),
             dataType: "json",
             success: function (res) {
-                if (res.Code == 501) {
-                    window.location.href = "/login"
-                    return
-                }
-                if (res.Code == 200) {
-                    $.notify("修改成功", "success")
-                    setTimeout(function () {
-                        window.location.reload()
-                    }, 2000)
-
-                } else {
-                    $.notify(res.Output, {className: "error", elementPosition: "bottom right",})
-                }
+                $.notify("修改成功", "success")
+                setTimeout(function () {
+                    window.location.reload()
+                }, 2000)
             }
         });
     }
@@ -598,17 +482,8 @@
             data: "id=" + id,
             dataType: "json",
             success: function (res) {
-                if (res.Code == 501) {
-                    window.location.href = "/login"
-                    return
-                }
-                if (res.Code == 200) {
-                    $.notify("删除成功", "success")
-                    $('.del').parents('table').remove()
-                } else {
-                    $.notify(res.Output, {className: "error", elementPosition: "bottom right",})
-                    $('.del').removeClass('del')
-                }
+                $.notify("删除成功", "success")
+                $('.del').parents('table').remove()
             }
         });
     }
@@ -618,5 +493,19 @@
             upload("crt,key")
         }, 1000)
     }
+
+    $(".auto_start").click(function(){
+        auto = $(".auto_start:checked").val()
+        $.ajax({
+            type: "POST",
+            cache: false,
+            url: "/auto_start",
+            data: "auto=" + auto,
+            dataType: "json",
+            success: function (res) {
+
+            }
+        });
+    })
 </script>
 </html>

@@ -1,4 +1,4 @@
-package util
+package utils
 
 func CompressCommand(compress string) string {
 	if compress == "1" {
