@@ -51,7 +51,7 @@ func SaveParams(name, command, auto_start, key_file, crt_file string) (serviceId
 	params["crt_file"] = crt_file
 	params["id"] = serviceIdStr
 	params["status"] = "未开启"
-	params["log"] = "./log/" + serviceIdStr + ".record"
+	params["log"] = "./log/" + serviceIdStr + ".log"
 	paramJson, _ := json.Marshal(params)
 	fd.Write(paramJson)
 	fd.Close()
@@ -96,7 +96,7 @@ func UpdateParams(serviceId, name, command, auto_start, key_file, crt_file strin
 	params["crt_file"] = crt_file
 	params["id"] = serviceId
 	params["status"] = "未开启"
-	params["log"] = "./log/" + serviceId + ".record"
+	params["log"] = "./log/" + serviceId + ".log"
 	paramJson, _ := json.Marshal(params)
 	fd.Write(paramJson)
 	fd.Close()

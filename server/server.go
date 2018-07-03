@@ -22,6 +22,7 @@ func basicAuth(handler func(http.ResponseWriter, *http.Request)) http.Handler {
 
 func StartServer() {
 	AutoStart()
+	InitShowLog()
 	initSession()
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.Handle("/", basicAuth(show))
@@ -33,7 +34,6 @@ func StartServer() {
 	http.Handle("/uploade", basicAuth(uploade))
 	http.Handle("/delete", basicAuth(deleteParameter))
 	http.Handle("/auto_start", basicAuth(autoStart))
-	http.Handle("/log", basicAuth(showLog))
 	//http.HandleFunc("/login", login)
 	//http.HandleFunc("/doLogin", doLogin)
 	//http.Handle("/keygen", basicAuth(keygen))

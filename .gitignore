@@ -1,5 +1,5 @@
-proxy
-*.exe
+proxy-web
+proxy-web.exe
 *.exe~
 /db/bucket/
 /upload/
