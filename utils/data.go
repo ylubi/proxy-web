@@ -11,7 +11,7 @@ const (
 	dataFilePath = "./data/services/"
 )
 
-func SaveParams(name, command, auto_start, key_file, crt_file string) (serviceIdStr string, err error) {
+func SaveParams(name, command, auto_start, key_file, crt_file, log string) (serviceIdStr string, err error) {
 	serviceId := time.Now().UnixNano() / 1000000
 	serviceIdStr = NewConvert().IntToString(serviceId, 10)
 	filePath, err := NewConfig().GetServicesFilePath()
@@ -51,14 +51,14 @@ func SaveParams(name, command, auto_start, key_file, crt_file string) (serviceId
 	params["crt_file"] = crt_file
 	params["id"] = serviceIdStr
 	params["status"] = "未开启"
-	params["log"] = "./log/" + serviceIdStr + ".log"
+	params["log"] = log
 	paramJson, _ := json.Marshal(params)
 	fd.Write(paramJson)
 	fd.Close()
 	return
 }
 
-func UpdateParams(serviceId, name, command, auto_start, key_file, crt_file string) (err error) {
+func UpdateParams(serviceId, name, command, auto_start, key_file, crt_file, log string) (err error) {
 	filePath, err := NewConfig().GetServicesFilePath()
 	if err != nil {
 		return
@@ -96,7 +96,7 @@ func UpdateParams(serviceId, name, command, auto_start, key_file, crt_file strin
 	params["crt_file"] = crt_file
 	params["id"] = serviceId
 	params["status"] = "未开启"
-	params["log"] = "./log/" + serviceId + ".log"
+	params["log"] = log
 	paramJson, _ := json.Marshal(params)
 	fd.Write(paramJson)
 	fd.Close()
@@ -150,11 +150,11 @@ func InitParams() (datas []map[string]interface{}, err error) {
 
 	for serviceId, auto_start := range dataMap {
 		data := make(map[string]interface{})
-		fd, err = os.OpenFile(dataFilePath+serviceId+".json", os.O_RDWR|os.O_CREATE, 0644)
+		fd1, err := os.OpenFile(dataFilePath+serviceId+".json", os.O_RDWR|os.O_CREATE, 0644)
 		if err != nil {
 			continue
 		}
-		dataByte, err := ioutil.ReadAll(fd)
+		dataByte, err := ioutil.ReadAll(fd1)
 		if err != nil {
 			continue
 		}
@@ -169,7 +169,7 @@ func InitParams() (datas []map[string]interface{}, err error) {
 
 		dataByte, _ = json.Marshal(data)
 		ioutil.WriteFile(dataFilePath+serviceId+".json", dataByte, 0644)
-		fd.Close()
+		fd1.Close()
 	}
 
 	return

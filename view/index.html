@@ -69,31 +69,34 @@
                     <div class="form-group auto">
                         <label class="control-label">
                             是否开启自启动:
-                        </label>
-                        <br>
+                        </label> &nbsp;&nbsp;&nbsp;
                         <input type="radio" name="auto" data-val="" checked value="否"
                                class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="radio" name="auto" value="是"
                                class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>是</label>
                     </div>
 
-                    <div class="form-group encryptTerm">
-                        <label for="recipient-name" class="control-label">
-                            上传key文件:
-                        </label>
-                        <br>
-                        <input type="hidden" name="key">
-                        <a class="btn btn-primary ng-binding file_upload">.key文件</a>
+                    <div class="form-group auto">
+                        <label class="control-label">
+                            是否显示日志:
+                        </label> &nbsp;&nbsp;&nbsp;
+                        <input type="radio" name="log" data-val="" checked value="否"
+                               class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="radio" name="log" value="是"
+                               class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>是</label>
                     </div>
 
                     <div class="form-group encryptTerm">
                         <label for="recipient-name" class="control-label">
-                            上传crt文件:
+                            上传key，crt文件:
                         </label>
                         <br>
+                        <input type="hidden" name="key">
+                        <a class="btn btn-primary ng-binding file_upload">.key文件</a>
                         <input type="hidden" name="crt">
                         <a class="btn btn-primary ng-binding file_upload">.crt文件</a>
                     </div>
+
                 </form>
             </div>
             <div class="modal-footer">
@@ -137,11 +140,20 @@
                     <div class="form-group auto">
                         <label class="control-label">
                             是否开启自启动:
-                        </label>
-                        <br>
+                        </label> &nbsp;&nbsp;&nbsp;
                         <input type="radio" name="auto" data-val="" checked value="否"
                                class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="radio" name="auto" value="是"
+                               class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>是</label>
+                    </div>
+
+                    <div class="form-group auto">
+                        <label class="control-label">
+                            是否显示日志:
+                        </label> &nbsp;&nbsp;&nbsp;
+                        <input type="radio" name="log" data-val="" checked value="否"
+                               class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="radio" name="log" value="是"
                                class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>是</label>
                     </div>
 
@@ -152,13 +164,6 @@
                         <br>
                         <input type="hidden" name="key">
                         <a class="btn btn-primary ng-binding file_upload">.key文件</a>
-                    </div>
-
-                    <div class="form-group encryptTerm">
-                        <label for="recipient-name" class="control-label">
-                            上传crt文件:
-                        </label>
-                        <br>
                         <input type="hidden" name="crt">
                         <a class="btn btn-primary ng-binding file_upload">.crt文件</a>
                     </div>
@@ -231,7 +236,8 @@
 							    <th class="ng-binding">名称</th>\
 								<th class="ng-binding">参数</th>\
 								<th class="ng-binding">状态</th>\
-								<th class="ng-binding">开机自启动</th>\
+								<th class="ng-binding">自启动</th>\
+								<th class="ng-binding">显示日志</th>\
 								<th class="ng-binding">操作</th>\
 							</tr>\
 						</thead>\
@@ -248,6 +254,9 @@
 								</td>\
 								<td style="width:80px;">\
 								   <span class="autoSpan"></span>\
+								</td>\
+								<td style="width:80px;">\
+								    <span class="logSpan"></span>\
 								</td>\
 								<td  style="width:270px;">\
 									<a class="btn btn-primary ng-binding update" onclick="getData(this)">修改</a>\
@@ -281,7 +290,7 @@
         $('.nameSpan').eq(-1).html(data['name'])
         $('.statusSpan').eq(-1).html(data['status'])
         $('.autoSpan').eq(-1).html(data['auto_start'])
-
+        $('.logSpan').eq(-1).html(data['log'])
         $('.log').eq(-1).attr('id', data['id'])
         if (data['status'] == "已开启") {
             $('.link').eq(-1).hide()
@@ -342,6 +351,15 @@
                 $(ob).hide()
                 $(ob).siblings('.closed').show()
                 $(ob).parents('table').find('.statusSpan').html("已开启")
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                if (XMLHttpRequest.status == 500) {
+                    $(ob).parents('table').notify(XMLHttpRequest.responseJSON.msg, {
+                        className: "error",
+                        elementPosition: "bottom right",
+                        arrowShow: false
+                    })
+                }
             }
         });
     }
@@ -364,6 +382,15 @@
                 $(ob).hide()
                 $(ob).siblings('.link').show()
                 $(ob).parents('table').find('.statusSpan').html("未开启")
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                if (XMLHttpRequest.status == 500) {
+                    $(ob).parents('table').notify(XMLHttpRequest.responseJSON.msg, {
+                        className: "error",
+                        elementPosition: "bottom right",
+                        arrowShow: false
+                    })
+                }
             }
         });
     }
@@ -371,9 +398,24 @@
     function showLog(ob) {
         var status = $(ob).parents('table').find('.statusSpan').html()
         if (status != '已开启') {
-            $(ob).notify('未开启的代理不能查看日志！')
+            $(ob).parents('table').notify('未开启的代理不能查看日志！', {
+                className: "error",
+                elementPosition: "bottom right",
+                arrowShow: false
+            })
             return
         }
+
+        var log = $(ob).parents('table').find('.logSpan').html()
+        if (log != '是') {
+            $(ob).parents('table').notify('日志功能未开启！', {
+                className: "error",
+                elementPosition: "bottom right",
+                arrowShow: false
+            })
+            return
+        }
+
         var id = $(ob).attr('id')
         window.location.href = "http://127.0.0.1:8822/show/" + id + "#width=100%&height=300px"
     }
@@ -401,16 +443,12 @@
 
         // 文件上传成功，给item添加成功class, 用样式标记上传成功。
         uploader.on('uploadSuccess', function (file, response) {
-            if (response.Code == 501) {
-                window.location.href = "/login"
-                return
-            }
-            if (response.Code == 200) {
+            if (response.msg == "") {
                 var id = '#rt_' + file.source.ruid
-                $(id).parents('a').siblings('input').val(response.Output)
+                $(id).parents('a').siblings('input').val(response.data)
                 $(id).notify('上传成功', 'success')
             } else {
-                $.notify(response.Output, {className: "error", elementPosition: "bottom right",})
+                $.notify(response.msg, {className: "error", elementPosition: "bottom right",})
             }
         });
 
@@ -451,6 +489,20 @@
                 } else {
                     $('input[name=auto]').eq(2).prop('checked', true)
                 }
+                if (res.data.log == "是") {
+                    $('input[name=log]').eq(3).prop('checked', true)
+                } else {
+                    $('input[name=log]').eq(2).prop('checked', true)
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                if (XMLHttpRequest.status == 500) {
+                    $(ob).parents('table').notify(XMLHttpRequest.responseJSON.msg, {
+                        className: "error",
+                        elementPosition: "bottom right",
+                        arrowShow: false
+                    })
+                }
             }
         });
     }
@@ -467,6 +519,11 @@
                 setTimeout(function () {
                     window.location.reload()
                 }, 2000)
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                if (XMLHttpRequest.status == 500) {
+                    $.notify(XMLHttpRequest.responseJSON.msg, "error")
+                }
             }
         });
     }
@@ -494,6 +551,9 @@
             success: function (res) {
                 $.notify("删除成功", "success")
                 $('.del').parents('table').remove()
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.notify(XMLHttpRequest.responseJSON.msg, "error")
             }
         });
     }

@@ -24,8 +24,9 @@ func add(v http.ResponseWriter, r *http.Request) {
 	autoStart := r.Form.Get("auto")
 	keyFile := r.Form.Get("key_file")
 	crtFile := r.Form.Get("crt_file")
+	log := r.Form.Get("log")
 
-	serviceId, err := utils.SaveParams(name, command, autoStart, keyFile, crtFile)
+	serviceId, err := utils.SaveParams(name, command, autoStart, keyFile, crtFile, log)
 	if err != nil {
 		v.WriteHeader(http.StatusInternalServerError)
 		utils.ReturnJson(err.Error(), "", v)
@@ -37,6 +38,7 @@ func add(v http.ResponseWriter, r *http.Request) {
 	data["command"] = command
 	data["auto_start"] = autoStart
 	data["name"] = name
+	data["log"] = log
 	data["status"] = "未开启"
 	utils.ReturnJson("success", data, v)
 }
@@ -54,7 +56,7 @@ func show(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getData(w http.ResponseWriter, r *http.Request) {
+func getData(v http.ResponseWriter, r *http.Request) {
 	var data interface{}
 	var err error
 	r.ParseForm()
@@ -64,11 +66,12 @@ func getData(w http.ResponseWriter, r *http.Request) {
 		data, err = utils.GetAllParams()
 	} else {
 		data, err = utils.GetParamsById(id)
-		if err != nil {
-			utils.ReturnJson(err.Error(), "", w)
-		}
 	}
-	utils.ReturnJson("success", data, w)
+	if err != nil {
+		v.WriteHeader(http.StatusInternalServerError)
+		utils.ReturnJson(err.Error(), "", v)
+	}
+	utils.ReturnJson("success", data, v)
 }
 
 func link(v http.ResponseWriter, r *http.Request) {
@@ -79,12 +82,14 @@ func link(v http.ResponseWriter, r *http.Request) {
 		id := r.Form.Get("id")
 		command, err = getCommand(id)
 		if err != nil {
+			v.WriteHeader(http.StatusInternalServerError)
 			utils.ReturnJson(err.Error(), "", v)
 			return
 		}
 		fmt.Println(command)
 		errStr := proxy.Start(id, command)
 		if errStr != "" {
+			v.WriteHeader(http.StatusInternalServerError)
 			utils.ReturnJson(errStr, "", v)
 			return
 		}
@@ -108,7 +113,9 @@ func getCommand(id string) (command string, err error) {
 	if parameter["crt_file"].(string) != "" {
 		command += " -C " + parameter["crt_file"].(string)
 	}
-	command += " --log " + parameter["log"].(string)
+	if parameter["log"] == "是" {
+		command += " --log ./log/" + parameter["id"].(string) + ".log"
+	}
 	s, err := os.Stat("./log/")
 	if err != nil || !s.IsDir() {
 		os.Mkdir("./log/", os.ModePerm)
@@ -120,11 +127,13 @@ func close(v http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	id := r.Form.Get("id")
 	if id == "undefined" {
+		v.WriteHeader(http.StatusInternalServerError)
 		utils.ReturnJson("id not found", "", v)
 		return
 	}
 	err := utils.ChangeParameterDataById(id, "未开启")
 	if err != nil {
+		v.WriteHeader(http.StatusInternalServerError)
 		utils.ReturnJson(err.Error(), "", v)
 		return
 	}
@@ -138,6 +147,7 @@ func uploade(v http.ResponseWriter, r *http.Request) {
 		file, head, err := r.FormFile("file")
 		fileSuffix := path.Ext(head.Filename)
 		if err != nil {
+			v.WriteHeader(http.StatusInternalServerError)
 			utils.ReturnJson(err.Error(), "",  v)
 			return
 		}
@@ -146,11 +156,13 @@ func uploade(v http.ResponseWriter, r *http.Request) {
 		fw, err := os.Create("./upload/" + strconv.FormatInt(t, 10) + fileSuffix)
 		defer fw.Close()
 		if err != nil {
+			v.WriteHeader(http.StatusInternalServerError)
 			utils.ReturnJson(err.Error(), "",  v)
 			return
 		}
 		_, err = io.Copy(fw, file)
 		if err != nil {
+			v.WriteHeader(http.StatusInternalServerError)
 			utils.ReturnJson(err.Error(), "", v)
 			return
 		}
@@ -168,8 +180,9 @@ func update(v http.ResponseWriter, r *http.Request) {
 	autoStart := r.Form.Get("auto")
 	keyFile := r.Form.Get("key_file")
 	crtFile := r.Form.Get("crt_file")
+	log := r.Form.Get("log")
 
-	err := utils.UpdateParams(id, name, command, autoStart, keyFile, crtFile)
+	err := utils.UpdateParams(id, name, command, autoStart, keyFile, crtFile, log)
 	if err != nil {
 		v.WriteHeader(http.StatusInternalServerError)
 		utils.ReturnJson(err.Error(), "", v)
@@ -183,6 +196,7 @@ func deleteParameter(v http.ResponseWriter, r *http.Request) {
 	id := r.Form.Get("id")
 	err := utils.DeleteParam(id)
 	if err != nil {
+		v.WriteHeader(http.StatusInternalServerError)
 		utils.ReturnJson(err.Error(), "", v)
 	}
 	utils.ReturnJson("success", "", v)
