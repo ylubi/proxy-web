@@ -3,6 +3,7 @@
 <head>
     <title>proxy</title>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/layer.css">
     <style>
         .upImgBtn {
             opacity: 0;
@@ -23,16 +24,17 @@
 <body>
 <div class="ng-scope" style="margin:5px 0 10px 2px;">
     <div class="profile-actions">
-        <button onclick="startUpload()" class="btn btn-default ng-binding add" data-toggle="modal"
-                data-target="#exampleModal">
-            <span class="glyphicon glyphicon-plus"></span> 添加代理
-        </button>
-        <label class="checkbox-inline">
-            <input {{if .auto_start}} checked {{end}}type="checkbox" class="auto_start" value="auto"> 开机启动
-        </label>
+            <button onclick="startUpload()" class="btn btn-default ng-binding add" data-toggle="modal"
+                    data-target="#exampleModal">
+                <span class="glyphicon glyphicon-plus"></span> 添加代理
+            </button>
+            <label class="checkbox-inline">
+                <input {{if .auto_start}} checked {{end}}type="checkbox" class="auto_start" value="auto"> 开机启动
+            </label>
         <!-- <button class="btn btn-default ng-binding" data-toggle="modal" data-target="#keygenModal">
              <span class="glyphicon glyphicon-lock"></span> 生成加密证书
          </button> -->
+
     </div>
 </div>
 
@@ -63,12 +65,12 @@
                             参数:
                         </label>
                         <br>
-                        <textarea class="form-control" rows="6" name="command"></textarea>
+                        <textarea class="form-control" rows="3" name="command"></textarea>
                     </div>
 
                     <div class="form-group auto">
                         <label class="control-label">
-                            是否开启自启动:
+                            自启动:
                         </label> &nbsp;&nbsp;&nbsp;
                         <input type="radio" name="auto" data-val="" checked value="否"
                                class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -78,7 +80,7 @@
 
                     <div class="form-group auto">
                         <label class="control-label">
-                            是否显示日志:
+                            记录日志:
                         </label> &nbsp;&nbsp;&nbsp;
                         <input type="radio" name="log" data-val="" checked value="否"
                                class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -134,12 +136,12 @@
                             参数:
                         </label>
                         <br>
-                        <textarea class="form-control" rows="6" name="command"></textarea>
+                        <textarea class="form-control" rows="3" name="command"></textarea>
                     </div>
 
                     <div class="form-group auto">
                         <label class="control-label">
-                            是否开启自启动:
+                            自启动:
                         </label> &nbsp;&nbsp;&nbsp;
                         <input type="radio" name="auto" data-val="" checked value="否"
                                class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -149,7 +151,7 @@
 
                     <div class="form-group auto">
                         <label class="control-label">
-                            是否显示日志:
+                            记录日志:
                         </label> &nbsp;&nbsp;&nbsp;
                         <input type="radio" name="log" data-val="" checked value="否"
                                class="ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched">&nbsp;&nbsp;<label>否</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -159,7 +161,7 @@
 
                     <div class="form-group encryptTerm">
                         <label for="recipient-name" class="control-label">
-                            上传key文件:
+                            上传key,crt文件:
                         </label>
                         <br>
                         <input type="hidden" name="key">
@@ -223,21 +225,27 @@
     </div>
 </div>
 
+<div class="col-sm-8 foot"></div>
+<div class="col-sm-4" style="padding-top: 8px; text-align: right;">
+    goproxy-sdk版本： v{{.proxy_version}}，proxy-web版本：{{.version}}
+</div>
+
 </body>
 <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
 <script type="text/javascript" src="/static/js/notify.js"></script>
 <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/static/webupload/webuploader.js"></script>
+<script type="text/javascript" src="/static/js/layer.js"></script>
 <script type="text/javascript">
 
-    var html = '<table class="fixed-servers table table-bordered table-striped width-limit-lg">\
+    var html = '<table class="fixed-servers table table-bordered table-striped width-limit-lg" style="margin-top:10px; margin-bottom: 0px;">\
 						<thead>\
 							<tr style="background-color: #f9f9f9;">\
 							    <th class="ng-binding">名称</th>\
 								<th class="ng-binding">参数</th>\
 								<th class="ng-binding">状态</th>\
 								<th class="ng-binding">自启动</th>\
-								<th class="ng-binding">显示日志</th>\
+								<th class="ng-binding">记录日志</th>\
 								<th class="ng-binding">操作</th>\
 							</tr>\
 						</thead>\
@@ -285,7 +293,7 @@
     }
 
     function addContent(data) {
-        $('body').append(html)
+        $('.foot').before(html)
         $('.commandSpan').eq(-1).html(data['command'])
         $('.nameSpan').eq(-1).html(data['name'])
         $('.statusSpan').eq(-1).html(data['status'])
@@ -396,15 +404,6 @@
     }
 
     function showLog(ob) {
-        var status = $(ob).parents('table').find('.statusSpan').html()
-        if (status != '已开启') {
-            $(ob).parents('table').notify('未开启的代理不能查看日志！', {
-                className: "error",
-                elementPosition: "bottom right",
-                arrowShow: false
-            })
-            return
-        }
 
         var log = $(ob).parents('table').find('.logSpan').html()
         if (log != '是') {
@@ -417,7 +416,18 @@
         }
 
         var id = $(ob).attr('id')
-        window.location.href = "http://127.0.0.1:8822/show/" + id + "#width=100%&height=300px"
+        // window.location.href = "http://127.0.0.1:8822/show/" + id + "#width=100%&height=300px"
+        layer.open({
+            type: 2,
+            skin: "layui-layer-lan",
+            title: "日志",
+            shadeClose: true,
+            shade: 0.6,
+            maxmin: true,
+            area: ["800px", "500px"],
+            content: "http://127.0.0.1:8822/show/" + id + "#width=100%&height=300px",
+            padding: "10px"
+        });
     }
 
     function upload(types) {

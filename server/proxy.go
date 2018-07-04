@@ -51,7 +51,9 @@ func show(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		autoStart := utils.NewConfig().GetAutoStart()
-		data := map[string]interface{}{"auto_start": autoStart}
+		proxyVersion := proxy.Version()
+		data := map[string]interface{}{"auto_start": autoStart, "proxy_version": proxyVersion, "version": version}
+
 		t.Execute(w, data)
 	}
 }
@@ -106,8 +108,10 @@ func getCommand(id string) (command string, err error) {
 	}
 
 	command += parameter["command"].(string)
+	command = strings.Replace(command, "\n", " ", -1)
+	command = strings.Replace(command, "\r", " ", -1)
 	command = strings.Replace(command, "  ", " ", -1)
-	command = strings.Replace(command, "\n", "", -1)
+
 	if parameter["key_file"].(string) != "" {
 		command += " -K " + parameter["key_file"].(string)
 	}
@@ -215,7 +219,6 @@ func autoStart(v http.ResponseWriter, r *http.Request) {
 			command := `./config/autostart.exe enable -k proxy-web -n proxy-web -c`
 			commandSlice := strings.Split(command, " ")
 			commandSlice = append(commandSlice, dir+`/proxy-web.exe c:`)
-			fmt.Println(commandSlice)
 			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 			output, err := cmd.CombinedOutput()
 			if err != nil {

@@ -13,6 +13,7 @@ import (
 
 //var logMap = make(map[string]chan string)
 var globalSessions *session.Manager
+var version = "v2.0"
 
 func basicAuth(handler func(http.ResponseWriter, *http.Request)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +39,6 @@ func StartServer() {
 	//http.HandleFunc("/doLogin", doLogin)
 	//http.Handle("/keygen", basicAuth(keygen))
 	port, err := utils.NewConfig().GetServerPort()
-	fmt.Println(port)
 	if err != nil {
 		log.Fatal("get port failure: ", err)
 	}
@@ -56,15 +56,18 @@ func AutoStart() {
 	for _, data := range datas {
 		var command string
 		command += data["command"].(string)
-		command = strings.Replace(command, "  ", " ", -1)
 		command = strings.Replace(command, "\n", "", -1)
+		command = strings.Replace(command, "\r", "", -1)
+		command = strings.Replace(command, "  ", " ", -1)
 		if data["key_file"].(string) != "" {
 			command += " -K " + data["key_file"].(string)
 		}
 		if data["crt_file"].(string) != "" {
 			command += " -C " + data["crt_file"].(string)
 		}
-		command += " --log " + data["log"].(string)
+		if data["log"] == "是" {
+			command += " --log ./log/" + data["id"].(string) + ".log"
+		}
 		s, err := os.Stat("./log/")
 		if err != nil || !s.IsDir() {
 			os.Mkdir("./log/", os.ModePerm)

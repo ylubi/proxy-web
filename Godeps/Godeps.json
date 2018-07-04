@@ -191,8 +191,8 @@
 		},
 		{
 			"ImportPath": "github.com/snail007/webtail",
-			"Comment": "v1.0-4-g929c095",
-			"Rev": "929c095aa9ff10cbc460cc421b81c972d548c37f"
+			"Comment": "v1.0-5-g49550ef",
+			"Rev": "49550efa42b03edf55d5a54bf3ee5645a5645403"
 		},
 		{
 			"ImportPath": "github.com/templexxx/cpufeat",
