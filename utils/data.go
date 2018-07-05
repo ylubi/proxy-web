@@ -227,8 +227,8 @@ func GetParamsById(id string) (data map[string]interface{}, err error) {
 	return
 }
 
-func ChangeParameterDataById(serviceId, status string)(err error){
-	fd, err := os.OpenFile(dataFilePath + serviceId + ".json", os.O_RDWR|os.O_CREATE, 0644)
+func ChangeParameterDataById(serviceId, status string) (err error) {
+	fd, err := os.OpenFile(dataFilePath+serviceId+".json", os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		return
 	}
@@ -244,6 +244,29 @@ func ChangeParameterDataById(serviceId, status string)(err error){
 	}
 	params["status"] = status
 	paramJson, _ := json.Marshal(params)
-	ioutil.WriteFile(dataFilePath + serviceId + ".json", paramJson, 0644)
+	ioutil.WriteFile(dataFilePath+serviceId+".json", paramJson, 0644)
+	return
+}
+
+func UpdateProxy(ip, port string) (err error) {
+	data := make(map[string]interface{})
+	data["ip"] = ip
+	data["port"] = port
+	dataByte, err := json.Marshal(data)
+	if err != nil {
+		return
+	}
+
+	err = ioutil.WriteFile("./data/proxy.json", dataByte, 0644)
+	return
+}
+
+func GetProxy()(data map[string]string, err error){
+	dataByte, err := ioutil.ReadFile("./data/proxy.json")
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(dataByte, &data)
 	return
 }

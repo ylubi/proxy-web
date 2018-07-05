@@ -10,11 +10,9 @@ import (
 
 	_ "net/http/pprof"
 	"proxy-web/server"
-	"sync"
 )
 
 var daemon = flag.Bool("d", true, "default run daemon")
-var lock sync.Mutex
 
 func init() {
 	//if !flag.Parsed() {

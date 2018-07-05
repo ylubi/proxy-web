@@ -63,7 +63,19 @@ func (c *Config) UpdateAutoStart(autoStart string)(isSuccess bool){
 	return
 }
 
+func (c *Config) UpdateProxy(proxy string)(isSuccess bool){
+	c.File.DeleteKey("config", "proxy")
+	isSuccess = c.File.SetValue("config", "proxy", proxy)
+	goconfig.SaveConfigFile(c.File, "./config/config.ini")
+	return
+}
+
 func (c *Config) GetAutoStart()(autoStart bool){
 	autoStart = c.File.MustBool("config", "auto_start")
+	return
+}
+
+func (c *Config) GetProxySetting()(proxy bool){
+	proxy = c.File.MustBool("config", "proxy")
 	return
 }

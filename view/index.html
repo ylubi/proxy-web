@@ -24,17 +24,66 @@
 <body>
 <div class="ng-scope" style="margin:5px 0 10px 2px;">
     <div class="profile-actions">
-            <button onclick="startUpload()" class="btn btn-default ng-binding add" data-toggle="modal"
-                    data-target="#exampleModal">
-                <span class="glyphicon glyphicon-plus"></span> 添加代理
-            </button>
-            <label class="checkbox-inline">
-                <input {{if .auto_start}} checked {{end}}type="checkbox" class="auto_start" value="auto"> 开机启动
-            </label>
+        <button onclick="startUpload()" class="btn btn-default ng-binding add" data-toggle="modal"
+                data-target="#exampleModal">
+            <span class="glyphicon glyphicon-plus"></span> 添加代理
+        </button>
+        <button onclick="sysSetting()" class="btn btn-default ng-binding add" data-toggle="modal"
+                data-target="#settingModal">
+            <span class="glyphicon glyphicon-cog"></span> 系统配置
+        </button>
+
         <!-- <button class="btn btn-default ng-binding" data-toggle="modal" data-target="#keygenModal">
              <span class="glyphicon glyphicon-lock"></span> 生成加密证书
          </button> -->
 
+    </div>
+</div>
+
+<div class="modal fade" id="settingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="exampleModalLabel">系统配置</h4>
+            </div>
+            <div class="modal-body">
+                <form class="setting">
+
+                    <div class="form-group auto">
+                        <label class="checkbox-inline" style="font-weight: 700;">
+                            <input {{if .auto_start}} checked {{end}}type="checkbox" class="auto_start" value="auto">
+                            开机启动
+                        </label>
+                        <label class="checkbox-inline" style="font-weight: 700;">
+                            <input {{if .proxy}}
+                            checked {{end}}type="checkbox" class="proxy" value="proxy" onclick="sysSetting()"> 全局http代理
+                        </label>
+                    </div>
+
+                    <div class="form-group auto">
+                        <label class="control-label">
+                            IP:
+                        </label> &nbsp;&nbsp;&nbsp;
+                        <input type="text"
+                               class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched proxy-ip"
+                               placeholder="" name="ip" style="display:table-caption; width:30%;" value="{{.ip}}">
+                        <label class="control-label">
+                            端口:
+                        </label> &nbsp;&nbsp;&nbsp;
+                        <input type="text"
+                               class="form-control ng-pristine ng-valid ng-not-empty ng-valid-required ng-touched proxy-port"
+                               placeholder="" name="port" style="display:table-caption; width:30%;" value="{{.port}}">
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" onclick="saveSetting()" class="btn btn-primary">保存</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -574,18 +623,58 @@
         }, 1000)
     }
 
-    $(".auto_start").click(function () {
+    function sysSetting() {
+        setting = $(".proxy").prop("checked")
+        if (!setting) {
+            $(".proxy-ip").prop("disabled", true)
+            $(".proxy-port").prop("disabled", true)
+        } else {
+            $(".proxy-ip").prop("disabled", false)
+            $(".proxy-port").prop("disabled", false)
+        }
+    }
+
+    function saveSetting() {
+        proxy = $(".proxy:checked").val()
+        ip = $(".proxy-ip").val()
+        port = $(".proxy-port").val()
+        if (proxy == "proxy") {
+            if (ip == "" || port == "") {
+                $.notify("ip和端口不能为空", "error")
+            }
+        }
         auto = $(".auto_start:checked").val()
         $.ajax({
             type: "POST",
             cache: false,
-            url: "/auto_start",
-            data: "auto=" + auto,
+            url: "/saveSetting",
+            data: "proxy=" + proxy + "&auto=" + auto + "&ip=" + ip + "&port=" + port,
             dataType: "json",
             success: function (res) {
-
+                $.notify("配置成功", "success")
+                setTimeout(function () {
+                    window.location.href = "/"
+                }, 2000)
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.notify(XMLHttpRequest.responseJSON.msg, "error")
             }
         });
+    }
+
+    $(function () {
+        var wsUri = "ws://127.0.0.1:8222/websocket";
+        websocket = new WebSocket(wsUri);
+
+        websocket.onopen = function () {
+            websocket.send("Hello WebSockets!");
+        }
     })
+
+    window.onbeforeunload = function(event) {
+        console.log("关闭WebSocket连接！");
+        websocket.send("close")
+    }
+
 </script>
 </html>
