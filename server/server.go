@@ -117,6 +117,10 @@ func SetProxy() {
 	if err != nil {
 		return
 	}
+	proxy := utils.NewConfig().GetProxySetting()
+	if !proxy {
+		return
+	}
 	switch runtime.GOOS {
 	case "windows":
 		addr := data["ip"] + ":" + data["port"]

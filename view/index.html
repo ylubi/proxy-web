@@ -671,9 +671,9 @@
         }
     })
 
-    window.onbeforeunload = function(event) {
-        console.log("关闭WebSocket连接！");
+    window.onbeforeunload = function(){
         websocket.send("close")
+        websocket.close()
     }
 
 </script>
