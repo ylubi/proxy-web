@@ -143,19 +143,16 @@ func StartWebscoket() {
 func svrConnHandler(conn *websocket.Conn) {
 	request := make([]byte, 128);
 	defer conn.Close();
-	for {
-		readLen, err := conn.Read(request)
-		if err != nil {
-			continue
-		}
-
-		fmt.Println(string(request[:readLen]))
-		if string(request[:readLen]) == "close" {
-			lock = false
-		} else {
-			lock = true
-		}
-
-		request = make([]byte, 128);
+	readLen, err := conn.Read(request)
+	if err != nil {
+		return
 	}
+
+	if string(request[:readLen]) == "close" {
+		lock = false
+	} else {
+		lock = true
+	}
+
+	request = make([]byte, 128)
 }
