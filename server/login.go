@@ -5,7 +5,6 @@ import (
 	"io"
 	"proxy-web/utils"
 	"html/template"
-	"proxy/util"
 )
 
 func login(v http.ResponseWriter, r *http.Request) {
@@ -19,13 +18,13 @@ func login(v http.ResponseWriter, r *http.Request) {
 
 func doLogin(v http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	username, password, err := util.NewConfig().GetUsernameAndPassword()
+	username, password, err := utils.NewConfig().GetUsernameAndPassword()
 	if err != nil {
 		v.WriteHeader(http.StatusInternalServerError)
 		utils.ReturnJson(err.Error(), "", v)
 		return
 	}
-	sess, _ := globalsSessions.SessionStart(v, r)
+	sess, _ := globalSessions.SessionStart(v, r)
 	newSessionId := sess.SessionID()
 	if lock && sessionId != newSessionId {
 		v.WriteHeader(http.StatusInternalServerError)

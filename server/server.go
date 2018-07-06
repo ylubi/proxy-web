@@ -14,7 +14,6 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-//var logMap = make(map[string]chan string)
 var globalSessions *session.Manager
 var version = "v2.0"
 var lock = false
