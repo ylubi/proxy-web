@@ -25,7 +25,7 @@ func doLogin(v http.ResponseWriter, r *http.Request) {
 		utils.ReturnJson(err.Error(), "", v)
 		return
 	}
-	sess, _ := globalSessions.SessionStart(v, r)
+	sess, _ := globalsSessions.SessionStart(v, r)
 	newSessionId := sess.SessionID()
 	if lock && sessionId != newSessionId {
 		v.WriteHeader(http.StatusInternalServerError)
