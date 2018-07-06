@@ -12,12 +12,14 @@ import (
 	"os/exec"
 	"runtime"
 	"golang.org/x/net/websocket"
+	"path/filepath"
 )
 
 var globalSessions *session.Manager
 var version = "v2.0"
 var lock = false
 var sessionId string
+var dir string
 
 func basicAuth(handler func(http.ResponseWriter, *http.Request)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -32,6 +34,10 @@ func basicAuth(handler func(http.ResponseWriter, *http.Request)) http.Handler {
 }
 
 func StartServer() {
+	// 文件路径
+	dir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
+	dir = strings.Replace(dir, "\\", "/", -1)
+
 	// 启动一个websocket，判断是否有人登陆
 	go StartWebscoket()
 	SetProxy()

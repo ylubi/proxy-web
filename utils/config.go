@@ -2,6 +2,9 @@ package utils
 
 import (
 	"log"
+	"os"
+	"strings"
+	"path/filepath"
 
 	"github.com/Unknwon/goconfig"
 )
@@ -11,7 +14,9 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	config, err := goconfig.LoadConfigFile("./config/config.ini")
+	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	dir = strings.Replace(dir, "\\", "/", -1)
+	config, err := goconfig.LoadConfigFile(dir + "/config/config.ini")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -53,20 +58,20 @@ func (c *Config) GetServicesFilePath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return serviceFile, nil
+	return dir + serviceFile, nil
 }
 
 func (c *Config) UpdateAutoStart(autoStart string)(isSuccess bool){
 	c.File.DeleteKey("config", "auto_start")
 	isSuccess = c.File.SetValue("config", "auto_start", autoStart)
-	goconfig.SaveConfigFile(c.File, "./config/config.ini")
+	goconfig.SaveConfigFile(c.File, dir + "/config/config.ini")
 	return
 }
 
 func (c *Config) UpdateProxy(proxy string)(isSuccess bool){
 	c.File.DeleteKey("config", "proxy")
 	isSuccess = c.File.SetValue("config", "proxy", proxy)
-	goconfig.SaveConfigFile(c.File, "./config/config.ini")
+	goconfig.SaveConfigFile(c.File, dir + "/config/config.ini")
 	return
 }
 

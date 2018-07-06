@@ -8,6 +8,7 @@ import (
 	"path"
 	"time"
 	"os"
+	"os/exec"
 	"strconv"
 	"fmt"
 	"strings"
@@ -43,7 +44,7 @@ func add(v http.ResponseWriter, r *http.Request) {
 
 func show(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		t, err := template.ParseFiles("./view/index.html")
+		t, err := template.ParseFiles(dir + "/view/index.html")
 		if err != nil {
 			io.WriteString(w, err.Error())
 			return
@@ -217,8 +218,7 @@ func deleteParameter(v http.ResponseWriter, r *http.Request) {
 
 func saveSetting(v http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	//auto := r.Form.Get("auto")
-	//var dir string
+	auto := r.Form.Get("auto")
 	proxy := r.Form.Get("proxy")
 	ip := r.Form.Get("ip")
 	port := r.Form.Get("port")
@@ -250,9 +250,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 	case "windows":
 
 		//if auto == "auto" {
-		//	dir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
-		//	dir = strings.Replace(dir, "\\", "/", -1)
-		//	command := `./config/autostart.exe enable -k proxy-web -n proxy-web -c`
+		//	command := dir + `/config/autostart.exe enable -k proxy-web -n proxy-web -c`
 		//	commandSlice := strings.Split(command, " ")
 		//	commandSlice = append(commandSlice, dir+`/proxy-web.exe c:`)
 		//	cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
@@ -271,7 +269,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 		//	utils.ReturnJson("success", string(output), v)
 		//	return
 		//} else {
-		//	command := `./config/autostart.exe disable -k proxy-web`
+		//	command := dir + `/config/autostart.exe disable -k proxy-web`
 		//	commandSlice := strings.Split(command, " ")
 		//	cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 		//	output, err := cmd.CombinedOutput()
@@ -291,47 +289,42 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 		//}
 
 	case "darwin":
-		//if auto == "auto" {
-		//	command := `./config/autostart enable -k proxy -n proxy -c`
-		//	commandSlice := strings.Split(command, " ")
-		//	commandSlice = append(commandSlice, `echo \"autostart\">~/autostart.txt`)
-		//	cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-		//	output, err := cmd.CombinedOutput()
-		//	if err != nil {
-		//		v.WriteHeader(http.StatusInternalServerError)
-		//		utils.ReturnJson(string(output), "", v)
-		//		return
-		//	}
-		//	is_success := utils.NewConfig().UpdateAutoStart("true")
-		//	if !is_success {
-		//		v.WriteHeader(http.StatusInternalServerError)
-		//		utils.ReturnJson("修改配置失败", "", v)
-		//		return
-		//	}
-		//	utils.ReturnJson("success", string(output), v)
-		//	return
-		//} else {
-		//	command := `./config/autostart disable -k proxy`
-		//	commandSlice := strings.Split(command, " ")
-		//	cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-		//	output, err := cmd.CombinedOutput()
-		//	if err != nil {
-		//		v.WriteHeader(http.StatusInternalServerError)
-		//		utils.ReturnJson(string(output), "", v)
-		//		return
-		//	}
-		//	is_success := utils.NewConfig().UpdateAutoStart("false")
-		//	if !is_success {
-		//		v.WriteHeader(http.StatusInternalServerError)
-		//		utils.ReturnJson("修改配置失败", "", v)
-		//		return
-		//	}
-		//	utils.ReturnJson("success", string(output), v)
-		//	return
-		//}
+		if auto == "auto" {
+			command := dir + `/config/autostart enable -k proxy -n proxy -c`
+			commandSlice := strings.Split(command, " ")
+			commandSlice = append(commandSlice, dir + "/proxy-web")
+			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+			output, err := cmd.CombinedOutput()
+			if err != nil {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson(string(output), "", v)
+				return
+			}
+			is_success := utils.NewConfig().UpdateAutoStart("true")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
+			utils.ReturnJson("success", string(output), v)
+			return
+		} else {
+			command := dir + `/config/autostart disable -k proxy`
+			commandSlice := strings.Split(command, " ")
+			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+			output, _ := cmd.CombinedOutput()
+			is_success := utils.NewConfig().UpdateAutoStart("false")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
+			utils.ReturnJson("success", string(output), v)
+			return
+		}
 	case "linux":
 		//if auto == "auto" {
-		//	command := `./config/autostart enable -k proxy -n proxy -c`
+		//	command := dir + `/config/autostart enable -k proxy -n proxy -c`
 		//	commandSlice := strings.Split(command, " ")
 		//	commandSlice = append(commandSlice, `echo \"autostart\">~/autostart.txt`)
 		//	cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
@@ -350,7 +343,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 		//	utils.ReturnJson("success", string(output), v)
 		//	return
 		//} else {
-		//	command := `./config/autostart disable -k proxy`
+		//	command := dir + `/config/autostart disable -k proxy`
 		//	commandSlice := strings.Split(command, " ")
 		//	cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 		//	output, err := cmd.CombinedOutput()

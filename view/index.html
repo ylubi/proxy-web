@@ -284,7 +284,6 @@
 <script type="text/javascript" src="/static/js/notify.js"></script>
 <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/static/webupload/webuploader.js"></script>
-<script type="text/javascript" src="/static/js/layer.js"></script>
 <script type="text/javascript">
 
     var html = '<table class="fixed-servers table table-bordered table-striped width-limit-lg" style="margin-top:10px; margin-bottom: 0px;">\
@@ -363,7 +362,7 @@
             type: "POST",
             cache: false,
             url: "/add",
-            data: $('form').eq(0).serialize(),
+            data: $('form').eq(1).serialize(),
             dataType: "json",
             success: function (res) {
                 $.notify("添加成功", "success")
@@ -571,7 +570,7 @@
             type: "POST",
             cache: false,
             url: "/update",
-            data: $('form').eq(1).serialize(),
+            data: $('form').eq(2).serialize(),
             dataType: "json",
             success: function (res) {
                 $.notify("修改成功", "success")

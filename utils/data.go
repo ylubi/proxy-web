@@ -5,11 +5,20 @@ import (
 	"os"
 	"encoding/json"
 	"io/ioutil"
+	"strings"
+	"path/filepath"
 )
 
-const (
-	dataFilePath = "./data/services/"
-)
+
+var dataFilePath string
+var dir string
+
+func init(){
+	dir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
+	dir = strings.Replace(dir, "\\", "/", -1)
+	dataFilePath = dir + "/data/services/"
+}
+
 
 func SaveParams(name, command, auto_start, key_file, crt_file, log string) (serviceIdStr string, err error) {
 	serviceId := time.Now().UnixNano() / 1000000
@@ -257,12 +266,12 @@ func UpdateProxy(ip, port string) (err error) {
 		return
 	}
 
-	err = ioutil.WriteFile("./data/proxy.json", dataByte, 0644)
+	err = ioutil.WriteFile(dir + "/data/proxy.json", dataByte, 0644)
 	return
 }
 
 func GetProxy()(data map[string]string, err error){
-	dataByte, err := ioutil.ReadFile("./data/proxy.json")
+	dataByte, err := ioutil.ReadFile(dir + "/data/proxy.json")
 	if err != nil {
 		return
 	}

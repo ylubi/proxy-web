@@ -8,7 +8,7 @@ import (
 )
 
 func login(v http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("./view/login.html")
+	t, err := template.ParseFiles(dir + "/view/login.html")
 	if err != nil {
 		io.WriteString(v, err.Error())
 		return
