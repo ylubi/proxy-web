@@ -317,23 +317,35 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 	case "linux":
 		if auto == "auto" {
 			data := `#!/bin/sh\n` + dir + `/proxy-web`
-			err := ioutil.WriteFile(dir + "/config/autostart.sh", []byte(data), 0666)
+			err := ioutil.WriteFile(dir + "/config/autostart.sh", []byte(data), 0777)
 			if err != nil {
 				v.WriteHeader(http.StatusInternalServerError)
 				utils.ReturnJson("修改配置失败", "", v)
 				return
 			}
-			fd, err := os.OpenFile("/etc/rc.local", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+			fd, err := os.OpenFile("/etc/rc.local", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
 			if err != nil {
 				v.WriteHeader(http.StatusInternalServerError)
 				utils.ReturnJson("修改配置失败", "", v)
 				return
 			}
 			fd.Write([]byte(dir + "/config/autostart.sh"))
+			is_success := utils.NewConfig().UpdateAutoStart("true")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
 			utils.ReturnJson("success", "", v)
 			return
 		} else {
 			os.Remove(dir + "/config/autostart.sh")
+			is_success := utils.NewConfig().UpdateAutoStart("false")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
 			utils.ReturnJson("success", "", v)
 			return
 		}
