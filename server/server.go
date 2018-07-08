@@ -1,18 +1,19 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"github.com/astaxie/beego/session"
-	"proxy-web/utils"
-	"fmt"
-	"github.com/snail007/goproxy/sdk/android-ios"
-	"strings"
 	"os"
 	"os/exec"
-	"runtime"
-	"golang.org/x/net/websocket"
 	"path/filepath"
+	"proxy-web/utils"
+	"runtime"
+	"strings"
+
+	"github.com/astaxie/beego/session"
+	"github.com/snail007/goproxy/sdk/android-ios"
+	"golang.org/x/net/websocket"
 )
 
 var globalSessions *session.Manager
@@ -107,10 +108,10 @@ func initSession() {
 	sessionConfig := &session.ManagerConfig{
 		CookieName:      "sessionid",
 		EnableSetCookie: true,
-		Gclifetime:      3600,
-		Maxlifetime:     3600,
+		Gclifetime:      360000,
+		Maxlifetime:     360000,
 		Secure:          false,
-		CookieLifeTime:  3600,
+		CookieLifeTime:  360000,
 		ProviderConfig:  "./tmp",
 	}
 	globalSessions, _ = session.NewManager("file", sessionConfig)
@@ -129,7 +130,8 @@ func SetProxy() {
 	switch runtime.GOOS {
 	case "windows":
 		addr := data["ip"] + ":" + data["port"]
-		command := "./config/proxysetting.exe http=" + addr + " https=" + addr
+		command := dir + "/config/proxysetting.exe http=" + addr + " https=" + addr
+		fmt.Println(command)
 		commandSlice := strings.Split(command, " ")
 		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 		output, _ := cmd.CombinedOutput()
@@ -146,8 +148,8 @@ func StartWebscoket() {
 }
 
 func svrConnHandler(conn *websocket.Conn) {
-	request := make([]byte, 128);
-	defer conn.Close();
+	request := make([]byte, 128)
+	defer conn.Close()
 	readLen, err := conn.Read(request)
 	if err != nil {
 		return

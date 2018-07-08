@@ -1,19 +1,20 @@
 package server
 
 import (
-	"proxy-web/utils"
-	"net/http"
-	"io"
+	"fmt"
 	"html/template"
-	"path"
-	"time"
+	"io"
+	"net/http"
 	"os"
 	"os/exec"
-	"strconv"
-	"fmt"
-	"strings"
-	"github.com/snail007/goproxy/sdk/android-ios"
+	"path"
+	"proxy-web/utils"
 	"runtime"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/snail007/goproxy/sdk/android-ios"
 )
 
 func add(v http.ResponseWriter, r *http.Request) {
@@ -53,10 +54,10 @@ func show(w http.ResponseWriter, r *http.Request) {
 		isProxy := utils.NewConfig().GetProxySetting()
 		proxySetting, _ := utils.GetProxy()
 		var ip, port string
-		if _, ok := proxySetting["ip"];ok {
+		if _, ok := proxySetting["ip"]; ok {
 			ip = proxySetting["ip"]
 		}
-		if _, ok := proxySetting["port"];ok {
+		if _, ok := proxySetting["port"]; ok {
 			port = proxySetting["port"]
 		}
 
@@ -249,50 +250,40 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 	switch runtime.GOOS {
 	case "windows":
 
-		//if auto == "auto" {
-		//	command := dir + `/config/autostart.exe enable -k proxy-web -n proxy-web -c`
-		//	commandSlice := strings.Split(command, " ")
-		//	commandSlice = append(commandSlice, dir+`/proxy-web.exe c:`)
-		//	cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-		//	output, err := cmd.CombinedOutput()
-		//	if err != nil {
-		//		v.WriteHeader(http.StatusInternalServerError)
-		//		utils.ReturnJson(string(output), "", v)
-		//		return
-		//	}
-		//	is_success := utils.NewConfig().UpdateAutoStart("true")
-		//	if !is_success {
-		//		v.WriteHeader(http.StatusInternalServerError)
-		//		utils.ReturnJson("修改配置失败", "", v)
-		//		return
-		//	}
-		//	utils.ReturnJson("success", string(output), v)
-		//	return
-		//} else {
-		//	command := dir + `/config/autostart.exe disable -k proxy-web`
-		//	commandSlice := strings.Split(command, " ")
-		//	cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-		//	output, err := cmd.CombinedOutput()
-		//	if err != nil {
-		//		v.WriteHeader(http.StatusInternalServerError)
-		//		utils.ReturnJson(string(output), "", v)
-		//		return
-		//	}
-		//	is_success := utils.NewConfig().UpdateAutoStart("false")
-		//	if !is_success {
-		//		v.WriteHeader(http.StatusInternalServerError)
-		//		utils.ReturnJson("修改配置失败", "", v)
-		//		return
-		//	}
-		//	utils.ReturnJson("success", output, v)
-		//	return
-		//}
+		if auto == "auto" {
+			command := dir + `/config/autostart.exe enable -k proxy-web -n proxy-web -c`
+			commandSlice := strings.Split(command, " ")
+			commandSlice = append(commandSlice, dir+`/proxy-web.exe c:`)
+			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+			output, _ := cmd.CombinedOutput()
+			is_success := utils.NewConfig().UpdateAutoStart("true")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
+			utils.ReturnJson("success", string(output), v)
+			return
+		} else {
+			command := dir + `/config/autostart.exe disable -k proxy-web`
+			commandSlice := strings.Split(command, " ")
+			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+			output, _ := cmd.CombinedOutput()
+			is_success := utils.NewConfig().UpdateAutoStart("false")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
+			utils.ReturnJson("success", output, v)
+			return
+		}
 
 	case "darwin":
 		if auto == "auto" {
 			command := dir + `/config/autostart enable -k proxy -n proxy -c`
 			commandSlice := strings.Split(command, " ")
-			commandSlice = append(commandSlice, dir + "/proxy-web")
+			commandSlice = append(commandSlice, dir+"/proxy-web")
 			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 			output, err := cmd.CombinedOutput()
 			if err != nil {
