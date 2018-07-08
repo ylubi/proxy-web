@@ -11,6 +11,7 @@ import (
 	"proxy-web/utils"
 	"runtime"
 	"strconv"
+	"io/ioutil"
 	"strings"
 	"time"
 
@@ -314,44 +315,28 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 			return
 		}
 	case "linux":
-		//if auto == "auto" {
-		//	command := dir + `/config/autostart enable -k proxy -n proxy -c`
-		//	commandSlice := strings.Split(command, " ")
-		//	commandSlice = append(commandSlice, `echo \"autostart\">~/autostart.txt`)
-		//	cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-		//	output, err := cmd.CombinedOutput()
-		//	if err != nil {
-		//		v.WriteHeader(http.StatusInternalServerError)
-		//		utils.ReturnJson(string(output), "", v)
-		//		return
-		//	}
-		//	is_success := utils.NewConfig().UpdateAutoStart("true")
-		//	if !is_success {
-		//		v.WriteHeader(http.StatusInternalServerError)
-		//		utils.ReturnJson("修改配置失败", "", v)
-		//		return
-		//	}
-		//	utils.ReturnJson("success", string(output), v)
-		//	return
-		//} else {
-		//	command := dir + `/config/autostart disable -k proxy`
-		//	commandSlice := strings.Split(command, " ")
-		//	cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-		//	output, err := cmd.CombinedOutput()
-		//	if err != nil {
-		//		v.WriteHeader(http.StatusInternalServerError)
-		//		utils.ReturnJson(string(output), "", v)
-		//		return
-		//	}
-		//	is_success := utils.NewConfig().UpdateAutoStart("false")
-		//	if !is_success {
-		//		v.WriteHeader(http.StatusInternalServerError)
-		//		utils.ReturnJson("修改配置失败", "", v)
-		//		return
-		//	}
-		//	utils.ReturnJson("success", string(output), v)
-		//	return
-		//}
+		if auto == "auto" {
+			data := `#!/bin/sh\n` + dir + `/proxy-web`
+			err := ioutil.WriteFile(dir + "/config/autostart.sh", []byte(data), 0666)
+			if err != nil {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
+			fd, err := os.OpenFile("/etc/rc.local", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+			if err != nil {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
+			fd.Write([]byte(dir + "/config/autostart.sh"))
+			utils.ReturnJson("success", "", v)
+			return
+		} else {
+			os.Remove(dir + "/config/autostart.sh")
+			utils.ReturnJson("success", "", v)
+			return
+		}
 
 	}
 }

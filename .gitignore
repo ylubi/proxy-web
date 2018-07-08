@@ -1,6 +1,7 @@
 proxy-web
 proxy-web.exe
 *.exe~
+*.sh
 /db/bucket/
 /upload/
 /data/services/
