@@ -45,7 +45,7 @@ func StartServer() {
 	AutoStart()
 	InitShowLog()
 	initSession()
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(dir + "/static"))))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(dir+"/static"))))
 	http.Handle("/", basicAuth(show))
 	http.HandleFunc("/add", add)
 	http.HandleFunc("/update", update)
@@ -86,11 +86,11 @@ func AutoStart() {
 			command += " -C " + data["crt_file"].(string)
 		}
 		if data["log"] == "是" {
-			command += " --log ./log/" + data["id"].(string) + ".log"
+			command += " --log " + dir + "/log/" + data["id"].(string) + ".log"
 		}
-		s, err := os.Stat("./log/")
+		s, err := os.Stat(dir + "/log/")
 		if err != nil || !s.IsDir() {
-			os.Mkdir("./log/", os.ModePerm)
+			os.Mkdir(dir+"/log/", os.ModePerm)
 		}
 		go autoRunCommand(data["id"].(string), command)
 	}
@@ -112,7 +112,7 @@ func initSession() {
 		Maxlifetime:     360000,
 		Secure:          false,
 		CookieLifeTime:  360000,
-		ProviderConfig:  "./tmp",
+		ProviderConfig:  dir + "/tmp",
 	}
 	globalSessions, _ = session.NewManager("file", sessionConfig)
 	go globalSessions.GC()
