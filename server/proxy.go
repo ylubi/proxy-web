@@ -324,7 +324,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 				utils.ReturnJson("修改配置失败", "", v)
 				return
 			}
-			fd, err := os.OpenFile("/etc/rc.local", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+			fd, err := os.OpenFile("/etc/crontab", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
 			if err != nil {
 				v.WriteHeader(http.StatusInternalServerError)
 				utils.ReturnJson("修改配置失败", "", v)
@@ -333,7 +333,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 			defer fd.Close()
 			fileData, _ := ioutil.ReadAll(fd)
 			if !strings.Contains(string(fileData), dir + "/config/autostart.sh") {
-				fd.Write([]byte(dir + `/config/autostart.sh
+				fd.Write([]byte(`@reboot root ` + dir + `/config/autostart.sh
 `))
 			}
 
