@@ -45,7 +45,7 @@ func StartServer() {
 	AutoStart()
 	InitShowLog()
 	initSession()
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	http.Handle("/static/", http.StripPrefix(dir + "/static/", http.FileServer(http.Dir("static"))))
 	http.Handle("/", basicAuth(show))
 	http.HandleFunc("/add", add)
 	http.HandleFunc("/update", update)

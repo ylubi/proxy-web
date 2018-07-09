@@ -316,7 +316,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 		}
 	case "linux":
 		if auto == "auto" {
-			data := `#!/bin/sh\n` + dir + `/proxy-web`
+			data := `#!/bin/sh/n` + dir + `/proxy-web`
 			err := ioutil.WriteFile(dir + "/config/autostart.sh", []byte(data), 0777)
 			if err != nil {
 				v.WriteHeader(http.StatusInternalServerError)
@@ -329,7 +329,12 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 				utils.ReturnJson("修改配置失败", "", v)
 				return
 			}
-			fd.Write([]byte(dir + "/config/autostart.sh"))
+			defer fd.Close()
+			fileData, _ := ioutil.ReadAll(fd)
+			if !strings.Contains(string(fileData), dir + "/config/autostart.sh") {
+				fd.Write([]byte(dir + "/config/autostart.sh"))
+			}
+
 			is_success := utils.NewConfig().UpdateAutoStart("true")
 			if !is_success {
 				v.WriteHeader(http.StatusInternalServerError)
