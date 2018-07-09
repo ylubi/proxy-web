@@ -662,7 +662,9 @@
     }
 
     $(function () {
-        var wsUri = "ws://127.0.0.1:8222/websocket";
+        domain = window.location.host
+        damainSlice = domain.split(":")
+        var wsUri = "ws://" + damainSlice[0] + ":8222/websocket";
         websocket = new WebSocket(wsUri);
 
         websocket.onopen = function () {
@@ -670,7 +672,7 @@
         }
     })
 
-    window.onbeforeunload = function(){
+    window.onbeforeunload = function () {
         websocket.send("close")
         websocket.close()
     }
