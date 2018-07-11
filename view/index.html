@@ -342,12 +342,13 @@
 
     function addContent(data) {
         $('.foot').before(html)
+        $('.log').eq(-1).attr('id', data['id'])
         $('.commandSpan').eq(-1).html(data['command'])
         $('.nameSpan').eq(-1).html(data['name'])
         $('.statusSpan').eq(-1).html(data['status'])
         $('.autoSpan').eq(-1).html(data['auto_start'])
         $('.logSpan').eq(-1).html(data['log'])
-        $('.log').eq(-1).attr('id', data['id'])
+
         if (data['status'] == "已开启") {
             $('.link').eq(-1).hide()
             $('.closed').eq(-1).show()
@@ -665,8 +666,8 @@
 
     $(function () {
         domain = window.location.host
-        damainSlice = domain.split(":")
-        var wsUri = "ws://" + damainSlice[0] + ":8222/websocket";
+        domainSlice = domain.split(":")
+        var wsUri = "ws://" + domainSlice[0] + ":8222/websocket";
         websocket = new WebSocket(wsUri);
 
         websocket.onopen = function () {

@@ -138,7 +138,19 @@ func SetProxy() {
 		fmt.Println(string(output))
 
 	case "darwin":
+		addr := data["ip"] + ":" + data["port"]
+		command := "export http_proxy=" + addr + " https_proxy="+addr
+		commandSlice := strings.Split(command, " ")
+		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+		output, _ := cmd.CombinedOutput()
+		fmt.Println(string(output))
 	case "linux":
+		addr := data["ip"] + ":" + data["port"]
+		command := "export http_proxy=" + addr + " https_proxy="+addr
+		commandSlice := strings.Split(command, " ")
+		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+		output, _ := cmd.CombinedOutput()
+		fmt.Println(string(output))
 	}
 }
 
