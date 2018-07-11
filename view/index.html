@@ -543,8 +543,8 @@
                 $('input[name=id]').eq(1).val(res.data.id)
                 $('input[name=name]').eq(1).val(res.data.name)
                 $('textarea[name=command]').eq(1).val(res.data.command)
-                $('input[name=key]').eq(1).val(res.data.key)
-                $('input[name=crt]').eq(1).val(res.data.crt)
+                $('input[name=key]').eq(1).val(res.data.key_file)
+                $('input[name=crt]').eq(1).val(res.data.crt_file)
                 if (res.data.auto_start == "是") {
                     $('input[name=auto]').eq(3).prop('checked', true)
                 } else {

@@ -169,7 +169,7 @@ func uploade(v http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 		t := time.Now().Unix()
-		fw, err := os.Create("./upload/" + strconv.FormatInt(t, 10) + fileSuffix)
+		fw, err := os.Create(dir + "/upload/" + strconv.FormatInt(t, 10) + fileSuffix)
 		defer fw.Close()
 		if err != nil {
 			v.WriteHeader(http.StatusInternalServerError)
