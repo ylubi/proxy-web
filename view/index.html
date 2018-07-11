@@ -506,7 +506,12 @@
         uploader.on('uploadSuccess', function (file, response) {
             if (response.msg == "") {
                 var id = '#rt_' + file.source.ruid
-                $(id).parents('a').siblings('input').val(response.data)
+                if (response.data.indexOf("key") != -1) {
+                    $(id).parents('a').siblings('input[name=key]').val(response.data)
+                } else {
+                    $(id).parents('a').siblings('input[name=crt]').val(response.data)
+                }
+
                 $(id).notify('上传成功', 'success')
             } else {
                 $.notify(response.msg, {className: "error", elementPosition: "bottom right",})
