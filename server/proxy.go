@@ -333,7 +333,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 			defer fd.Close()
 			fileData, _ := ioutil.ReadAll(fd)
 			if !strings.Contains(string(fileData), dir + "/config/autostart.sh") {
-				fd.Write([]byte(dir + `/config/autostart.sh
+				fd.Write([]byte(`@reboot root ` + dir + `/config/autostart.sh
 `))
 			}
 
