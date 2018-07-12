@@ -298,6 +298,7 @@ export https_proxy=` + addr
 		ioutil.WriteFile(dir+"/config/proxy.sh", []byte(command), 0777)
 		cmd := exec.Command("/bin/bash", "-c", "source "+dir+"/config/proxy.sh")
 		output, err := cmd.CombinedOutput()
+		fmt.Println("output:", string(output), "err", err)
 	case "linux":
 		command := `#!/bin/sh
 export http_proxy=` + addr + `
@@ -305,6 +306,7 @@ export https_proxy=` + addr
 		ioutil.WriteFile(dir+"/config/proxy.sh", []byte(command), 0777)
 		cmd := exec.Command("/bin/bash", "-c", "source "+dir+"/config/proxy.sh")
 		output, err := cmd.CombinedOutput()
+		fmt.Println("output:", string(output), "err", err)
 	}
 }
 
@@ -319,6 +321,7 @@ export https_proxy=`
 		ioutil.WriteFile(dir+"/config/proxy.sh", []byte(command), 0777)
 		cmd := exec.Command("/bin/bash", "-c", "source "+dir+"/config/proxy.sh")
 		output, err := cmd.CombinedOutput()
+		fmt.Println("output:", string(output), "err", err)
 	case "linux":
 		command := `#!/bin/sh
 export http_proxy=
@@ -326,5 +329,6 @@ export https_proxy=`
 		ioutil.WriteFile(dir+"/config/proxy.sh", []byte(command), 0777)
 		cmd := exec.Command("/bin/bash", "-c", "source "+dir+"/config/proxy.sh")
 		output, err := cmd.CombinedOutput()
+		fmt.Println("output:", string(output), "err", err)
 	}
 }
