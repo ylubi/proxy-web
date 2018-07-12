@@ -5,10 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"proxy-web/utils"
-	"runtime"
 	"strings"
 
 	"github.com/astaxie/beego/session"
@@ -127,31 +125,8 @@ func SetProxy() {
 	if !proxy {
 		return
 	}
-	switch runtime.GOOS {
-	case "windows":
-		addr := data["ip"] + ":" + data["port"]
-		command := dir + "/config/proxysetting.exe http=" + addr + " https=" + addr
-		fmt.Println(command)
-		commandSlice := strings.Split(command, " ")
-		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-		output, _ := cmd.CombinedOutput()
-		fmt.Println(string(output))
-
-	case "darwin":
-		addr := data["ip"] + ":" + data["port"]
-		command := "export http_proxy=" + addr + " https_proxy="+addr
-		commandSlice := strings.Split(command, " ")
-		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-		output, _ := cmd.CombinedOutput()
-		fmt.Println(string(output))
-	case "linux":
-		addr := data["ip"] + ":" + data["port"]
-		command := "export http_proxy=" + addr + " https_proxy="+addr
-		commandSlice := strings.Split(command, " ")
-		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-		output, _ := cmd.CombinedOutput()
-		fmt.Println(string(output))
-	}
+	addr := data["ip"] + ":" + data["port"]
+	utils.StartProxy(addr)
 }
 
 func StartWebscoket() {

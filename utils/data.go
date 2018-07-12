@@ -3,22 +3,23 @@ package utils
 import (
 	"time"
 	"os"
+	"fmt"
+	"os/exec"
 	"encoding/json"
 	"io/ioutil"
 	"strings"
+	"runtime"
 	"path/filepath"
 )
-
 
 var dataFilePath string
 var dir string
 
-func init(){
+func init() {
 	dir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
 	dir = strings.Replace(dir, "\\", "/", -1)
 	dataFilePath = dir + "/data/services/"
 }
-
 
 func SaveParams(name, command, auto_start, key_file, crt_file, log string) (serviceIdStr string, err error) {
 	serviceId := time.Now().UnixNano() / 1000000
@@ -266,11 +267,11 @@ func UpdateProxy(ip, port string) (err error) {
 		return
 	}
 
-	err = ioutil.WriteFile(dir + "/data/proxy.json", dataByte, 0644)
+	err = ioutil.WriteFile(dir+"/data/proxy.json", dataByte, 0644)
 	return
 }
 
-func GetProxy()(data map[string]string, err error){
+func GetProxy() (data map[string]string, err error) {
 	dataByte, err := ioutil.ReadFile(dir + "/data/proxy.json")
 	if err != nil {
 		return
@@ -278,4 +279,52 @@ func GetProxy()(data map[string]string, err error){
 
 	err = json.Unmarshal(dataByte, &data)
 	return
+}
+
+func StartProxy(addr string) {
+	switch runtime.GOOS {
+	case "windows":
+		command := dir + "/config/proxysetting.exe http=" + addr + " https=" + addr
+		fmt.Println(command)
+		commandSlice := strings.Split(command, " ")
+		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+		output, _ := cmd.CombinedOutput()
+		fmt.Println(string(output))
+
+	case "darwin":
+		command := `#!/bin/sh
+export http_proxy=` + addr + `
+export https_proxy=` + addr
+		ioutil.WriteFile(dir+"/config/proxy.sh", []byte(command), 0777)
+		cmd := exec.Command("/bin/bash", "-c", "source "+dir+"/config/proxy.sh")
+		output, err := cmd.CombinedOutput()
+	case "linux":
+		command := `#!/bin/sh
+export http_proxy=` + addr + `
+export https_proxy=` + addr
+		ioutil.WriteFile(dir+"/config/proxy.sh", []byte(command), 0777)
+		cmd := exec.Command("/bin/bash", "-c", "source "+dir+"/config/proxy.sh")
+		output, err := cmd.CombinedOutput()
+	}
+}
+
+func StopProxy() {
+	switch runtime.GOOS {
+	case "windows":
+
+	case "darwin":
+		command := `#!/bin/sh
+export http_proxy=
+export https_proxy=`
+		ioutil.WriteFile(dir+"/config/proxy.sh", []byte(command), 0777)
+		cmd := exec.Command("/bin/bash", "-c", "source "+dir+"/config/proxy.sh")
+		output, err := cmd.CombinedOutput()
+	case "linux":
+		command := `#!/bin/sh
+export http_proxy=
+export https_proxy=`
+		ioutil.WriteFile(dir+"/config/proxy.sh", []byte(command), 0777)
+		cmd := exec.Command("/bin/bash", "-c", "source "+dir+"/config/proxy.sh")
+		output, err := cmd.CombinedOutput()
+	}
 }

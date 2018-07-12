@@ -239,6 +239,8 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 			utils.ReturnJson(err.Error(), "", v)
 			return
 		}
+		addr := ip + ":" + port
+		utils.StartProxy(addr)
 	} else {
 		is_success := utils.NewConfig().UpdateProxy("false")
 		if !is_success {
@@ -246,6 +248,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 			utils.ReturnJson("修改配置失败", "", v)
 			return
 		}
+		utils.StopProxy()
 	}
 
 	switch runtime.GOOS {
