@@ -281,54 +281,50 @@ func GetProxy() (data map[string]string, err error) {
 	return
 }
 
-func StartProxy(addr string) {
+func StartProxy(ip, port string) (err error) {
 	switch runtime.GOOS {
 	case "windows":
+		addr := ip + ":" + port
 		command := dir + "/config/proxysetting.exe http=" + addr + " https=" + addr
-		fmt.Println(command)
 		commandSlice := strings.Split(command, " ")
 		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 		output, _ := cmd.CombinedOutput()
 		fmt.Println(string(output))
 
 	case "darwin":
-		command := `#!/bin/sh
-export http_proxy=` + addr + `
-export https_proxy=` + addr
-		ioutil.WriteFile(dir+"/config/proxy.sh", []byte(command), 0777)
-		cmd := exec.Command("/bin/bash", "-c", "source "+dir+"/config/proxy.sh")
-		output, err := cmd.CombinedOutput()
-		fmt.Println("output:", string(output), "err", err)
+		cmd := exec.Command("/bin/bash", "-c", dir + "/config/httpProxy.sh " + ip + " " + port)
+		output, _ := cmd.CombinedOutput()
+		fmt.Println(string(output))
 	case "linux":
-		command := `#!/bin/sh
+		addr := ip + ":" + port
+		var contentByte []byte
+		contentByte, err = ioutil.ReadFile("～/.bashrc")
+		if err != nil {
+			return
+		}
+		content := string(contentByte)
+		if !strings.Contains(content, dir + "/config/linux_proxy.sh") {
+			content = content + `
+` + dir + `/config/linux_proxy.sh`
+			ioutil.WriteFile("～/.bashrc", []byte(content), 0777)
+		}
+		shContent := `#!/bin/sh
 export http_proxy=` + addr + `
 export https_proxy=` + addr
-		ioutil.WriteFile(dir+"/config/proxy.sh", []byte(command), 0777)
-		cmd := exec.Command("/bin/bash", "-c", "source "+dir+"/config/proxy.sh")
-		output, err := cmd.CombinedOutput()
-		fmt.Println("output:", string(output), "err", err)
+		ioutil.WriteFile(dir + "/config/linux_proxy.sh", []byte(shContent), 0777)
 	}
+	return
 }
 
-func StopProxy() {
+func StopProxy(ip, port string) {
 	switch runtime.GOOS {
 	case "windows":
 
 	case "darwin":
-		command := `#!/bin/sh
-export http_proxy=
-export https_proxy=`
-		ioutil.WriteFile(dir+"/config/proxy.sh", []byte(command), 0777)
-		cmd := exec.Command("/bin/bash", "-c", "source "+dir+"/config/proxy.sh")
-		output, err := cmd.CombinedOutput()
-		fmt.Println("output:", string(output), "err", err)
+		cmd := exec.Command("/bin/bash", "-c", dir + "/config/httpProxy.sh " + ip + " " + port + " close")
+		output, _ := cmd.CombinedOutput()
+		fmt.Println(string(output))
 	case "linux":
-		command := `#!/bin/sh
-export http_proxy=
-export https_proxy=`
-		ioutil.WriteFile(dir+"/config/proxy.sh", []byte(command), 0777)
-		cmd := exec.Command("/bin/bash", "-c", "source "+dir+"/config/proxy.sh")
-		output, err := cmd.CombinedOutput()
-		fmt.Println("output:", string(output), "err", err)
+		os.Remove(dir + "/config/linux_proxy.sh")
 	}
 }

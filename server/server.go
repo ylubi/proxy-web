@@ -125,8 +125,7 @@ func SetProxy() {
 	if !proxy {
 		return
 	}
-	addr := data["ip"] + ":" + data["port"]
-	utils.StartProxy(addr)
+	utils.StartProxy(data["ip"], data["port"])
 }
 
 func StartWebscoket() {
