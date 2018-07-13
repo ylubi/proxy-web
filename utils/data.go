@@ -282,6 +282,7 @@ func GetProxy() (data map[string]string, err error) {
 }
 
 func StartProxy(ip, port string) (err error) {
+	fmt.Println(runtime.GOOS)
 	switch runtime.GOOS {
 	case "windows":
 		addr := ip + ":" + port
@@ -297,21 +298,22 @@ func StartProxy(ip, port string) (err error) {
 		fmt.Println(string(output))
 	case "linux":
 		addr := ip + ":" + port
+		home := os.Getenv("HOME")
 		var contentByte []byte
-		contentByte, err = ioutil.ReadFile("～/.bashrc")
+		contentByte, _ = ioutil.ReadFile(home + "/.bashrc")
 		if err != nil {
 			return
 		}
 		content := string(contentByte)
 		if !strings.Contains(content, dir + "/config/linux_proxy.sh") {
 			content = content + `
-` + dir + `/config/linux_proxy.sh`
-			ioutil.WriteFile("～/.bashrc", []byte(content), 0777)
+. ` + dir + `/config/linux_proxy.sh`
+			err = ioutil.WriteFile(home + "/.bashrc", []byte(content), 0777)
 		}
 		shContent := `#!/bin/sh
 export http_proxy=` + addr + `
 export https_proxy=` + addr
-		ioutil.WriteFile(dir + "/config/linux_proxy.sh", []byte(shContent), 0777)
+		err = ioutil.WriteFile(dir + "/config/linux_proxy.sh", []byte(shContent), 0777)
 	}
 	return
 }
