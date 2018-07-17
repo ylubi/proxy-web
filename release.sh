@@ -53,7 +53,7 @@ cd proxy/proxy-web
 rm -rf proxy-web
 cd ..
 cd ..
-GOOS=windows GOARCH=386 go build && mv proxy-web.exe proxy/proxy-web/proxy-web.exe && cd proxy && tar zcfv "../zip/proxy-web-windows-386.tar.gz" proxy-web && cd ..
-GOOS=windows GOARCH=amd64 go build && mv proxy-web.exe proxy/proxy-web/proxy-web.exe && cd proxy && tar zcfv "../zip/proxy-web-windows-amd64.tar.gz" proxy-web && cd ..
+GOOS=windows GOARCH=386 go build -ldflags "-H windowsgui" && mv proxy-web.exe proxy/proxy-web/proxy-web.exe && cd proxy && tar zcfv "../zip/proxy-web-windows-386.tar.gz" proxy-web && cd ..
+GOOS=windows GOARCH=amd64 go build -ldflags "-H windowsgui" && mv proxy-web.exe proxy/proxy-web/proxy-web.exe && cd proxy && tar zcfv "../zip/proxy-web-windows-amd64.tar.gz" proxy-web && cd ..
 
 rm -rf proxy-web proxy-web.exe

@@ -282,7 +282,6 @@ func GetProxy() (data map[string]string, err error) {
 }
 
 func StartProxy(ip, port string) (err error) {
-	fmt.Println(runtime.GOOS)
 	switch runtime.GOOS {
 	case "windows":
 		addr := ip + ":" + port

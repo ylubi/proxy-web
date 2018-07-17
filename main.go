@@ -2,17 +2,11 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
-
 	_ "net/http/pprof"
 	"proxy-web/server"
 )
 
-var daemon = flag.Bool("d", true, "default run daemon")
+//var daemon = flag.Bool("d", true, "default run daemon")
 
 func init() {
 	//if !flag.Parsed() {
@@ -30,20 +24,20 @@ func init() {
 
 func main() {
 	server.StartServer()
-	clean()
+	//clean()
 }
 
-func clean() {
-	signalChan := make(chan os.Signal, 1)
-	cleanupDone := make(chan bool)
-	signal.Notify(signalChan,
-		os.Interrupt,
-		syscall.SIGHUP,
-		syscall.SIGINT,
-		syscall.SIGTERM,
-		syscall.SIGQUIT)
-	go func() {
-		fmt.Println("close")
-	}()
-	<-cleanupDone
-}
+//func clean() {
+//	signalChan := make(chan os.Signal, 1)
+//	cleanupDone := make(chan bool)
+//	signal.Notify(signalChan,
+//		os.Interrupt,
+//		syscall.SIGHUP,
+//		syscall.SIGINT,
+//		syscall.SIGTERM,
+//		syscall.SIGQUIT)
+//	go func() {
+//		fmt.Println("close")
+//	}()
+//	<-cleanupDone
+//}
