@@ -10,6 +10,7 @@ import (
 	"strings"
 	"runtime"
 	"path/filepath"
+	"github.com/pkg/errors"
 )
 
 var dataFilePath string
@@ -289,7 +290,10 @@ func StartProxy(ip, port string) (err error) {
 		commandSlice := strings.Split(command, " ")
 		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 		output, _ := cmd.CombinedOutput()
-		fmt.Println(string(output))
+		outputStr := string(output)
+		if !strings.Contains(outputStr, "success") {
+			return errors.New("设置失败")
+		}
 
 	case "darwin":
 		cmd := exec.Command("/bin/bash", "-c", dir + "/config/httpProxy.sh " + ip + " " + port)
@@ -323,8 +327,7 @@ func StopProxy(ip, port string) {
 
 	case "darwin":
 		cmd := exec.Command("/bin/bash", "-c", dir + "/config/httpProxy.sh " + ip + " " + port + " close")
-		output, _ := cmd.CombinedOutput()
-		fmt.Println(string(output))
+		cmd.CombinedOutput()
 	case "linux":
 		os.Remove(dir + "/config/linux_proxy.sh")
 	}
