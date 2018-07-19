@@ -33,7 +33,7 @@ GOOS=freebsd GOARCH=arm go build && mv proxy-web proxy/proxy-web/proxy-web && cd
 #nacl
 GOOS=nacl GOARCH=386 go build && mv proxy-web proxy/proxy-web/proxy-web && cd proxy && tar zcfv "../zip/proxy-web-nacl-386.tar.gz" proxy-web && cd ..
 GOOS=nacl GOARCH=amd64p32 go build && mv proxy-web proxy/proxy-web/proxy-web && cd proxy && tar zcfv "../zip/proxy-web-nacl-amd64p32.tar.gz" proxy-web && cd ..
-GOOS=nacl GOARCH=arm go build && mv proxy-web proxy/proxy-web/proxy-web && cd proxy && tar zcfv "../zip/proxy-web-nacl-arm.tar.gz"proxy-web && cd .. 
+GOOS=nacl GOARCH=arm go build && mv proxy-web proxy/proxy-web/proxy-web && cd proxy && tar zcfv "../zip/proxy-web-nacl-arm.tar.gz" proxy-web && cd ..
 #netbsd
 GOOS=netbsd GOARCH=386 go build && mv proxy-web proxy/proxy-web/proxy-web && cd proxy && tar zcfv "../zip/proxy-web-netbsd-386.tar.gz" proxy-web && cd .. 
 GOOS=netbsd GOARCH=amd64 go build && mv proxy-web proxy/proxy-web/proxy-web && cd proxy && tar zcfv "../zip/proxy-web-netbsd-amd64.tar.gz" proxy-web && cd .. 
