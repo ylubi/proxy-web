@@ -203,6 +203,7 @@ func GetAllParams() (datas []map[string]interface{}, err error) {
 		return
 	}
 
+	var closeData []map[string]interface{}
 	for serviceId, _ := range dataMap {
 		data := make(map[string]interface{})
 		fd, err := os.Open(dataFilePath + serviceId + ".json")
@@ -214,9 +215,16 @@ func GetAllParams() (datas []map[string]interface{}, err error) {
 			continue
 		}
 		json.Unmarshal(dataByte, &data)
-		datas = append(datas, data)
+		if data["status"] == "已开启" {
+			datas = append(datas, data)
+		} else {
+			closeData = append(closeData, data)
+		}
+
 		fd.Close()
 	}
+
+	datas = append(datas, closeData...)
 
 	return
 }

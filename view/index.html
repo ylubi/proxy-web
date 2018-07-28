@@ -3,6 +3,7 @@
 <head>
     <title>proxy</title>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/price.css">
     <style>
         .upImgBtn {
             opacity: 0;
@@ -80,7 +81,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                <button type="button" onclick="saveSetting()" class="btn btn-primary">保存</button>
+                <button type="button" onclick="saveSetting()" class="btn signupNoMarginPadding">保存</button>
             </div>
         </div>
     </div>
@@ -142,16 +143,16 @@
                         </label>
                         <br>
                         <input type="hidden" name="key">
-                        <a class="btn btn-primary ng-binding file_upload">.key文件</a>
-                        <input type="hidden" name="crt">
-                        <a class="btn btn-primary ng-binding file_upload">.crt文件</a>
+                        <a class="signupNoMargin file_upload" style="margin-top: 0px;">.key文件</a>
+                        <input type="hidden" name="crt" style="margin: 0px 0 0 0;">
+                        <a class="signupNoMargin file_upload">.crt文件</a>
                     </div>
 
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                <button type="button" onclick="add()" class="btn btn-primary">添加</button>
+                <button type="button" onclick="add()" class="btn signupNoMarginPadding">添加</button>
             </div>
         </div>
     </div>
@@ -213,15 +214,15 @@
                         </label>
                         <br>
                         <input type="hidden" name="key">
-                        <a class="btn btn-primary ng-binding file_upload">.key文件</a>
+                        <a class="signupNoMargin file_upload">.key文件</a>
                         <input type="hidden" name="crt">
-                        <a class="btn btn-primary ng-binding file_upload">.crt文件</a>
+                        <a class="signupNoMargin file_upload">.crt文件</a>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                <button type="button" onclick="update()" class="btn btn-primary">修改</button>
+                <button type="button" onclick="update()" class="btn signupNoMarginPadding">修改</button>
             </div>
         </div>
     </div>
@@ -244,38 +245,15 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" onclick="del()" data-dismiss="modal" class="btn btn-primary">删除</button>
+                <button type="button" onclick="del()" data-dismiss="modal" class="signupNoMarginPadding">删除</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="keygenModal" tabindex="-1" role="dialog" aria-labelledby="deleteModal">
-    <div class="modal-dialog modal-sm" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title" id="deleteModal">加密</h4>
-            </div>
-            <div class="modal-body" style="text-align: center;">
-                <div>
-                    <label for="recipient-name" class="control-label">
-                        你确定要生成加密文件吗？
-                    </label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" onclick="keygen()" data-dismiss="modal" class="btn btn-primary">确定</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="col-sm-8 foot"></div>
-<div class="col-sm-4" style="padding-top: 8px; text-align: right;">
-    goproxy-sdk版本： v{{.proxy_version}}，proxy-web版本：{{.version}}
+
+<div id="pricing-table" class="clear">
 </div>
 
 </body>
@@ -286,44 +264,20 @@
 <script type="text/javascript" src="/static/webupload/webuploader.js"></script>
 <script type="text/javascript">
 
-    var html = '<table class="fixed-servers table table-bordered table-striped width-limit-lg" style="margin-top:10px; margin-bottom: 0px;">\
-						<thead>\
-							<tr style="background-color: #f9f9f9;">\
-							    <th class="ng-binding">名称</th>\
-								<th class="ng-binding">参数</th>\
-								<th class="ng-binding">状态</th>\
-								<th class="ng-binding">自启动</th>\
-								<th class="ng-binding">记录日志</th>\
-								<th class="ng-binding">操作</th>\
-							</tr>\
-						</thead>\
-						<tbody>\
-							<tr style="background-color:#fff;">\
-							    <td style="width:100px;">\
-                                    <span class="nameSpan"></span>\
-                                </td>\
-								<td style="width:430px;">\
-									<span class="commandSpan"></span>\
-								</td>\
-								<td style="width:80px;">\
-								   <span class="statusSpan"></span>\
-								</td>\
-								<td style="width:80px;">\
-								   <span class="autoSpan"></span>\
-								</td>\
-								<td style="width:80px;">\
-								    <span class="logSpan"></span>\
-								</td>\
-								<td  style="width:270px;">\
-									<a class="btn btn-primary ng-binding update" onclick="getData(this)">修改</a>\
-									<a class="btn btn-primary ng-binding delete" onclick="confirmDel(this)">删除</a>\
-									<a class="btn btn-primary ng-binding link" onclick="link(this)">启用</a>\
-									<a class="btn btn-primary ng-binding closed" onclick="closed(this)" style="display:none;">关闭</a>\
-									<a class="btn btn-primary ng-binding log" onclick="showLog(this)">显示日志</a>\
-								</td>\
-							</tr>\
-						</tbody>\
-					</table>';
+    var html = '<div class="plan" onmouseover="addId(this)" onmouseout="removeId(this)">\n' +
+            '        <h3><span class="statusSpan"></span></h3>\n' +
+            '        <ul>\n' +
+            '            <li><b>名称：</b> <span class="nameSpan"></span></li>\n' +
+            '            <li><b>参数：</b> <br> <span class="commandSpan"></span></li>\n' +
+            '            <li><b>自启动：</b><span class="autoSpan"></span></li>\n' +
+            '            <li><b>记录日志：</b> <span class="logSpan"></span></li>\n' +
+            '        </ul> \n' +
+            '        <a class="link signup" onclick="link(this)">连接</a> ' +
+            '        <a class="closed signup" onclick="closed(this)" style="display:none;">关闭</a> ' +
+            '        <a class="log signup" onclick="showLog(this)">日志</a> ' +
+            '        <a class="update signup" onclick="getData(this)">修改</a> ' +
+            '        <a class="delete signup" onclick="confirmDel(this)">删除</a> ' +
+            '    </div>';
 
     function initData() {
         $.ajax({
@@ -336,12 +290,14 @@
                 for (var i in res.data) {
                     addContent(res.data[i])
                 }
+                width = res.data.length * 200
+                $("#pricing-table").css("width", width + "px")
             }
         });
     }
 
     function addContent(data) {
-        $('.foot').before(html)
+        $('#pricing-table').append(html)
         $('.log').eq(-1).attr('id', data['id'])
         $('.commandSpan').eq(-1).html(data['command'])
         $('.nameSpan').eq(-1).html(data['name'])
@@ -358,7 +314,6 @@
     initData()
 
     function add() {
-
         $.ajax({
             type: "POST",
             cache: false,
@@ -369,22 +324,12 @@
                 $.notify("添加成功", "success")
                 addContent(res.data)
                 $('#exampleModal').modal('hide')
-            }
-        });
-    }
+                widthOrigin = $("#pricing-table").css("width")
+                if (widthOrigin != "800px") {
+                    width = widthOrigin.substr(0, 3)
+                    width = parseInt(width) + 200
+                    $("#pricing-table").css("width", width + "px")
 
-    function keygen() {
-        $.ajax({
-            type: "POST",
-            cache: false,
-            url: "/keygen",
-            data: "",
-            dataType: "json",
-            success: function (res) {
-                if (res.Code == 200) {
-                    $.notify("success", "success")
-                } else {
-                    $.notify(res.Output, "error")
                 }
             }
         });
@@ -400,20 +345,20 @@
             data: "id=" + id,
             dataType: "json",
             success: function (res) {
-                $(ob).parents('table').notify("启动成功", {
+                $(ob).notify("启动成功", {
                     className: "success",
                     elementPosition: "bottom right",
                     arrowShow: false
                 })
                 $(ob).hide()
                 $(ob).siblings('.closed').show()
-                $(ob).parents('table').find('.statusSpan').html("已开启")
+                $(ob).find('.statusSpan').html("已开启")
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 if (XMLHttpRequest.status == 500) {
-                    $(ob).parents('table').notify(XMLHttpRequest.responseJSON.msg, {
+                    $(ob).notify(XMLHttpRequest.responseJSON.msg, {
                         className: "error",
-                        elementPosition: "bottom right",
+                        elementPosition: "top right",
                         arrowShow: false
                     })
                 }
@@ -431,20 +376,20 @@
             data: "id=" + id,
             dataType: "json",
             success: function (res) {
-                $(ob).parents('table').notify("关闭成功", {
+                $(ob).notify("关闭成功", {
                     className: "success",
                     elementPosition: "bottom right",
                     arrowShow: false
                 })
                 $(ob).hide()
                 $(ob).siblings('.link').show()
-                $(ob).parents('table').find('.statusSpan').html("未开启")
+                $(ob).find('.statusSpan').html("未开启")
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 if (XMLHttpRequest.status == 500) {
-                    $(ob).parents('table').notify(XMLHttpRequest.responseJSON.msg, {
+                    $(ob).notify(XMLHttpRequest.responseJSON.msg, {
                         className: "error",
-                        elementPosition: "bottom right",
+                        elementPosition: "top right",
                         arrowShow: false
                     })
                 }
@@ -454,11 +399,11 @@
 
     function showLog(ob) {
 
-        var log = $(ob).parents('table').find('.logSpan').html()
+        var log = $(ob).parent(".plan").find('.logSpan').html()
         if (log != '是') {
-            $(ob).parents('table').notify('日志功能未开启！', {
+            $(ob).notify('日志功能未开启！', {
                 className: "error",
-                elementPosition: "bottom right",
+                elementPosition: "top right",
                 arrowShow: false
             })
             return
@@ -467,7 +412,6 @@
 	domain = window.location.host
         domainSlice = domain.split(":")
         var id = $(ob).attr('id')
-        // window.location.href = "http://127.0.0.1:8822/show/" + id + "#width=100%&height=300px"
         layer.open({
             type: 2,
             skin: "layui-layer-lan",
@@ -529,7 +473,7 @@
 
     function getData(ob) {
         var id = $(ob).siblings('.log').attr('id')
-        var status = $(ob).parents('table').find('.statusSpan').html()
+        var status = $(ob).find('.statusSpan').html()
         if (status == '已开启') {
             $(ob).notify('已开启的代理不能修改！')
             return
@@ -563,7 +507,7 @@
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 if (XMLHttpRequest.status == 500) {
-                    $(ob).parents('table').notify(XMLHttpRequest.responseJSON.msg, {
+                    $(ob).notify(XMLHttpRequest.responseJSON.msg, {
                         className: "error",
                         elementPosition: "bottom right",
                         arrowShow: false
@@ -596,8 +540,7 @@
 
     function confirmDel(ob) {
         $('.del').removeClass('del')
-        var id = $(ob).siblings('.log').attr('id')
-        var status = $(ob).parents('table').find('.statusSpan').html()
+        var status = $(ob).find('.statusSpan').html()
         if (status == '已开启') {
             $(ob).notify('已开启的代理不能删除！')
             return
@@ -616,7 +559,14 @@
             dataType: "json",
             success: function (res) {
                 $.notify("删除成功", "success")
-                $('.del').parents('table').remove()
+                $('.del').parent(".plan").remove()
+                widthOrigin = $("#pricing-table").css("width")
+                if (widthOrigin != "800px") {
+                    width = widthOrigin.substr(0, 3)
+                    width = parseInt(width) - 200
+                    $("#pricing-table").css("width", width + "px")
+
+                }
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 $.notify(XMLHttpRequest.responseJSON.msg, "error")
@@ -683,6 +633,14 @@
     window.onbeforeunload = function () {
         websocket.send("close")
         websocket.close()
+    }
+
+    function addId(ob) {
+        $(ob).attr("id","most-popular");
+    }
+
+    function removeId(ob) {
+        $(ob).attr("id","");
     }
 
 </script>
