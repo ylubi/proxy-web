@@ -332,7 +332,14 @@ export https_proxy=` + addr
 func StopProxy(ip, port string) {
 	switch runtime.GOOS {
 	case "windows":
-
+		command := dir + "/config/proxysetting.exe stop"
+		commandSlice := strings.Split(command, " ")
+		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+		output, _ := cmd.CombinedOutput()
+		outputStr := string(output)
+		if !strings.Contains(outputStr, "success") {
+			return errors.New("设置失败")
+		}
 	case "darwin":
 		cmd := exec.Command("/bin/bash", "-c", dir + "/config/httpProxy.sh " + ip + " " + port + " close")
 		cmd.CombinedOutput()
