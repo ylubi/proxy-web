@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -11,7 +12,6 @@ import (
 	"proxy-web/utils"
 	"runtime"
 	"strconv"
-	"io/ioutil"
 	"strings"
 	"time"
 
@@ -225,126 +225,148 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 	ip := r.Form.Get("ip")
 	port := r.Form.Get("port")
 
+	config := utils.NewConfig()
+	isAutoStart := config.GetAutoStart()
+	isProxy := config.GetProxySetting()
+
 	// 判断是否开启全局代理
 	if proxy == "proxy" {
-		err := utils.StartProxy(ip, port)
-		if err != nil {
-			v.WriteHeader(http.StatusInternalServerError)
-			utils.ReturnJson("修改配置失败", "", v)
-			return
+		if !isProxy {
+			err := utils.StartProxy(ip, port)
+			if err != nil {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
 		}
+
 	} else {
-		utils.StopProxy(ip, port)
+		if isProxy {
+			utils.StopProxy(ip, port)
+		}
 	}
 
 	switch runtime.GOOS {
 	case "windows":
 
 		if auto == "auto" {
-			command := dir + `/config/autostart.exe enable -k proxy-web -n proxy-web -c`
-			commandSlice := strings.Split(command, " ")
-			commandSlice = append(commandSlice, dir+`/proxy-web.exe c:`)
-			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-			output, _ := cmd.CombinedOutput()
-			outputStr := string(output)
-			if !strings.Contains(outputStr, "success") {
-				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
-				return
+			if !isAutoStart {
+				fmt.Println(12312)
+				command := dir + `/config/autostart.exe enable -k proxy-web -n proxy-web -c`
+				commandSlice := strings.Split(command, " ")
+				commandSlice = append(commandSlice, dir+`/proxy-web.exe c:`)
+				cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+				output, _ := cmd.CombinedOutput()
+				outputStr := string(output)
+				if !strings.Contains(outputStr, "Done") {
+					v.WriteHeader(http.StatusInternalServerError)
+					utils.ReturnJson("修改配置失败", "", v)
+					return
+				}
+				is_success := utils.NewConfig().UpdateAutoStart("true")
+				if !is_success {
+					v.WriteHeader(http.StatusInternalServerError)
+					utils.ReturnJson("修改配置失败", "", v)
+					return
+				}
 			}
-			is_success := utils.NewConfig().UpdateAutoStart("true")
-			if !is_success {
-				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
-				return
-			}
+
 		} else {
-			command := dir + `/config/autostart.exe disable -k proxy-web`
-			commandSlice := strings.Split(command, " ")
-			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-			output, _ := cmd.CombinedOutput()
-			outputStr := string(output)
-			if !strings.Contains(outputStr, "success") {
-				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
-				return
-			}
-			is_success := utils.NewConfig().UpdateAutoStart("false")
-			if !is_success {
-				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
-				return
+			if isAutoStart {
+				command := dir + `/config/autostart.exe disable -k proxy-web`
+				commandSlice := strings.Split(command, " ")
+				cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+				output, _ := cmd.CombinedOutput()
+				outputStr := string(output)
+				if !strings.Contains(outputStr, "Done") {
+					v.WriteHeader(http.StatusInternalServerError)
+					utils.ReturnJson("修改配置失败", "", v)
+					return
+				}
+				is_success := utils.NewConfig().UpdateAutoStart("false")
+				if !is_success {
+					v.WriteHeader(http.StatusInternalServerError)
+					utils.ReturnJson("修改配置失败", "", v)
+					return
+				}
 			}
 		}
 
 	case "darwin":
 		if auto == "auto" {
-			command := dir + `/config/autostart enable -k proxy -n proxy -c`
-			commandSlice := strings.Split(command, " ")
-			commandSlice = append(commandSlice, dir+"/proxy-web")
-			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-			output, err := cmd.CombinedOutput()
-			if err != nil {
-				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson(string(output), "", v)
-				return
-			}
-			is_success := utils.NewConfig().UpdateAutoStart("true")
-			if !is_success {
-				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
-				return
+			if !isAutoStart {
+				command := dir + `/config/autostart enable -k proxy -n proxy -c`
+				commandSlice := strings.Split(command, " ")
+				commandSlice = append(commandSlice, dir+"/proxy-web")
+				cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+				output, err := cmd.CombinedOutput()
+				if err != nil {
+					v.WriteHeader(http.StatusInternalServerError)
+					utils.ReturnJson(string(output), "", v)
+					return
+				}
+				is_success := utils.NewConfig().UpdateAutoStart("true")
+				if !is_success {
+					v.WriteHeader(http.StatusInternalServerError)
+					utils.ReturnJson("修改配置失败", "", v)
+					return
+				}
 			}
 		} else {
-			command := dir + `/config/autostart disable -k proxy`
-			commandSlice := strings.Split(command, " ")
-			cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-			output, _ := cmd.CombinedOutput()
-			fmt.Println(string(output))
-			is_success := utils.NewConfig().UpdateAutoStart("false")
-			if !is_success {
-				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
-				return
+			if isAutoStart {
+				command := dir + `/config/autostart disable -k proxy`
+				commandSlice := strings.Split(command, " ")
+				cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+				output, _ := cmd.CombinedOutput()
+				fmt.Println(string(output))
+				is_success := utils.NewConfig().UpdateAutoStart("false")
+				if !is_success {
+					v.WriteHeader(http.StatusInternalServerError)
+					utils.ReturnJson("修改配置失败", "", v)
+					return
+				}
 			}
 		}
 	case "linux":
 		if auto == "auto" {
-			data := `#!/bin/sh
+			if !isAutoStart {
+				data := `#!/bin/sh
 ` + dir + `/proxy-web`
-			err := ioutil.WriteFile(dir + "/config/autostart.sh", []byte(data), 0777)
-			if err != nil {
-				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
-				return
-			}
-			fd, err := os.OpenFile("/etc/crontab", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
-			if err != nil {
-				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
-				return
-			}
-			defer fd.Close()
-			fileData, _ := ioutil.ReadAll(fd)
-			if !strings.Contains(string(fileData), dir + "/config/autostart.sh") {
-				fd.Write([]byte(`@reboot root ` + dir + `/config/autostart.sh
+				err := ioutil.WriteFile(dir+"/config/autostart.sh", []byte(data), 0777)
+				if err != nil {
+					v.WriteHeader(http.StatusInternalServerError)
+					utils.ReturnJson("修改配置失败", "", v)
+					return
+				}
+				fd, err := os.OpenFile("/etc/crontab", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+				if err != nil {
+					v.WriteHeader(http.StatusInternalServerError)
+					utils.ReturnJson("修改配置失败", "", v)
+					return
+				}
+				defer fd.Close()
+				fileData, _ := ioutil.ReadAll(fd)
+				if !strings.Contains(string(fileData), dir+"/config/autostart.sh") {
+					fd.Write([]byte(`@reboot root ` + dir + `/config/autostart.sh
 `))
-			}
+				}
 
-			is_success := utils.NewConfig().UpdateAutoStart("true")
-			if !is_success {
-				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
-				return
+				is_success := utils.NewConfig().UpdateAutoStart("true")
+				if !is_success {
+					v.WriteHeader(http.StatusInternalServerError)
+					utils.ReturnJson("修改配置失败", "", v)
+					return
+				}
 			}
-
 		} else {
-			os.Remove(dir + "/config/autostart.sh")
-			is_success := utils.NewConfig().UpdateAutoStart("false")
-			if !is_success {
-				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
-				return
+			if isAutoStart {
+				os.Remove(dir + "/config/autostart.sh")
+				is_success := utils.NewConfig().UpdateAutoStart("false")
+				if !is_success {
+					v.WriteHeader(http.StatusInternalServerError)
+					utils.ReturnJson("修改配置失败", "", v)
+					return
+				}
 			}
 		}
 
@@ -352,24 +374,28 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 
 	// 修改数据
 	if proxy == "proxy" {
-		is_success := utils.NewConfig().UpdateProxy("true")
-		if !is_success {
-			v.WriteHeader(http.StatusInternalServerError)
-			utils.ReturnJson("修改配置失败", "", v)
-			return
-		}
-		err := utils.UpdateProxy(ip, port)
-		if err != nil {
-			v.WriteHeader(http.StatusInternalServerError)
-			utils.ReturnJson(err.Error(), "", v)
-			return
+		if !isProxy {
+			is_success := utils.NewConfig().UpdateProxy("true")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
+			err := utils.UpdateProxy(ip, port)
+			if err != nil {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson(err.Error(), "", v)
+				return
+			}
 		}
 	} else {
-		is_success := utils.NewConfig().UpdateProxy("false")
-		if !is_success {
-			v.WriteHeader(http.StatusInternalServerError)
-			utils.ReturnJson("修改配置失败", "", v)
-			return
+		if isProxy {
+			is_success := utils.NewConfig().UpdateProxy("false")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败", "", v)
+				return
+			}
 		}
 	}
 
