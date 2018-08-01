@@ -1,15 +1,15 @@
 package utils
 
 import (
-	"time"
-	"os"
-	"fmt"
-	"os/exec"
 	"encoding/json"
 	"io/ioutil"
-	"strings"
-	"runtime"
+	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
+	"strings"
+	"time"
+
 	"github.com/pkg/errors"
 )
 
@@ -299,14 +299,13 @@ func StartProxy(ip, port string) (err error) {
 		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 		output, _ := cmd.CombinedOutput()
 		outputStr := string(output)
-		if !strings.Contains(outputStr, "success") {
+		if outputStr != "" {
 			return errors.New("设置失败")
 		}
 
 	case "darwin":
-		cmd := exec.Command("/bin/bash", "-c", dir + "/config/httpProxy.sh " + ip + " " + port)
-		output, _ := cmd.CombinedOutput()
-		fmt.Println(string(output))
+		cmd := exec.Command("/bin/bash", "-c", dir+"/config/httpProxy.sh "+ip+" "+port)
+		cmd.CombinedOutput()
 	case "linux":
 		addr := ip + ":" + port
 		home := os.Getenv("HOME")
@@ -316,15 +315,15 @@ func StartProxy(ip, port string) (err error) {
 			return
 		}
 		content := string(contentByte)
-		if !strings.Contains(content, dir + "/config/linux_proxy.sh") {
+		if !strings.Contains(content, dir+"/config/linux_proxy.sh") {
 			content = content + `
 . ` + dir + `/config/linux_proxy.sh`
-			err = ioutil.WriteFile(home + "/.bashrc", []byte(content), 0777)
+			err = ioutil.WriteFile(home+"/.bashrc", []byte(content), 0777)
 		}
 		shContent := `#!/bin/sh
 export http_proxy=` + addr + `
 export https_proxy=` + addr
-		err = ioutil.WriteFile(dir + "/config/linux_proxy.sh", []byte(shContent), 0777)
+		err = ioutil.WriteFile(dir+"/config/linux_proxy.sh", []byte(shContent), 0777)
 	}
 	return
 }
@@ -335,13 +334,9 @@ func StopProxy(ip, port string) {
 		command := dir + "/config/proxysetting.exe stop"
 		commandSlice := strings.Split(command, " ")
 		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-		output, _ := cmd.CombinedOutput()
-		outputStr := string(output)
-		if !strings.Contains(outputStr, "success") {
-			return errors.New("设置失败")
-		}
+		cmd.CombinedOutput()
 	case "darwin":
-		cmd := exec.Command("/bin/bash", "-c", dir + "/config/httpProxy.sh " + ip + " " + port + " close")
+		cmd := exec.Command("/bin/bash", "-c", dir+"/config/httpProxy.sh "+ip+" "+port+" close")
 		cmd.CombinedOutput()
 	case "linux":
 		os.Remove(dir + "/config/linux_proxy.sh")
