@@ -314,6 +314,25 @@
     initData()
 
     function add() {
+        var name = $('form').eq(1).find("input[name=name]").val()
+        var command = $('form').eq(1).find("textarea[name=command]").val()
+        if (name == "") {
+            $.notify("代理名不能为空", {
+                className: "error",
+                elementPosition: "top right",
+                arrowShow: false
+            })
+            return
+        }
+        if (command == "") {
+            $.notify("代理命令不能为空", {
+                className: "error",
+                elementPosition: "top right",
+                arrowShow: false
+            })
+            return
+        }
+
         $.ajax({
             type: "POST",
             cache: false,
