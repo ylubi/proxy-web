@@ -32,12 +32,17 @@
                 data-target="#settingModal">
             <span class="glyphicon glyphicon-cog"></span> 系统配置
         </button>
-
+        <button class="btn btn-default ng-binding add" onclick="logout(1)">
+            <span class="glyphicon glyphicon-share-alt"></span> 退出
+        </button>
+        <div style="color: #fff; float:right;">
+            goproxy-sdk版本: v{{.proxy_version}}, proxy-web版本：{{.version}}
+        </div>
         <!-- <button class="btn btn-default ng-binding" data-toggle="modal" data-target="#keygenModal">
              <span class="glyphicon glyphicon-lock"></span> 生成加密证书
          </button> -->
-
     </div>
+
 </div>
 
 <div class="modal fade" id="settingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
@@ -264,7 +269,7 @@
 <script type="text/javascript" src="/static/webupload/webuploader.js"></script>
 <script type="text/javascript">
 
-    var html = '<div class="plan" onmouseover="addId(this)" onmouseout="removeId(this)">\n' +
+    var html = '<div class="plan">\n' +
             '        <h3><span class="statusSpan"></span></h3>\n' +
             '        <ul>\n' +
             '            <li><b>名称：</b> <span class="nameSpan"></span></li>\n' +
@@ -371,7 +376,7 @@
                 })
                 $(ob).hide()
                 $(ob).siblings('.closed').show()
-                $(ob).find('.statusSpan').html("已开启")
+                $(ob).parent(".plan").find('.statusSpan').html("已开启")
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 if (XMLHttpRequest.status == 500) {
@@ -402,7 +407,7 @@
                 })
                 $(ob).hide()
                 $(ob).siblings('.link').show()
-                $(ob).find('.statusSpan').html("未开启")
+                $(ob).parent(".plan").find('.statusSpan').html("未开启")
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 if (XMLHttpRequest.status == 500) {
@@ -638,28 +643,43 @@
         });
     }
 
-    $(function () {
-        domain = window.location.host
-        domainSlice = domain.split(":")
-        var wsUri = "ws://" + domainSlice[0] + ":8222/websocket";
-        websocket = new WebSocket(wsUri);
-
-        websocket.onopen = function () {
-            websocket.send("Hello WebSockets!");
-        }
-    })
-
+    // $(function () {
+    //     domain = window.location.host
+    //     domainSlice = domain.split(":")
+    //     var wsUri = "ws://" + domainSlice[0] + ":8222/websocket";
+    //     websocket = new WebSocket(wsUri);
+    //
+    //     websocket.onopen = function () {
+    //         websocket.send("Hello WebSockets!");
+    //     }
+    // })
+    //
     window.onbeforeunload = function () {
-        websocket.send("close")
-        websocket.close()
+        logout(2)
     }
 
-    function addId(ob) {
-        $(ob).attr("id","most-popular");
-    }
+    //function addId(ob) {
+      //  $(ob).attr("id","most-popular");
+    //}
 
-    function removeId(ob) {
-        $(ob).attr("id","");
+    //function removeId(ob) {
+      //  $(ob).attr("id","");
+    //}
+
+    function logout(type){
+        $.ajax({
+            type: "POST",
+            cache: false,
+            url: "/logout",
+            data: "type=" + type,
+            dataType: "json",
+            success: function (res) {
+                window.location.href = "/"
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.notify(XMLHttpRequest.responseJSON.msg, "error")
+            }
+        });
     }
 
 </script>

@@ -235,7 +235,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 			err := utils.StartProxy(ip, port)
 			if err != nil {
 				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
+				utils.ReturnJson("修改配置失败,请使用root权限操作", err.Error(), v)
 				return
 			}
 		}
@@ -251,7 +251,6 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 
 		if auto == "auto" {
 			if !isAutoStart {
-				fmt.Println(12312)
 				command := dir + `/config/autostart.exe enable -k proxy-web -n proxy-web -c`
 				commandSlice := strings.Split(command, " ")
 				commandSlice = append(commandSlice, dir+`/proxy-web.exe c:`)
@@ -260,13 +259,13 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 				outputStr := string(output)
 				if !strings.Contains(outputStr, "Done") {
 					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败", "", v)
+					utils.ReturnJson("修改配置失败,请使用root权限操作", outputStr, v)
 					return
 				}
 				is_success := utils.NewConfig().UpdateAutoStart("true")
 				if !is_success {
 					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败", "", v)
+					utils.ReturnJson("修改配置失败,请使用root权限操作", "", v)
 					return
 				}
 			}
@@ -280,13 +279,13 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 				outputStr := string(output)
 				if !strings.Contains(outputStr, "Done") {
 					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败", "", v)
+					utils.ReturnJson("修改配置失败,请使用root权限操作", outputStr, v)
 					return
 				}
 				is_success := utils.NewConfig().UpdateAutoStart("false")
 				if !is_success {
 					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败", "", v)
+					utils.ReturnJson("修改配置失败,请使用root权限操作", "", v)
 					return
 				}
 			}
@@ -302,13 +301,13 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 				output, err := cmd.CombinedOutput()
 				if err != nil {
 					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson(string(output), "", v)
+					utils.ReturnJson("修改配置失败,请使用root权限操作", string(output), v)
 					return
 				}
 				is_success := utils.NewConfig().UpdateAutoStart("true")
 				if !is_success {
 					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败", "", v)
+					utils.ReturnJson("修改配置失败,请使用root权限操作", "", v)
 					return
 				}
 			}
@@ -318,11 +317,10 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 				commandSlice := strings.Split(command, " ")
 				cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 				output, _ := cmd.CombinedOutput()
-				fmt.Println(string(output))
 				is_success := utils.NewConfig().UpdateAutoStart("false")
 				if !is_success {
 					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败", "", v)
+					utils.ReturnJson("修改配置失败,请使用root权限操作", string(output), v)
 					return
 				}
 			}
@@ -335,13 +333,13 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 				err := ioutil.WriteFile(dir+"/config/autostart.sh", []byte(data), 0777)
 				if err != nil {
 					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败", "", v)
+					utils.ReturnJson("修改配置失败,请使用root权限操作", "", v)
 					return
 				}
 				fd, err := os.OpenFile("/etc/crontab", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
 				if err != nil {
 					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败", "", v)
+					utils.ReturnJson("修改配置失败,请使用root权限操作", "", v)
 					return
 				}
 				defer fd.Close()
@@ -354,7 +352,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 				is_success := utils.NewConfig().UpdateAutoStart("true")
 				if !is_success {
 					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败", "", v)
+					utils.ReturnJson("修改配置失败,请使用root权限操作", "", v)
 					return
 				}
 			}
@@ -364,7 +362,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 				is_success := utils.NewConfig().UpdateAutoStart("false")
 				if !is_success {
 					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败", "", v)
+					utils.ReturnJson("修改配置失败,请使用root权限操作", "", v)
 					return
 				}
 			}
@@ -378,7 +376,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 			is_success := utils.NewConfig().UpdateProxy("true")
 			if !is_success {
 				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
+				utils.ReturnJson("修改配置失败,请使用root权限操作", "", v)
 				return
 			}
 			err := utils.UpdateProxy(ip, port)
@@ -393,7 +391,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 			is_success := utils.NewConfig().UpdateProxy("false")
 			if !is_success {
 				v.WriteHeader(http.StatusInternalServerError)
-				utils.ReturnJson("修改配置失败", "", v)
+				utils.ReturnJson("修改配置失败,请使用root权限操作", "", v)
 				return
 			}
 		}

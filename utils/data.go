@@ -300,12 +300,16 @@ func StartProxy(ip, port string) (err error) {
 		output, _ := cmd.CombinedOutput()
 		outputStr := string(output)
 		if outputStr != "" {
-			return errors.New("设置失败")
+			return errors.New(outputStr)
 		}
 
 	case "darwin":
 		cmd := exec.Command("/bin/bash", "-c", dir+"/config/httpProxy.sh "+ip+" "+port)
-		cmd.CombinedOutput()
+		output, _ := cmd.CombinedOutput()
+		outputStr := string(output)
+		if !strings.Contains(outputStr, "successfully") {
+			return errors.New(outputStr)
+		}
 	case "linux":
 		addr := ip + ":" + port
 		home := os.Getenv("HOME")
@@ -319,26 +323,42 @@ func StartProxy(ip, port string) (err error) {
 			content = content + `
 . ` + dir + `/config/linux_proxy.sh`
 			err = ioutil.WriteFile(home+"/.bashrc", []byte(content), 0777)
+			if err != nil {
+				return err
+			}
 		}
 		shContent := `#!/bin/sh
 export http_proxy=` + addr + `
 export https_proxy=` + addr
 		err = ioutil.WriteFile(dir+"/config/linux_proxy.sh", []byte(shContent), 0777)
+		if err != nil {
+			return err
+		}
 	}
 	return
 }
 
-func StopProxy(ip, port string) {
+func StopProxy(ip, port string) (err error) {
 	switch runtime.GOOS {
 	case "windows":
 		command := dir + "/config/proxysetting.exe stop"
 		commandSlice := strings.Split(command, " ")
 		cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-		cmd.CombinedOutput()
+		output, _ := cmd.CombinedOutput()
+		outputStr := string(output)
+		if outputStr != "" {
+			return errors.New(outputStr)
+		}
 	case "darwin":
 		cmd := exec.Command("/bin/bash", "-c", dir+"/config/httpProxy.sh "+ip+" "+port+" close")
-		cmd.CombinedOutput()
+		output, _ := cmd.CombinedOutput()
+		outputStr := string(output)
+		if !strings.Contains(outputStr, "successfully") {
+			return errors.New(outputStr)
+		}
 	case "linux":
 		os.Remove(dir + "/config/linux_proxy.sh")
 	}
+
+	return
 }

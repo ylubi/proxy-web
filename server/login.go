@@ -26,12 +26,13 @@ func doLogin(v http.ResponseWriter, r *http.Request) {
 	}
 	sess, _ := globalSessions.SessionStart(v, r)
 	newSessionId := sess.SessionID()
-	if lock && sessionId != newSessionId {
+	if lock && (sessionId != newSessionId && sessionId != "") {
 		v.WriteHeader(http.StatusInternalServerError)
 		utils.ReturnJson("已有人登陆", "", v)
 		return
 	}
-	if (r.Form["username"][0] == username) && (r.Form["password"][0] == password) {
+	if (r.Form.Get("username") == username) && (r.Form.Get("password") == password) {
+		lock = true
 		sessionId = sess.SessionID()
 		defer sess.SessionRelease(v)
 		utils.ReturnJson("success", "", v)
@@ -40,4 +41,17 @@ func doLogin(v http.ResponseWriter, r *http.Request) {
 
 	v.WriteHeader(http.StatusInternalServerError)
 	utils.ReturnJson("登陆失败", "", v)
+}
+
+func logout(v http.ResponseWriter, r *http.Request){
+	r.ParseForm()
+	logoutType := r.Form.Get("type")
+	if logoutType == "1" {
+		lock = false
+		sessionId = ""
+	} else {
+		lock = false
+	}
+
+	utils.ReturnJson("success", "", v)
 }

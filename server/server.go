@@ -11,7 +11,6 @@ import (
 
 	"github.com/astaxie/beego/session"
 	"github.com/snail007/goproxy/sdk/android-ios"
-	"golang.org/x/net/websocket"
 )
 
 var globalSessions *session.Manager
@@ -38,7 +37,7 @@ func StartServer() {
 	dir = strings.Replace(dir, "\\", "/", -1)
 
 	// 启动一个websocket，判断是否有人登陆
-	go StartWebscoket()
+	//go StartWebscoket()
 	SetProxy()
 	AutoStart()
 	InitShowLog()
@@ -55,11 +54,13 @@ func StartServer() {
 	http.HandleFunc("/saveSetting", saveSetting)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/doLogin", doLogin)
+	http.HandleFunc("/logout", logout)
 	//http.Handle("/keygen", basicAuth(keygen))
 	port, err := utils.NewConfig().GetServerPort()
 	if err != nil {
 		log.Fatal("get port failure: ", err)
 	}
+	fmt.Println("proxy-web: 127.0.0.1:"+port)
 	err = http.ListenAndServe(port, nil)
 	if err != nil {
 		log.Fatal("listen port failure", err)
@@ -128,24 +129,23 @@ func SetProxy() {
 	utils.StartProxy(data["ip"], data["port"])
 }
 
-func StartWebscoket() {
-	http.Handle("/websocket", websocket.Handler(svrConnHandler))
-	log.Fatal(http.ListenAndServe(":8222", nil))
-}
-
-func svrConnHandler(conn *websocket.Conn) {
-	request := make([]byte, 128)
-	defer conn.Close()
-	readLen, err := conn.Read(request)
-	if err != nil {
-		return
-	}
-
-	if string(request[:readLen]) == "close" {
-		lock = false
-	} else {
-		lock = true
-	}
-
-	request = make([]byte, 128)
-}
+//func StartWebscoket() {
+//	http.Handle("/websocket", websocket.Handler(svrConnHandler))
+//	log.Fatal(http.ListenAndServe(":8222", nil))
+//}
+//
+//func svrConnHandler(conn *websocket.Conn) {
+//	request := make([]byte, 128)
+//	defer conn.Close()
+//	readLen, err := conn.Read(request)
+//	if err != nil {
+//		return
+//	}
+//
+//	if string(request[:readLen]) == "close" {
+//		lock = false
+//	} else {
+//		lock = true
+//	}
+//
+//}
