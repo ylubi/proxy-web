@@ -124,9 +124,9 @@ body{
     position: relative;
     padding: 8px 20px;
     margin: 20px 0 0 0;
-    color: #74ebe6;
+    color: #74ebe6 !important;
     text-transform: uppercase;
-    text-decoration: none;
+    text-decoration: none !important;
     display: inline-block;
     cursor:pointer;
     background-color: #000;
