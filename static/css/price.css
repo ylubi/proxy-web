@@ -90,6 +90,7 @@ body{
 
 #pricing-table h3 span {
     display: block;
+    cursor:pointer;
     font: bold 25px/100px Georgia, Serif;
     color: #777;
     background: #fff;
@@ -122,8 +123,8 @@ body{
 
 .signup {
     position: relative;
-    padding: 8px 20px;
-    margin: 20px 0 0 0;
+    padding: 8px 13px;
+    margin: 20px 0 10px 0;
     color: #74ebe6 !important;
     text-transform: uppercase;
     text-decoration: none !important;

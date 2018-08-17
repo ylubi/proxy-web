@@ -270,15 +270,14 @@
 <script type="text/javascript">
 
     var html = '<div class="plan">\n' +
-            '        <h3><span class="statusSpan"></span></h3>\n' +
+            '        <h3 class="link"><span onclick="link(this)">连接</span></h3>\n' +
+            '        <h3 class="closed" style="display: none;"><span onclick="closed(this)" >关闭</span></h3>\n' +
             '        <ul>\n' +
             '            <li><b>名称：</b> <span class="nameSpan"></span></li>\n' +
             '            <li><b>参数：</b> <br> <span class="commandSpan"></span></li>\n' +
             '            <li><b>自启动：</b><span class="autoSpan"></span></li>\n' +
             '            <li><b>记录日志：</b> <span class="logSpan"></span></li>\n' +
             '        </ul> \n' +
-            '        <a class="link signup" onclick="link(this)">连接</a> ' +
-            '        <a class="closed signup" onclick="closed(this)" style="display:none;">关闭</a> ' +
             '        <a class="log signup" onclick="showLog(this)">日志</a> ' +
             '        <a class="update signup" onclick="getData(this)">修改</a> ' +
             '        <a class="delete signup" onclick="confirmDel(this)">删除</a> ' +
@@ -306,7 +305,6 @@
         $('.log').eq(-1).attr('id', data['id'])
         $('.commandSpan').eq(-1).html(data['command'])
         $('.nameSpan').eq(-1).html(data['name'])
-        $('.statusSpan').eq(-1).html(data['status'])
         $('.autoSpan').eq(-1).html(data['auto_start'])
         $('.logSpan').eq(-1).html(data['log'])
 
@@ -361,7 +359,7 @@
 
     function link(ob) {
         $(ob).prop('disabled', true)
-        var id = $(ob).siblings('.log').attr('id')
+        var id = $(ob).parents(".plan").find('.log').attr('id')
         $.ajax({
             type: "POST",
             cache: false,
@@ -369,18 +367,17 @@
             data: "id=" + id,
             dataType: "json",
             success: function (res) {
-                $(ob).notify("启动成功", {
+                $(ob).parents(".plan").notify("启动成功", {
                     className: "success",
-                    elementPosition: "bottom right",
+                    elementPosition: "top left",
                     arrowShow: false
                 })
-                $(ob).hide()
-                $(ob).siblings('.closed').show()
-                $(ob).parent(".plan").find('.statusSpan').html("已开启")
+                $(ob).parent("h3").hide()
+                $(ob).parent("h3").siblings('.closed').show()
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 if (XMLHttpRequest.status == 500) {
-                    $(ob).notify(XMLHttpRequest.responseJSON.msg, {
+                    $(ob).parent("h3").notify(XMLHttpRequest.responseJSON.msg, {
                         className: "error",
                         elementPosition: "top right",
                         arrowShow: false
@@ -392,7 +389,7 @@
 
     function closed(ob) {
         $('ob').prop('disabled', false)
-        var id = $(ob).siblings('.log').attr('id')
+        var id = $(ob).parents(".plan").find('.log').attr('id')
         $.ajax({
             type: "POST",
             cache: false,
@@ -400,18 +397,17 @@
             data: "id=" + id,
             dataType: "json",
             success: function (res) {
-                $(ob).notify("关闭成功", {
+                $(ob).parents(".plan").notify("关闭成功", {
                     className: "success",
-                    elementPosition: "bottom right",
+                    elementPosition: "top right",
                     arrowShow: false
                 })
-                $(ob).hide()
-                $(ob).siblings('.link').show()
-                $(ob).parent(".plan").find('.statusSpan').html("未开启")
+                $(ob).parent("h3").hide()
+                $(ob).parent("h3").siblings('.link').show()
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 if (XMLHttpRequest.status == 500) {
-                    $(ob).notify(XMLHttpRequest.responseJSON.msg, {
+                    $(ob).parent("h3").notify(XMLHttpRequest.responseJSON.msg, {
                         className: "error",
                         elementPosition: "top right",
                         arrowShow: false
@@ -497,8 +493,8 @@
 
     function getData(ob) {
         var id = $(ob).siblings('.log').attr('id')
-        var status = $(ob).parent(".plan").find('.statusSpan').html()
-        if (status == '已开启') {
+        var status = $(ob).parents(".plan").find('.link').css("display")
+        if (status == 'none') {
             $(ob).notify('已开启的代理不能修改！')
             return
         }
@@ -564,8 +560,8 @@
 
     function confirmDel(ob) {
         $('.del').removeClass('del')
-        var status = $(ob).find('.statusSpan').html()
-        if (status == '已开启') {
+        var status = $(ob).parents(".plan").find('.link').css("display")
+        if (status == 'none') {
             $(ob).notify('已开启的代理不能删除！')
             return
         }

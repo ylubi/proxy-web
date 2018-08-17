@@ -187,6 +187,7 @@ func InitParams() (datas []map[string]interface{}, err error) {
 }
 
 func GetAllParams() (datas []map[string]interface{}, err error) {
+	datas = make([]map[string]interface{}, 0)
 	filePath, err := NewConfig().GetServicesFilePath()
 	fd, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
