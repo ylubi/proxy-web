@@ -497,7 +497,7 @@
 
     function getData(ob) {
         var id = $(ob).siblings('.log').attr('id')
-        var status = $(ob).find('.statusSpan').html()
+        var status = $(ob).parent(".plan").find('.statusSpan').html()
         if (status == '已开启') {
             $(ob).notify('已开启的代理不能修改！')
             return
