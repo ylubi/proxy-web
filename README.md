@@ -40,7 +40,7 @@ v 2.0 全面更新
 
 
 ### 依赖包
-[github.com/snail007/goproxy/sdk](https://github.com/snail007/goproxy/blob/master/sdk/README.md)goproxy的sdk
+[github.com/snail007/goproxy/sdk](https://github.com/snail007/goproxy/blob/master/sdk/README.md)goproxy的sdk  
 [github.com/Unknwon/goconfig](https://github.com/Unknwon/goconfig)解析配置文件  
 [github.com/astaxie/beego/tree/master/session](https://github.com/astaxie/beego/tree/master/session) session模块  
 这些依赖已经在源码内解决，无需go get
