@@ -33,6 +33,16 @@
 			"Rev": "f16688817aa428d10361394015b40d096b680542"
 		},
 		{
+			"ImportPath": "github.com/go-ole/go-ole",
+			"Comment": "v1.2.1-4-ga1ec82a",
+			"Rev": "a1ec82a652ebc7e784d7df887cfb31061aeabbcc"
+		},
+		{
+			"ImportPath": "github.com/go-ole/go-ole/oleutil",
+			"Comment": "v1.2.1-4-ga1ec82a",
+			"Rev": "a1ec82a652ebc7e784d7df887cfb31061aeabbcc"
+		},
+		{
 			"ImportPath": "github.com/gobwas/httphead",
 			"Rev": "2c6c146eadee0b69f856f87e3e9f1d0cd6aad2f5"
 		},
