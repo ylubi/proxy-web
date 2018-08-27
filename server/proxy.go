@@ -251,15 +251,10 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 
 		if auto == "auto" {
 			if !isAutoStart {
-				command := dir + `/config/autostart.exe enable -k proxy-web -n proxy-web -c`
-				commandSlice := strings.Split(command, " ")
-				commandSlice = append(commandSlice, dir+`/proxy-web.exe c:`)
-				cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-				output, _ := cmd.CombinedOutput()
-				outputStr := string(output)
-				if !strings.Contains(outputStr, "Done") {
+				err := utils.StartWindowsAutoStart()
+				if err != nil {
 					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败,请使用root权限操作", outputStr, v)
+					utils.ReturnJson("修改配置失败,请使用root权限操作", "", v)
 					return
 				}
 				is_success := utils.NewConfig().UpdateAutoStart("true")
@@ -272,22 +267,13 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 
 		} else {
 			if isAutoStart {
-				command := dir + `/config/autostart.exe disable -k proxy-web`
-				commandSlice := strings.Split(command, " ")
-				cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
-				output, _ := cmd.CombinedOutput()
-				outputStr := string(output)
-				if !strings.Contains(outputStr, "Done") {
-					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败,请使用root权限操作", outputStr, v)
-					return
-				}
-				is_success := utils.NewConfig().UpdateAutoStart("false")
-				if !is_success {
-					v.WriteHeader(http.StatusInternalServerError)
-					utils.ReturnJson("修改配置失败,请使用root权限操作", "", v)
-					return
-				}
+				utils.StopWindowsAutoStart()
+			}
+			is_success := utils.NewConfig().UpdateAutoStart("false")
+			if !is_success {
+				v.WriteHeader(http.StatusInternalServerError)
+				utils.ReturnJson("修改配置失败,请使用root权限操作", "", v)
+				return
 			}
 		}
 
