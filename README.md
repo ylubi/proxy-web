@@ -49,13 +49,13 @@ v 2.0 全面更新
 使用48080端口进入页面（如：localhost:48080），首先到登录页面  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/login.png?raw=true" />  
 账号密码都为admin，登录进入  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/empty.png?raw=true" />  
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/empty.jpg?raw=true" />
 点击，添加代理，显示添加代理的弹框，可以选择代理是否开启proxy-web服务时也自动启动  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/add.png?raw=true" />   
 修改操作  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/update.png?raw=true" />  
 启动操作  
-<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/start.png?raw=true" />  
+<img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/start.jpg?raw=true" />
 查看日志操作  
 <img src="https://github.com/yincongcyincong/proxy-web/raw/master/docs/image/log.png?raw=true" />  
 删除操作  
