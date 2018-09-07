@@ -1,17 +1,19 @@
 package tcp
 
 import (
-	"bufio"
+	"crypto/tls"
 	"fmt"
-	"io"
 	logger "log"
 	"net"
 	"runtime/debug"
+	"strings"
 	"time"
 
 	"github.com/snail007/goproxy/services"
 	"github.com/snail007/goproxy/services/kcpcfg"
 	"github.com/snail007/goproxy/utils"
+	"github.com/snail007/goproxy/utils/jumper"
+	"github.com/snail007/goproxy/utils/mapx"
 
 	"strconv"
 )
@@ -28,27 +30,37 @@ type TCPArgs struct {
 	Timeout             *int
 	CheckParentInterval *int
 	KCP                 kcpcfg.KCPConfigArgs
+	Jumper              *string
 }
-
+type UDPConnItem struct {
+	conn      *net.Conn
+	isActive  bool
+	touchtime int64
+	srcAddr   *net.UDPAddr
+	localAddr *net.UDPAddr
+	udpConn   *net.UDPConn
+	connid    string
+}
 type TCP struct {
-	outPool   utils.OutConn
 	cfg       TCPArgs
 	sc        *utils.ServerChannel
 	isStop    bool
-	userConns utils.ConcurrentMap
+	userConns mapx.ConcurrentMap
 	log       *logger.Logger
+	jumper    *jumper.Jumper
+	udpConns  mapx.ConcurrentMap
 }
 
 func NewTCP() services.Service {
 	return &TCP{
-		outPool:   utils.OutConn{},
 		cfg:       TCPArgs{},
 		isStop:    false,
-		userConns: utils.NewConcurrentMap(),
+		userConns: mapx.NewConcurrentMap(),
+		udpConns:  mapx.NewConcurrentMap(),
 	}
 }
 func (s *TCP) CheckArgs() (err error) {
-	if *s.cfg.Parent == "" {
+	if len(*s.cfg.Parent) == 0 {
 		err = fmt.Errorf("parent required for %s %s", *s.cfg.LocalType, *s.cfg.Local)
 		return
 	}
@@ -62,10 +74,23 @@ func (s *TCP) CheckArgs() (err error) {
 			return
 		}
 	}
+	if *s.cfg.Jumper != "" {
+		if *s.cfg.ParentType != "tls" && *s.cfg.ParentType != "tcp" {
+			err = fmt.Errorf("jumper only worked of -T is tls or tcp")
+			return
+		}
+		var j jumper.Jumper
+		j, err = jumper.New(*s.cfg.Jumper, time.Millisecond*time.Duration(*s.cfg.Timeout))
+		if err != nil {
+			err = fmt.Errorf("parse jumper fail, err %s", err)
+			return
+		}
+		s.jumper = &j
+	}
 	return
 }
 func (s *TCP) InitService() (err error) {
-	s.InitOutConnPool()
+	s.UDPGCDeamon()
 	return
 }
 func (s *TCP) StopService() {
@@ -74,8 +99,14 @@ func (s *TCP) StopService() {
 		if e != nil {
 			s.log.Printf("stop tcp service crashed,%s", e)
 		} else {
-			s.log.Printf("service tcp stopped")
+			s.log.Printf("service tcp stoped")
 		}
+		s.cfg = TCPArgs{}
+		s.jumper = nil
+		s.log = nil
+		s.sc = nil
+		s.userConns = nil
+		s = nil
 	}()
 	s.isStop = true
 	if s.sc.Listener != nil && *s.sc.Listener != nil {
@@ -97,7 +128,7 @@ func (s *TCP) Start(args interface{}, log *logger.Logger) (err error) {
 	if err = s.InitService(); err != nil {
 		return
 	}
-	s.log.Printf("use %s parent %s", *s.cfg.ParentType, *s.cfg.Parent)
+	s.log.Printf("use %s parent %v", *s.cfg.ParentType, *s.cfg.Parent)
 	host, port, _ := net.SplitHostPort(*s.cfg.Local)
 	p, _ := strconv.Atoi(port)
 	sc := utils.NewServerChannel(host, p, s.log)
@@ -127,6 +158,7 @@ func (s *TCP) callback(inConn net.Conn) {
 		}
 	}()
 	var err error
+	lbAddr := ""
 	switch *s.cfg.ParentType {
 	case "kcp":
 		fallthrough
@@ -135,18 +167,21 @@ func (s *TCP) callback(inConn net.Conn) {
 	case "tls":
 		err = s.OutToTCP(&inConn)
 	case "udp":
-		err = s.OutToUDP(&inConn)
+		s.OutToUDP(&inConn)
 	default:
 		err = fmt.Errorf("unkown parent type %s", *s.cfg.ParentType)
 	}
 	if err != nil {
-		s.log.Printf("connect to %s parent %s fail, ERR:%s", *s.cfg.ParentType, *s.cfg.Parent, err)
+		if !utils.IsNetClosedErr(err) {
+			s.log.Printf("connect to %s parent %s fail, ERR:%s", *s.cfg.ParentType, lbAddr, err)
+		}
 		utils.CloseConn(&inConn)
 	}
 }
 func (s *TCP) OutToTCP(inConn *net.Conn) (err error) {
+
 	var outConn net.Conn
-	outConn, err = s.outPool.Get()
+	outConn, err = s.GetParentConn()
 	if err != nil {
 		s.log.Printf("connect to %s , err:%s", *s.cfg.Parent, err)
 		utils.CloseConn(inConn)
@@ -168,68 +203,165 @@ func (s *TCP) OutToTCP(inConn *net.Conn) (err error) {
 	return
 }
 func (s *TCP) OutToUDP(inConn *net.Conn) (err error) {
-	s.log.Printf("conn created , remote : %s ", (*inConn).RemoteAddr())
+	var item *UDPConnItem
+	var body []byte
+	srcAddr := ""
+	defer func() {
+		if item != nil {
+			(*(*item).conn).Close()
+			(*item).udpConn.Close()
+			s.udpConns.Remove(srcAddr)
+			(*inConn).Close()
+		}
+	}()
 	for {
 		if s.isStop {
-			(*inConn).Close()
 			return
 		}
-		srcAddr, body, err := utils.ReadUDPPacket(bufio.NewReader(*inConn))
-		if err == io.EOF || err == io.ErrUnexpectedEOF {
-			//s.log.Printf("connection %s released", srcAddr)
-			utils.CloseConn(inConn)
-			break
-		}
-		//log.Debugf("udp packet revecived:%s,%v", srcAddr, body)
-		dstAddr, err := net.ResolveUDPAddr("udp", *s.cfg.Parent)
+		var srcAddr string
+		srcAddr, body, err = utils.ReadUDPPacket(*inConn)
 		if err != nil {
-			s.log.Printf("can't resolve address: %s", err)
-			utils.CloseConn(inConn)
-			break
+			if strings.Contains(err.Error(), "n != int(") {
+				continue
+			}
+			// if !utils.IsNetDeadlineErr(err) && err != io.EOF && !utils.IsNetClosedErr(err) {
+			// 	s.log.Printf("udp packet revecived from client fail, err: %s", err)
+			// }
+			return
 		}
-		clientSrcAddr := &net.UDPAddr{IP: net.IPv4zero, Port: 0}
-		conn, err := net.DialUDP("udp", clientSrcAddr, dstAddr)
-		if err != nil {
-			s.log.Printf("connect to udp %s fail,ERR:%s", dstAddr.String(), err)
-			continue
+		localAddr := *s.cfg.Parent
+		if v, ok := s.udpConns.Get(srcAddr); !ok {
+			_srcAddr, _ := net.ResolveUDPAddr("udp", srcAddr)
+			zeroAddr, _ := net.ResolveUDPAddr("udp", ":")
+			_localAddr, _ := net.ResolveUDPAddr("udp", localAddr)
+			var c *net.UDPConn
+			c, err = net.DialUDP("udp", zeroAddr, _localAddr)
+			if err != nil {
+				s.log.Printf("create local udp conn fail, err : %s", err)
+				(*inConn).Close()
+				return
+			}
+			item = &UDPConnItem{
+				conn:      inConn,
+				srcAddr:   _srcAddr,
+				localAddr: _localAddr,
+				udpConn:   c,
+			}
+			s.udpConns.Set(srcAddr, item)
+			s.UDPRevecive(srcAddr)
+		} else {
+			item = v.(*UDPConnItem)
 		}
-		conn.SetDeadline(time.Now().Add(time.Millisecond * time.Duration(*s.cfg.Timeout)))
-		_, err = conn.Write(body)
-		if err != nil {
-			s.log.Printf("send udp packet to %s fail,ERR:%s", dstAddr.String(), err)
-			continue
+		(*item).touchtime = time.Now().Unix()
+		go (*item).udpConn.Write(body)
+	}
+}
+func (s *TCP) UDPRevecive(key string) {
+	go func() {
+		defer func() {
+			if e := recover(); e != nil {
+				fmt.Printf("crashed:%s", string(debug.Stack()))
+			}
+		}()
+		s.log.Printf("udp conn %s connected", key)
+		v, ok := s.udpConns.Get(key)
+		if !ok {
+			s.log.Printf("[warn] udp conn not exists for %s", key)
+			return
 		}
-		//log.Debugf("send udp packet to %s success", dstAddr.String())
-		buf := make([]byte, 512)
-		len, _, err := conn.ReadFromUDP(buf)
-		if err != nil {
-			s.log.Printf("read udp response from %s fail ,ERR:%s", dstAddr.String(), err)
-			continue
+		cui := v.(*UDPConnItem)
+		buf := utils.LeakyBuffer.Get()
+		defer func() {
+			utils.LeakyBuffer.Put(buf)
+			(*cui.conn).Close()
+			cui.udpConn.Close()
+			s.udpConns.Remove(key)
+			s.log.Printf("udp conn %s released", key)
+		}()
+		for {
+			n, err := cui.udpConn.Read(buf)
+			if err != nil {
+				if !utils.IsNetClosedErr(err) {
+					s.log.Printf("udp conn read udp packet fail , err: %s ", err)
+				}
+				return
+			}
+			cui.touchtime = time.Now().Unix()
+			go func() {
+				defer func() {
+					if e := recover(); e != nil {
+						fmt.Printf("crashed:%s", string(debug.Stack()))
+					}
+				}()
+				(*cui.conn).SetWriteDeadline(time.Now().Add(time.Millisecond * time.Duration(*s.cfg.Timeout)))
+				_, err = (*cui.conn).Write(utils.UDPPacket(cui.srcAddr.String(), buf[:n]))
+				(*cui.conn).SetWriteDeadline(time.Time{})
+				if err != nil {
+					cui.udpConn.Close()
+					return
+				}
+			}()
 		}
-		respBody := buf[0:len]
-		//log.Debugf("revecived udp packet from %s , %v", dstAddr.String(), respBody)
-		_, err = (*inConn).Write(utils.UDPPacket(srcAddr, respBody))
-		if err != nil {
-			s.log.Printf("send udp response fail ,ERR:%s", err)
-			utils.CloseConn(inConn)
-			break
+	}()
+}
+func (s *TCP) UDPGCDeamon() {
+	gctime := int64(30)
+	go func() {
+		defer func() {
+			if e := recover(); e != nil {
+				fmt.Printf("crashed:%s", string(debug.Stack()))
+			}
+		}()
+		if s.isStop {
+			return
 		}
-		//s.log.Printf("send udp response success ,from:%s", dstAddr.String())
+		timer := time.NewTicker(time.Second)
+		for {
+			<-timer.C
+			gcKeys := []string{}
+			s.udpConns.IterCb(func(key string, v interface{}) {
+				if time.Now().Unix()-v.(*UDPConnItem).touchtime > gctime {
+					(*(v.(*UDPConnItem).conn)).Close()
+					(v.(*UDPConnItem).udpConn).Close()
+					gcKeys = append(gcKeys, key)
+					s.log.Printf("gc udp conn %s", key)
+				}
+			})
+			for _, k := range gcKeys {
+				s.udpConns.Remove(k)
+			}
+			gcKeys = nil
+		}
+	}()
+}
+func (s *TCP) GetParentConn() (conn net.Conn, err error) {
+	if *s.cfg.ParentType == "tls" {
+		if s.jumper == nil {
+			var _conn tls.Conn
+			_conn, err = utils.TlsConnectHost(*s.cfg.Parent, *s.cfg.Timeout, s.cfg.CertBytes, s.cfg.KeyBytes, nil)
+			if err == nil {
+				conn = net.Conn(&_conn)
+			}
+		} else {
+			conf, err := utils.TlsConfig(s.cfg.CertBytes, s.cfg.KeyBytes, nil)
+			if err != nil {
+				return nil, err
+			}
+			var _c net.Conn
+			_c, err = s.jumper.Dial(*s.cfg.Parent, time.Millisecond*time.Duration(*s.cfg.Timeout))
+			if err == nil {
+				conn = net.Conn(tls.Client(_c, conf))
+			}
+		}
+
+	} else if *s.cfg.ParentType == "kcp" {
+		conn, err = utils.ConnectKCPHost(*s.cfg.Parent, s.cfg.KCP)
+	} else {
+		if s.jumper == nil {
+			conn, err = utils.ConnectHost(*s.cfg.Parent, *s.cfg.Timeout)
+		} else {
+			conn, err = s.jumper.Dial(*s.cfg.Parent, time.Millisecond*time.Duration(*s.cfg.Timeout))
+		}
 	}
 	return
-
-}
-func (s *TCP) InitOutConnPool() {
-	if *s.cfg.ParentType == "tls" || *s.cfg.ParentType == "tcp" || *s.cfg.ParentType == "kcp" {
-		//dur int, isTLS bool, certBytes, keyBytes []byte,
-		//parent string, timeout int, InitialCap int, MaxCap int
-		s.outPool = utils.NewOutConn(
-			*s.cfg.CheckParentInterval,
-			*s.cfg.ParentType,
-			s.cfg.KCP,
-			s.cfg.CertBytes, s.cfg.KeyBytes, nil,
-			*s.cfg.Parent,
-			*s.cfg.Timeout,
-		)
-	}
 }
