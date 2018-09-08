@@ -11,8 +11,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/go-ole/go-ole"
-	"github.com/go-ole/go-ole/oleutil"
 )
 
 var dataFilePath string
@@ -367,31 +365,19 @@ func StopProxy(ip, port string) (err error) {
 }
 
 func StartWindowsAutoStart() (err error) {
-	ole.CoInitializeEx(0, ole.COINIT_APARTMENTTHREADED|ole.COINIT_SPEED_OVER_MEMORY)
-	oleShellObject, err := oleutil.CreateObject("WScript.Shell")
-	if err != nil {
-		return
-	}
-	defer oleShellObject.Release()
-	wshell, err := oleShellObject.QueryInterface(ole.IID_IDispatch)
-	if err != nil {
-		return
-	}
-	defer wshell.Release()
-
-	autoStartPath := os.Getenv("appdata") + "/Microsoft/Windows/Start Menu/Programs/Startup/proxy-web.lnk"
-	cs, err := oleutil.CallMethod(wshell, "CreateShortcut", autoStartPath)
-	if err != nil {
-		return
-	}
-	idispatch := cs.ToIDispatch()
-
 	runtimePath, err := getRuntimePath()
 	if err != nil {
 		return
 	}
-	oleutil.PutProperty(idispatch, "TargetPath", runtimePath+"/proxy-web.exe")
-	_, err = oleutil.CallMethod(idispatch, "Save")
+	command := dir + "/config/windows_autostart.exe -p " + runtimePath + " -n proxy-web"
+	commandSlice := strings.Split(command, " ")
+	cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
+	output, _ := cmd.CombinedOutput()
+	outputStr := string(output)
+	if !strings.Contains(outputStr, "success") {
+		return errors.New(outputStr)
+	}
+
 	return
 }
 
