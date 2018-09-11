@@ -26,7 +26,7 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
-var SDK_VERSION = "No Version Provided"
+var SDK_VERSION = "6.0"
 
 var (
 	app *kingpin.Application
