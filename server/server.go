@@ -14,7 +14,7 @@ import (
 )
 
 var globalSessions *session.Manager
-var version = "v2.0"
+var version = "v2.1"
 var lock = false
 var sessionId string
 var dir string
@@ -91,7 +91,7 @@ func AutoStart() {
 		if err != nil || !s.IsDir() {
 			os.Mkdir(dir+"/log/", os.ModePerm)
 		}
-		go autoRunCommand(data["id"].(string), command)
+		autoRunCommand(data["id"].(string), command)
 	}
 }
 
