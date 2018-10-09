@@ -90,7 +90,7 @@ func (c *Checker) start() {
 	go func() {
 		defer func() {
 			if e := recover(); e != nil {
-				fmt.Printf("crashed:%s", string(debug.Stack()))
+				fmt.Printf("crashed, err: %s\nstack:%s", e, string(debug.Stack()))
 			}
 		}()
 		//log.Printf("checker started")
@@ -100,7 +100,7 @@ func (c *Checker) start() {
 				go func(item CheckerItem) {
 					defer func() {
 						if e := recover(); e != nil {
-							fmt.Printf("crashed:%s", string(debug.Stack()))
+							fmt.Printf("crashed, err: %s\nstack:%s", e, string(debug.Stack()))
 						}
 					}()
 					if c.isNeedCheck(item) {
@@ -176,11 +176,9 @@ func (c *Checker) domainIsInMap(address string, blockedMap bool) bool {
 	}
 	domainSlice := strings.Split(u.Hostname(), ".")
 	if len(domainSlice) > 1 {
-		subSlice := domainSlice[:len(domainSlice)-1]
-		topDomain := strings.Join(domainSlice[len(domainSlice)-1:], ".")
-		checkDomain := topDomain
-		for i := len(subSlice) - 1; i >= 0; i-- {
-			checkDomain = subSlice[i] + "." + checkDomain
+		checkDomain := ""
+		for i := len(domainSlice) - 1; i >= 0; i-- {
+			checkDomain = strings.Join(domainSlice[i:], ".")
 			if !blockedMap && c.directMap.Has(checkDomain) {
 				return true
 			}
@@ -237,7 +235,7 @@ func (ba *BasicAuth) AddFromFile(file string) (n int, err error) {
 	}
 	userpassArr := strings.Split(strings.Replace(string(_content), "\r", "", -1), "\n")
 	for _, userpass := range userpassArr {
-		if strings.HasPrefix("#", userpass) {
+		if strings.HasPrefix(userpass, "#") {
 			continue
 		}
 		u := strings.Split(strings.Trim(userpass, " "), ":")
