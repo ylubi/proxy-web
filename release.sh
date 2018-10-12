@@ -57,3 +57,6 @@ GOOS=windows GOARCH=386 go build -ldflags "-H windowsgui" && mv proxy-web.exe pr
 GOOS=windows GOARCH=amd64 go build -ldflags "-H windowsgui" && mv proxy-web.exe proxy/proxy-web/proxy-web.exe && cd proxy && tar zcfv "../zip/proxy-web-windows-amd64.tar.gz" proxy-web && cd ..
 
 rm -rf proxy-web proxy-web.exe
+
+
+

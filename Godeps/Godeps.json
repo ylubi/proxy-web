@@ -115,158 +115,158 @@
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/core/cs/client",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/core/cs/server",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/core/dst",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/core/lib/buf",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/core/lib/kcpcfg",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/core/lib/transport",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/core/lib/transport/encrypt",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/sdk/android-ios",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/services",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/services/http",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/services/keygen",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/services/mux",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/services/socks",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/services/sps",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/services/tcp",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/services/tunnel",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/services/udp",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/aes",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/cert",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/conncrypt",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/datasize",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/dnsx",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/id",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/iolimiter",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/jumper",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/lb",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/mapx",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/sni",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/socks",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/goproxy/utils/ss",
-			"Comment": "v6.2",
-			"Rev": "6c586e2b785c25e6d0a4438f3ab203b81664d73b"
+			"Comment": "v6.1-9-g99881e2",
+			"Rev": "99881e2c702c6e1b4704bfb23aebe614d7d34285"
 		},
 		{
 			"ImportPath": "github.com/snail007/webtail",
