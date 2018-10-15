@@ -282,7 +282,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 			if !isAutoStart {
 				command := dir + `/config/autostart enable -k proxy -n proxy -c`
 				commandSlice := strings.Split(command, " ")
-				commandSlice = append(commandSlice, dir+"/proxy-web")
+				commandSlice = append(commandSlice, dir+"/"+executiveFileName)
 				cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 				output, err := cmd.CombinedOutput()
 				if err != nil {
@@ -315,7 +315,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 		if auto == "auto" {
 			if !isAutoStart {
 				data := `#!/bin/sh
-` + dir + `/proxy-web`
+` + dir + `/` + executiveFileName
 				err := ioutil.WriteFile(dir+"/config/autostart.sh", []byte(data), 0777)
 				if err != nil {
 					v.WriteHeader(http.StatusInternalServerError)

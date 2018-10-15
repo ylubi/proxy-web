@@ -11,6 +11,7 @@ import (
 
 	"github.com/astaxie/beego/session"
 	"github.com/snail007/goproxy/sdk/android-ios"
+	"os/exec"
 )
 
 var globalSessions *session.Manager
@@ -18,6 +19,7 @@ var version = "v2.1"
 var lock = false
 var sessionId string
 var dir string
+var executiveFileName string
 
 func basicAuth(handler func(http.ResponseWriter, *http.Request)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -33,6 +35,8 @@ func basicAuth(handler func(http.ResponseWriter, *http.Request)) http.Handler {
 
 func StartServer() {
 	// 文件路径
+	fullPath, _ := exec.LookPath(os.Args[0])
+	executiveFileName = filepath.Base(fullPath)
 	dir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
 	dir = strings.Replace(dir, "\\", "/", -1)
 
