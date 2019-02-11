@@ -169,19 +169,30 @@ func uploade(v http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 		t := time.Now().Unix()
+
+		// 判断文件夹是否存在, err不为nil是不存在
+		path := dir + "/upload/"
+		_, err = os.Stat(path)
+		if err != nil {
+			os.Mkdir(dir + "/upload/", os.ModePerm)
+		}
+
+		// 创建文件
 		fw, err := os.Create(dir + "/upload/" + strconv.FormatInt(t, 10) + fileSuffix)
-		defer fw.Close()
 		if err != nil {
 			v.WriteHeader(http.StatusInternalServerError)
 			utils.ReturnJson(err.Error(), "", v)
 			return
 		}
+		defer fw.Close()
+
 		_, err = io.Copy(fw, file)
 		if err != nil {
 			v.WriteHeader(http.StatusInternalServerError)
 			utils.ReturnJson(err.Error(), "", v)
 			return
 		}
+
 		name := fw.Name()
 		utils.ReturnJson("", name, v)
 		return
