@@ -169,19 +169,30 @@ func uploade(v http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 		t := time.Now().Unix()
+
+		// 判断文件夹是否存在, err不为nil是不存在
+		path := dir + "/upload/"
+		_, err = os.Stat(path)
+		if err != nil {
+			os.Mkdir(dir + "/upload/", os.ModePerm)
+		}
+
+		// 创建文件
 		fw, err := os.Create(dir + "/upload/" + strconv.FormatInt(t, 10) + fileSuffix)
-		defer fw.Close()
 		if err != nil {
 			v.WriteHeader(http.StatusInternalServerError)
 			utils.ReturnJson(err.Error(), "", v)
 			return
 		}
+		defer fw.Close()
+
 		_, err = io.Copy(fw, file)
 		if err != nil {
 			v.WriteHeader(http.StatusInternalServerError)
 			utils.ReturnJson(err.Error(), "", v)
 			return
 		}
+
 		name := fw.Name()
 		utils.ReturnJson("", name, v)
 		return
@@ -282,7 +293,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 			if !isAutoStart {
 				command := dir + `/config/autostart enable -k proxy -n proxy -c`
 				commandSlice := strings.Split(command, " ")
-				commandSlice = append(commandSlice, dir+"/proxy-web")
+				commandSlice = append(commandSlice, dir+"/"+executiveFileName)
 				cmd := exec.Command(commandSlice[0], commandSlice[1:]...)
 				output, err := cmd.CombinedOutput()
 				if err != nil {
@@ -315,7 +326,7 @@ func saveSetting(v http.ResponseWriter, r *http.Request) {
 		if auto == "auto" {
 			if !isAutoStart {
 				data := `#!/bin/sh
-` + dir + `/proxy-web`
+` + dir + `/` + executiveFileName
 				err := ioutil.WriteFile(dir+"/config/autostart.sh", []byte(data), 0777)
 				if err != nil {
 					v.WriteHeader(http.StatusInternalServerError)
